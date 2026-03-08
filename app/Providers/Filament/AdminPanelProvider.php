@@ -17,6 +17,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -24,6 +25,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
@@ -47,6 +49,18 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('assets/images/favicon.svg'))
             ->maxContentWidth(Width::Full)
             ->spa()
+            ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+                fn (): string => Blade::render('<x-filament::icon-button
+                    icon="heroicon-o-arrow-top-right-on-square"
+                    :href="url(\'/\')"
+                    tag="a"
+                    target="_blank"
+                    :tooltip="__(\'panel.view_site\')"
+                    :label="__(\'panel.view_site\')"
+                    color="gray"
+                />'),
+            )
             ->unsavedChangesAlerts()
             ->databaseTransactions()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
