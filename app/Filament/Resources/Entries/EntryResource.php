@@ -29,7 +29,7 @@ class EntryResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return ! static::hasConfiguration();
+        return static::hasConfiguration();
     }
 
     public static function getNavigationGroup(): string|UnitEnum|null
