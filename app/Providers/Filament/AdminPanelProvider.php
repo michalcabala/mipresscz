@@ -59,8 +59,6 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label(fn (): string => __('content.collections.navigation_group')),
                 NavigationGroup::make()
-                    ->label(fn (): string => __('users.navigation_group')),
-                NavigationGroup::make()
                     ->label(fn (): string => __('locales.navigation_group'))
                     ->collapsed(),
             ])
