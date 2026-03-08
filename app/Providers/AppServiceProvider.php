@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Entry;
+use App\Models\Locale;
 use App\Observers\EntryObserver;
+use App\Observers\LocaleObserver;
+use App\Services\LocaleService;
 use BezhanSalleh\LanguageSwitch\Enums\Placement;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Filament\Tables\Table;
@@ -12,17 +15,11 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        //
+        $this->app->singleton(LocaleService::class);
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         Gate::before(function ($user, $ability) {
@@ -30,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Entry::observe(EntryObserver::class);
+        Locale::observe(LocaleObserver::class);
 
         Table::configureUsing(function (Table $table): void {
             $table
@@ -39,16 +37,12 @@ class AppServiceProvider extends ServiceProvider
         });
 
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
+            $config = locales()->toLanguageSwitchConfig();
+
             $switch
-                ->locales(['cs', 'en'])
-                ->labels([
-                    'cs' => 'Čeština',
-                    'en' => 'English',
-                ])
-                ->flags([
-                    'cs' => asset('assets/flags/CZ.svg'),
-                    'en' => asset('assets/flags/GB-UKM.svg'),
-                ])
+                ->locales($config['locales'])
+                ->labels($config['labels'])
+                ->flags($config['flags'])
                 ->circular()
                 ->visible(outsidePanels: true)
                 ->outsidePanelPlacement(Placement::TopRight);

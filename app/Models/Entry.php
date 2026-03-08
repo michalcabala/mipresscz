@@ -234,9 +234,8 @@ class Entry extends Model
     public function getMissingLocales(): array
     {
         $available = $this->getAvailableLocales();
-        $all = config('app.locales', ['cs', 'en']);
 
-        return array_values(array_diff($all, $available));
+        return array_values(array_diff(locales()->getActiveCodes(), $available));
     }
 
     /**
@@ -277,6 +276,43 @@ class Entry extends Model
         $nonTranslatable = $origin->getNonTranslatableData();
 
         $this->data = array_merge($this->data ?? [], $nonTranslatable);
+    }
+
+    // ── URL & SEO ──
+
+    public function getFullUrl(): ?string
+    {
+        if (! $this->uri) {
+            return null;
+        }
+
+        $locale = locales()->findByCode($this->locale);
+        $prefix = $locale?->url_prefix ? '/'.$locale->url_prefix : '';
+
+        return url($prefix.$this->uri);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getHreflangTags(): array
+    {
+        $translations = $this->getTranslations();
+        $tags = [];
+
+        foreach ($translations as $localeCode => $entry) {
+            $url = $entry->getFullUrl();
+            if ($url) {
+                $tags[$localeCode] = $url;
+            }
+        }
+
+        $defaultLocale = locales()->getDefault();
+        if ($defaultLocale && isset($tags[$defaultLocale->code])) {
+            $tags['x-default'] = $tags[$defaultLocale->code];
+        }
+
+        return $tags;
     }
 
     // ── Slug & URI ──

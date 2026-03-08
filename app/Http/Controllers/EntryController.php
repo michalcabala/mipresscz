@@ -9,9 +9,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class EntryController extends Controller
 {
-    public function show(Request $request, string $uri): View
+    public function show(Request $request): View
     {
-        $uri = '/'.ltrim($uri, '/');
+        $uri = '/'.ltrim((string) $request->route('uri', ''), '/');
         $locale = app()->getLocale();
 
         $entry = Entry::query()

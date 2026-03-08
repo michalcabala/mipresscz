@@ -37,10 +37,11 @@ class EditEntry extends EditRecord
         $translations = $record->getTranslations();
         $missingLocales = $record->getMissingLocales();
 
-        $flagMap = [
-            'cs' => 'CZ.svg',
-            'en' => 'GB-UKM.svg',
-        ];
+        /** @var array<string, string> $flagMap code => filename */
+        $flagMap = locales()->getActive()
+            ->filter(fn ($l) => $l->flag !== null)
+            ->mapWithKeys(fn ($l) => [$l->code => $l->flag])
+            ->all();
 
         $currentLocale = $record->locale;
         $currentFlagFile = $flagMap[$currentLocale] ?? null;
