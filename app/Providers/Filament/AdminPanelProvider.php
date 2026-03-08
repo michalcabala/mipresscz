@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Resources\Entries\EntryResource;
+use App\Filament\Resources\Terms\TermResource;
 use App\Models\Collection;
 use Awcodes\Curator\CuratorPlugin;
 use Caresome\FilamentAuthDesigner\AuthDesignerPlugin;
@@ -13,6 +14,7 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -49,6 +51,7 @@ class AdminPanelProvider extends PanelProvider
             ->darkModeBrandLogo(asset('assets/images/mipress-logo-white.svg'))
             ->favicon(asset('assets/images/favicon.svg'))
             ->maxContentWidth(Width::Full)
+            ->sidebarCollapsibleOnDesktop()
             ->spa()
             ->navigationGroups([
                 NavigationGroup::make()
@@ -81,6 +84,7 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->resources($this->getCollectionResources())
+            ->navigationItems($this->getTaxonomyNavigationItems())
             ->plugins([
                 CuratorPlugin::make()
                     ->label('Médium')
@@ -147,6 +151,38 @@ class AdminPanelProvider extends PanelProvider
                 ->navigationIcon($collection->icon ?? 'fal-file-lines')
                 ->navigationSort($index + 1)
             )
+            ->all();
+    }
+
+    /**
+     * @return array<int, NavigationItem>
+     */
+    protected function getTaxonomyNavigationItems(): array
+    {
+        if (! Schema::hasTable('collection_taxonomy')) {
+            return [];
+        }
+
+        $contentGroup = __('content.entries.navigation_group');
+
+        return Collection::query()
+            ->where('is_active', true)
+            ->with(['taxonomies' => fn ($q) => $q->where('is_active', true)->orderBy('title')])
+            ->get()
+            ->flatMap(fn (Collection $collection) => $collection->taxonomies->map(
+                fn (\App\Models\Taxonomy $taxonomy) => NavigationItem::make("taxonomy-{$collection->handle}-{$taxonomy->handle}")
+                    ->label($taxonomy->title)
+                    ->icon('fal-tags')
+                    ->group($contentGroup)
+                    ->parentItem($collection->title)
+                    ->url(fn (): string => TermResource::getUrl('index', [
+                        'tableFilters' => [
+                            'taxonomy_id' => ['value' => $taxonomy->id],
+                        ],
+                    ]))
+                    ->isActiveWhen(fn (): bool => request()->url() === TermResource::getUrl('index'))
+                    ->sort(90)
+            ))
             ->all();
     }
 }

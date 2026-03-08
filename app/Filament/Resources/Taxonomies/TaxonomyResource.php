@@ -28,11 +28,6 @@ class TaxonomyResource extends Resource
         return __('content.taxonomies.navigation_group');
     }
 
-    public static function getNavigationParentItem(): ?string
-    {
-        return __('content.collections.navigation_label');
-    }
-
     public static function getModelLabel(): string
     {
         return __('content.taxonomies.label');
