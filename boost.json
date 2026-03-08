@@ -1,0 +1,12 @@
+{
+    "agents": [
+        "copilot"
+    ],
+    "packages": [
+        "filament/filament"
+    ],
+    "skills": [
+        "pest-testing",
+        "tailwindcss-development"
+    ]
+}
