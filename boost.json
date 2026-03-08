@@ -2,8 +2,12 @@
     "agents": [
         "copilot"
     ],
-    "guidelines": true,
     "packages": [
         "spatie/laravel-permission"
+    ],
+    "skills": [
+        "pest-testing",
+        "tailwindcss-development",
+        "laravel-permission-development"
     ]
 }

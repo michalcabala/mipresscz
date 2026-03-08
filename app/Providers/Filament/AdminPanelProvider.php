@@ -175,12 +175,8 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('fal-tags')
                     ->group($contentGroup)
                     ->parentItem($collection->title)
-                    ->url(fn (): string => TermResource::getUrl('index', [
-                        'tableFilters' => [
-                            'taxonomy_id' => ['value' => $taxonomy->id],
-                        ],
-                    ]))
-                    ->isActiveWhen(fn (): bool => request()->url() === TermResource::getUrl('index'))
+                    ->url(fn (): string => TermResource::getUrl('index').'?'.http_build_query(['taxonomy_id' => $taxonomy->id]))
+                    ->isActiveWhen(fn (): bool => request()->query('taxonomy_id') === $taxonomy->id)
                     ->sort(90)
             ))
             ->all();
