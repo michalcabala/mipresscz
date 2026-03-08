@@ -17,6 +17,8 @@ miPress is a modular CMS built on Laravel 12 + Filament 5, designed as a profess
 - caresome/filament-auth-designer — auth page design
 - awcodes/mason — block-based drag & drop page builder field for Filament
 - awcodes/filament-curator — media picker/manager plugin for Filament (replaces spatie/laravel-medialibrary for Filament UI)
+- openplain/filament-tree-view — drag & drop tree view page for hierarchical Filament resources
+- codewithdennis/filament-select-tree — hierarchical select field for Filament forms & table filters
 
 ## Project Structure
 - Filament panel: `admin` at `/mpcp` (AdminPanelProvider)
@@ -327,6 +329,171 @@ class CustomMedia extends Media
     protected $table = 'media';
 }
 // Set in config: 'model' => \App\Models\CustomMedia::class
+```
+
+## Filament Tree View (openplain/filament-tree-view)
+Drag & drop tree view page for hierarchical Filament resources. Replaces the list page with an interactive tree.
+
+### Key Facts
+- Requires `parent_id` (nullable FK) and `order` (integer) columns on the model
+- Model must use `Openplain\FilamentTreeView\Concerns\HasTreeStructure` trait
+- Tree page extends `Openplain\FilamentTreeView\Resources\Pages\TreePage`
+- Relation page extends `Openplain\FilamentTreeView\Resources\Pages\TreeRelationPage`
+- Supports UUID primary keys out of the box (keep `parent_id` nullable, do NOT override `getParentKeyDefaultValue()`)
+- After install: `php artisan filament:assets`
+
+### Model Setup
+```php
+use Illuminate\Database\Eloquent\Model;
+use Openplain\FilamentTreeView\Concerns\HasTreeStructure;
+
+class Category extends Model
+{
+    use HasTreeStructure;
+
+    protected $fillable = ['name', 'parent_id', 'order', 'is_active'];
+}
+```
+
+### Resource tree() Method
+```php
+use Openplain\FilamentTreeView\Fields\IconField;
+use Openplain\FilamentTreeView\Fields\TextField;
+use Openplain\FilamentTreeView\Tree;
+
+public static function tree(Tree $tree): Tree
+{
+    return $tree
+        ->fields([
+            TextField::make('name')->weight(FontWeight::Medium)->dimWhenInactive(),
+            IconField::make('is_active')->alignEnd(),
+        ])
+        ->maxDepth(5)           // limit nesting (default 10, null = unlimited)
+        ->collapsed()           // start collapsed
+        ->autoSave()            // save on drag (default: manual save)
+        ->recordActions([
+            EditAction::make()->url(fn ($record) => static::getUrl('edit', ['record' => $record])),
+            DeleteAction::make(),
+        ]);
+}
+```
+
+### Tree Page
+```php
+use Openplain\FilamentTreeView\Resources\Pages\TreePage;
+
+class TreeCategories extends TreePage
+{
+    protected static string $resource = CategoryResource::class;
+}
+```
+
+Register in resource: `'index' => Pages\TreeCategories::route('/'),`
+
+### Query Customization
+```php
+->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'active'))
+```
+
+### TextField Options
+```php
+TextField::make('name')
+    ->size('sm' | 'base' | 'lg')
+    ->weight(FontWeight::Medium)
+    ->color('primary' | 'gray' | 'success')
+    ->limit(50)
+    ->formatStateUsing(fn (string $state) => strtoupper($state))
+    ->dimWhenInactive()         // dims when is_active = false
+    ->dimWhenInactive('custom') // custom field
+    ->alignEnd();
+```
+
+### Translatable Support
+Use `Openplain\FilamentTreeView\Resources\Concerns\Translatable` on Resource and `Openplain\FilamentTreeView\Resources\Pages\TreePage\Concerns\Translatable` on TreePage for Spatie Translatable integration.
+
+## Filament Select Tree (codewithdennis/filament-select-tree)
+Hierarchical multi-level select field for Filament forms and table filters.
+
+### Key Facts
+- Requires `parent_id` column on the related model
+- After install: `php artisan filament:assets`
+- Works with `BelongsTo` (single) and `BelongsToMany` (multiple) relationships
+- Can also be used without relationships via `->query()`
+
+### BelongsToMany Relationship
+```php
+use CodeWithDennis\FilamentSelectTree\SelectTree;
+
+SelectTree::make('categories')
+    ->relationship('categories', 'name', 'parent_id')
+```
+
+### BelongsTo Relationship
+```php
+SelectTree::make('category_id')
+    ->relationship('category', 'name', 'parent_id')
+```
+
+### Without Relationship
+```php
+SelectTree::make('category_id')
+    ->query(fn() => Category::query(), 'name', 'parent_id')
+```
+
+### Key Methods
+```php
+SelectTree::make('categories')
+    ->relationship('categories', 'name', 'parent_id')
+    ->placeholder(__('Select category'))     // custom placeholder
+    ->enableBranchNode()                     // allow selecting parent nodes
+    ->withCount()                            // show children count
+    ->alwaysOpen()                           // keep dropdown open
+    ->staticList()                           // render as static DOM (no overlap)
+    ->independent(false)                     // set nodes as dependent
+    ->expandSelected(false)                  // expand tree to selected values
+    ->defaultOpenLevel(2)                    // expand to this level
+    ->searchable()                           // enable search
+    ->clearable(false)                       // hide clear icon
+    ->grouped(false)                         // show leaves instead of groups
+    ->showTags(false)                        // show count instead of tags
+    ->tagsCountText('selected')              // custom count text
+    ->disabledOptions([2, 3])                // disable specific options
+    ->hiddenOptions([4, 5])                  // hide specific options
+    ->withTrashed()                          // include soft-deleted
+    ->multiple(false)                        // force single select
+    ->direction('top')                       // force direction: auto|top|bottom
+    ->parentNullValue(-1);                   // custom null value for root
+```
+
+### Custom Queries
+```php
+SelectTree::make('categories')
+    ->relationship(
+        relationship: 'categories',
+        titleAttribute: 'name',
+        parentAttribute: 'parent_id',
+        modifyQueryUsing: fn($query) => $query->where('is_active', true),
+        modifyChildQueryUsing: fn($query) => $query->orderBy('name'),
+    )
+```
+
+### Table Filter Usage
+```php
+use Filament\Tables\Filters\Filter;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
+
+Filter::make('tree')
+    ->form([
+        SelectTree::make('categories')
+            ->relationship('categories', 'name', 'parent_id')
+            ->independent(false)
+            ->enableBranchNode(),
+    ])
+    ->query(function (Builder $query, array $data) {
+        return $query->when($data['categories'], function ($query, $categories) {
+            return $query->whereHas('categories', fn($q) => $q->whereIn('id', $categories));
+        });
+    })
 ```
 
 ## Do NOT
