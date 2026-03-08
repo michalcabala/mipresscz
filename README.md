@@ -1,59 +1,226 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# miPress CMS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+miPress je modulární CMS postavený na Laravel 12 a Filament 5. Projekt je navržený jako profesionální alternativa WordPressu pro český trh a míří hlavně na firemní prezentace, magazínové weby, menší obsahové projekty a komunitní weby.
 
-## About Laravel
+## Přehled
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Admin panel běží na `/mpcp`
+- Frontend používá CMS catch-all routing nad entries
+- Obsahový model je inspirovaný Statamicem: Collections -> Blueprints -> Entries
+- Lokalizace je databázově řízená přes model `Locale` a službu `LocaleService`
+- Média řeší Filament Curator
+- Blokový obsah řeší Mason
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Backend
 
-## Learning Laravel
+- PHP 8.3.x
+- Laravel 12
+- Filament 5
+- Livewire 4
+- MySQL 8
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Obsah a admin
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- `spatie/laravel-permission`
+- `awcodes/mason`
+- `awcodes/filament-curator`
+- `bezhansalleh/filament-language-switch`
+- `craft-forge/filament-language-switcher`
+- `jeffgreco13/filament-breezy`
+- `caresome/filament-auth-designer`
 
-## Laravel Sponsors
+### Frontend tooling
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Vite 7
+- Tailwind CSS 4
 
-### Premium Partners
+### Testy a kvalita
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- Pest 4
+- Laravel Pint
 
-## Contributing
+## Lokální prostředí
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Projekt je připravený pro Laravel Herd / Laragon. V aktuálním prostředí běží na:
 
-## Code of Conduct
+- `https://mipresscz.test`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Admin panel:
 
-## Security Vulnerabilities
+- `https://mipresscz.test/mpcp`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Instalace
 
-## License
+### 1. Základní setup
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate --no-interaction
+```
+
+### 2. Databáze
+
+Nastav připojení v `.env`, pak spusť:
+
+```bash
+php artisan migrate --no-interaction
+php artisan db:seed --no-interaction
+```
+
+### 3. Assety
+
+Vývoj:
+
+```bash
+npm run dev
+```
+
+Produkční build:
+
+```bash
+npm run build
+```
+
+## Nejčastější příkazy
+
+```bash
+php artisan optimize:clear
+php artisan filament:optimize-clear
+vendor/bin/pint --dirty --format agent
+php artisan test --compact
+```
+
+Jednotlivé typy změn:
+
+- po změně migrací: `php artisan migrate`
+- po změně seedru: `php artisan db:seed --class=SeederName`
+- po změně routes: `php artisan route:clear`
+- po změně views: `php artisan view:clear`
+- po větší změně: `php artisan optimize:clear`
+
+## Architektura obsahu
+
+### Hlavní entity
+
+- `Collection`: typ obsahu a routing pravidla
+- `Blueprint`: JSON definice polí pro kolekci
+- `Entry`: obsahový záznam
+- `Revision`: historie změn entry
+- `Taxonomy` a `Term`: klasifikace a štítkování
+- `GlobalSet`: globální obsahové sady
+- `Locale`: jazyková konfigurace pro frontend i admin
+
+### Klíčové principy
+
+- ULID primární klíče na content modelech
+- překlady přes samostatné entries a `origin_id`
+- soft deletes na hlavních content modelech
+- enumy pro stavy a vybraná nastavení
+- blueprint pole uložená jako JSON
+
+## Filament a admin architektura
+
+### Struktura resources
+
+Filament resources drží konzistentní pattern:
+
+- `Resource.php`
+- `Schemas/*Form.php`
+- `Tables/*Table.php`
+- `Pages/*`
+
+### Dynamické entry resources
+
+Entries nejsou jen jedna statická resource. Aktivní kolekce se načítají z databáze a `AdminPanelProvider` pro ně skládá dynamické konfigurace přes `EntryResourceConfiguration`.
+
+Prakticky to znamená:
+
+- každá aktivní kolekce má vlastní admin sekci,
+- změny v kolekcích ovlivňují navigaci,
+- úpravy entries musí počítat s kolekčně konfigurovanou resource variantou.
+
+### Locale správa
+
+Správa jazyků není klasická Resource, ale samostatná Filament Page:
+
+- `app/Filament/Pages/ManageLocales.php`
+
+## Lokalizace a routing
+
+Frontend používá dva paralelní route režimy:
+
+- prefixované URL: `/{locale}/{uri}`
+- neprefixované URL: `/{uri}`
+
+Locale logika je řízená z databáze přes:
+
+- `app/Models/Locale.php`
+- `app/Services/LocaleService.php`
+- `app/Http/Middleware/SetFrontendLocale.php`
+
+Aktuální chování:
+
+- pokud je na frontendu aktivní více jazyků, používají se locale prefixy,
+- pokud je aktivní jen jeden frontend jazyk, URL prefix se nepoužívá,
+- v single-language režimu se prefixovaná URL přesměrovávají na neprefixovanou variantu.
+
+## Média a blokový obsah
+
+### Curator
+
+Média v adminu jsou řešená přes Filament Curator. Pro veřejné použití je nutné vědomě řešit visibility a vztahy na `Awcodes\Curator\Models\Media`.
+
+### Mason
+
+Block builder obsah je uložený jako JSON struktura a renderuje se přes Mason bricky a blade views.
+
+Admin theme CSS už obsahuje potřebné importy a source cesty pro oba pluginy v:
+
+- `resources/css/filament/admin/theme.css`
+
+## Testování
+
+Projekt používá Pest 4.
+
+### Důležité informace
+
+- `tests/Pest.php` přidává `RefreshDatabase` pro Feature testy
+- `phpunit.xml` používá MySQL databázi `mipresscz_testing`
+- nepředpokládej SQLite-only chování
+
+### Aktuálně pokryté oblasti
+
+- content system
+- entry routing
+- locale workflow
+- locale observer
+- locale service
+- roles a permissions
+
+## Dokumentace
+
+Další interní dokumentace:
+
+- [docs/project-analysis.md](docs/project-analysis.md)
+- [docs/project-roadmap.md](docs/project-roadmap.md)
+
+Při rozporu mezi README a kódem ber jako zdroj pravdy aktuální implementaci v aplikaci.
+
+## Vývojové konvence
+
+- používej PHP 8.3+ features a type hints
+- všechny UI texty překládej přes `__()` nebo `trans()`
+- databázové názvy a interní kód drž v angličtině, UI texty primárně v češtině
+- po změně PHP souborů spusť `vendor/bin/pint --dirty --format agent`
+- nové třídy a soubory zakládej přes `php artisan make:* --no-interaction`
+- po architektonických změnách aktualizuj dokumentaci v `docs/`
+
+## Poznámky pro onboarding
+
+- `README.md` byl dříve defaultní Laravel scaffold; pokud někde narazíš na starší popis projektu, ověř si realitu v kódu.
+- Zásahy do locale a routingu bývají průřezové a typicky vyžadují změny ve službě, middleware, URL generování, admin správě a testech.
+- Zásahy do admin navigace a topbaru je potřeba dělat s respektem k existujícím render hookům a panel customizacím v `AdminPanelProvider`.

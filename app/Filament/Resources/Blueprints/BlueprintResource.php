@@ -21,11 +21,16 @@ class BlueprintResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): ?string
     {
         return __('content.blueprints.navigation_group');
+    }
+
+    public static function getNavigationParentItem(): ?string
+    {
+        return __('content.collections.navigation_label');
     }
 
     public static function getModelLabel(): string

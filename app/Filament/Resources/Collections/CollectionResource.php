@@ -28,6 +28,13 @@ class CollectionResource extends Resource
         return __('content.collections.navigation_group');
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\BlueprintsRelationManager::class,
+        ];
+    }
+
     public static function getModelLabel(): string
     {
         return __('content.collections.label');
@@ -51,13 +58,6 @@ class CollectionResource extends Resource
     public static function table(Table $table): Table
     {
         return CollectionsTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

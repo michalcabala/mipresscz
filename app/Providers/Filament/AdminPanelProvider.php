@@ -12,6 +12,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -49,6 +50,17 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('assets/images/favicon.svg'))
             ->maxContentWidth(Width::Full)
             ->spa()
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label(fn (): string => __('content.entries.navigation_group')),
+                NavigationGroup::make()
+                    ->label(fn (): string => __('content.collections.navigation_group')),
+                NavigationGroup::make()
+                    ->label(fn (): string => __('users.navigation_group')),
+                NavigationGroup::make()
+                    ->label(fn (): string => __('locales.navigation_group'))
+                    ->collapsed(),
+            ])
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_AFTER,
                 fn (): string => Blade::render('<x-filament::icon-button
@@ -73,8 +85,8 @@ class AdminPanelProvider extends PanelProvider
                 CuratorPlugin::make()
                     ->label('Médium')
                     ->pluralLabel('Média')
-                    ->navigationGroup('Obsah')
-                    ->navigationSort(4),
+                    ->navigationGroup(__('content.entries.navigation_group'))
+                    ->navigationSort(99),
                 AuthDesignerPlugin::make()
                     ->login(
                         fn (AuthPageConfig $config) => $config
@@ -133,7 +145,7 @@ class AdminPanelProvider extends PanelProvider
                 ->collectionHandle($collection->handle)
                 ->navigationLabel($collection->title)
                 ->navigationIcon($collection->icon ?? 'fal-file-lines')
-                ->navigationSort($index + 2)
+                ->navigationSort($index + 1)
             )
             ->all();
     }

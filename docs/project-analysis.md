@@ -1,380 +1,325 @@
-# miPress CMS — Analýza současného stavu projektu
-
-> Datum: 8. března 2026
-
----
-
-## 1. Přehled projektu
-
-miPress je modulární CMS postavený na **Laravel 12 + Filament 5**, navržený jako profesionální alternativa WordPressu pro český trh. Cílí na firemní prezentace, weby malých firem a komunitní projekty.
-
-### Technologický stack
-
-| Technologie | Verze | Účel |
-|-------------|-------|------|
-| PHP | 8.3.4 | Runtime |
-| Laravel | 12 | Framework |
-| Filament | 5 | Admin panel (SDUI) |
-| Livewire | 4 | Reaktivní komponenty |
-| Tailwind CSS | 4 | Stylování |
-| Pest | 4 | Testování |
-| MySQL | 8 | Databáze |
-| Laravel Herd | — | Lokální server (`mipresscz.test`) |
-
-### Nainstalované balíčky
-
-| Balíček | Verze | Účel |
-|---------|-------|------|
-| spatie/laravel-permission | ^7.2 | Role a oprávnění |
-| awcodes/mason | ^3.0 | Block-based page builder |
-| awcodes/filament-curator | ^5.0 | Správce médií |
-| bezhansalleh/filament-language-switch | ^4.1 | Přepínání jazyků (cs/en) |
-| caresome/filament-auth-designer | ^3.0 | Design přihlašovacích stránek |
-| jeffgreco13/filament-breezy | ^3.1 | Profil uživatele, 2FA |
+# miPress CMS — Project Analysis
 
----
+Datum: 8. března 2026
 
-## 2. Architektura obsahu
-
-Obsahový systém je inspirovaný CMS Statamic a používá vzor **Collections → Blueprints → Entries**.
-
-```
-Collection (kolekce)
-├── Blueprint (šablona polí)
-│   └── Entry (záznam/obsah)
-│       ├── Revision (revize)
-│       └── Term (taxonomický termín) [M:N přes termables]
-├── Taxonomy (taxonomie) [M:N přes collection_taxonomy]
-│   └── Term (termín)
-│       └── children (hierarchie)
-└── Entries (záznamy)
-    ├── translations (origin_id)
-    ├── children (parent_id — strom)
-    └── related entries (entry_relationships)
-```
+## Účel dokumentu
 
-### Klíčové vlastnosti
+Tento dokument je hlavní sjednocená analýza projektu miPress. Nahrazuje předchozí samostatné souhrny a audity. Slouží jako zdroj pro onboarding, technické rozhodování, plánování roadmapy a průběžné vyhodnocování rizik.
 
-- **ULID primární klíče** na všech content modelech (trait `HasUlids`)
-- **Multijazyčnost**: Každý překlad = samostatný Entry se sdíleným `origin_id`
-- **Hierarchie**: Entries podporují parent-child vztahy (stromová struktura)
-- **Revize**: EntryObserver automaticky vytváří revize při změně, max 50 na záznam
-- **Soft deletes**: Na Collections, Blueprints, Entries, Taxonomies, Terms
-- **Dynamické blueprinty**: Pole definovaná jako JSON, podpora sekcí a podmínkového zobrazení
-
----
-
-## 3. Datový model
+## Executive Summary
 
-### Modely (9)
+miPress je vlastní CMS nad Laravel 12 a Filament 5. Projekt už má jasně definované jádro: databázově řízený obsahový model, dynamické Filament resources, locale systém řízený z databáze, admin integraci pro média a block builder a solidní základ testů nad MySQL.
 
-| Model | Tabulka | Hlavní účel |
-|-------|---------|-------------|
-| `User` | users | Autentizace, role (Spatie) |
-| `Collection` | collections | Typ obsahu (stránky, články, reference) |
-| `Blueprint` | blueprints | Šablona polí pro kolekci |
-| `Entry` | entries | Záznam obsahu (vícejazyčný, hierarchický) |
-| `Block` | blocks | Šablona bloku pro page builder |
-| `GlobalSet` | global_sets | Globální nastavení (web, sociální sítě, patička) |
-| `Revision` | revisions | Historie změn záznamu |
-| `Taxonomy` | taxonomies | Klasifikační systém (kategorie, štítky) |
-| `Term` | terms | Položka taxonomie |
-
-### Pivotní tabulky
-
-| Tabulka | Vztah |
-|---------|-------|
-| `collection_taxonomy` | Collection ↔ Taxonomy (M:N) |
-| `termables` | Term ↔ Entry (polymorfní M:N) |
-| `entry_relationships` | Entry ↔ Entry (M:N s field_handle) |
-
-### Enumy (4)
-
-| Enum | Hodnoty | Použití |
-|------|---------|---------|
-| `DateBehavior` | None, Required, Optional | Chování data v kolekci |
-| `DefaultStatus` | Draft, Published | Výchozí stav nových záznamů |
-| `EntryStatus` | Draft, Published, Scheduled, Archived | Stav záznamu (s ikonou a barvou) |
-| `UserRole` | SuperAdmin, Admin, Editor, Contributor | Uživatelské role |
-
----
-
-## 4. Současný stav dat
+Nejsilnější stránky:
 
-### Kolekce
+- čistý obsahový model inspirovaný Statamicem,
+- rozumně navržený Filament admin s dynamic resource patternem,
+- locale workflow bez hardcoded konfigurace,
+- použitelný testovací základ pro klíčové backend workflow.
 
-| Kolekce | Handle | Blueprinty | Záznamy | Ikona | Stav |
-|---------|--------|------------|---------|-------|------|
-| Stránky | `pages` | 2 (standard, landing) | 3 | `fal-file-lines` | Aktivní |
-| Články | `articles` | 1 (article) | 6 | `fal-newspaper` | Aktivní |
-| Reference | `testimonials` | 1 (testimonial) | 3 | `fal-quote-right` | Aktivní |
+Největší průřezová rizika:
 
-### Taxonomie
+- locale a URL logika zasahuje několik vrstev současně,
+- změny v collections mají nepřímý dopad do admin navigace,
+- admin UX je silný, ale zatím slaběji pokrytý automatizovanými testy,
+- dokumentace je potřeba aktivně udržovat, jinak rychle vzniká drift.
 
-| Taxonomie | Handle | Termíny | Hierarchická |
-|-----------|--------|---------|--------------|
-| Kategorie | `categories` | 7 (Tech→PHP, Laravel, JS; Design→UI, UX) | Ano |
-| Štítky | `tags` | 4 (Tutorial, Novinka, Tip, Recenze) | Ne |
+## Stack a tooling
 
-### Globální sady
+### Backend
 
-| Sada | Handle | Klíčová data |
-|------|--------|-------------|
-| Nastavení webu | `site` | Název, popis, kontakt, logo, favicon |
-| Sociální sítě | `social` | Facebook, Instagram, X, YouTube, LinkedIn |
-| Patička | `footer` | Copyright, zobrazit sociální, extra HTML |
+- PHP 8.3.x runtime
+- Laravel 12
+- Filament 5
+- Livewire 4
+- MySQL 8
 
-### Bloky (9 typů)
+### Hlavní balíčky
 
-Hero, Text, Text s obrázkem, Galerie, Video, Citát, Výzva k akci, Akordeon, Karty
+- `spatie/laravel-permission`
+- `awcodes/mason`
+- `awcodes/filament-curator`
+- `bezhansalleh/filament-language-switch`
+- `craft-forge/filament-language-switcher`
+- `jeffgreco13/filament-breezy`
+- `caresome/filament-auth-designer`
 
-### Souhrn
+### Frontend tooling
 
-| Entita | Počet |
-|--------|-------|
-| Uživatelé | 2 |
-| Záznamy (entries) | 12 |
-| Revize | 13 |
-| Bloky (šablony) | 9 |
-| Globální sady | 3 |
+- Vite 7
+- Tailwind CSS 4
+- Axios
+- `flagpack-core`
 
----
+### Praktická poznámka
 
-## 5. Admin panel (Filament)
+- `composer.json` stále obsahuje default Laravel metadata, proto je při orientaci spolehlivější číst kód a dokumentaci v `docs/` než package metadata.
 
-### Přístup
+## Architektura systému
 
-- **URL**: `mipresscz.test/mpcp`
-- **Panel ID**: `admin`
-- **Pluginy**: AuthDesigner (login design), BreezyCore (profil, 2FA)
+### Obsahový model
 
-### Registrované zdroje (Resources)
+Projekt používá CMS vzor:
 
-| Resource | URL | Navigační skupina | Typ |
-|----------|-----|-------------------|-----|
-| Dashboard | `/mpcp` | — | Výchozí stránka |
-| **Stránky** | `/mpcp/pages` | Obsah | Dynamický (EntryResource) |
-| **Články** | `/mpcp/articles` | Obsah | Dynamický (EntryResource) |
-| **Reference** | `/mpcp/testimonials` | Obsah | Dynamický (EntryResource) |
-| Kolekce | `/mpcp/collections` | Obsah | Statický |
-| Taxonomie | `/mpcp/taxonomies` | Obsah | Statický |
-| Bloky | `/mpcp/blocks` | Obsah | Statický |
-| Globální nastavení | `/mpcp/globals/global-sets` | Obsah | Statický |
-| Uživatelé | `/mpcp/users` | — | Statický |
-| Můj profil | `/mpcp/my-profile` | — | BreezyCore |
+- Collections
+- Blueprints
+- Entries
+- Taxonomies a Terms
+- Global Sets
+- Revisions
+- Locales
 
-### Dynamická navigace (Configurable Resources)
+Klíčové technické rysy:
 
-Systém využívá Filament 5 **ResourceConfiguration** pattern:
+- ULID primární klíče na content modelech,
+- JSON field definice v blueprintech,
+- entry překlady řešené přes `origin_id`,
+- soft deletes na hlavních content modelech,
+- enum-based stavy a konfigurace.
 
-1. `AdminPanelProvider::getCollectionResources()` načte aktivní kolekce z DB
-2. Pro každou vytvoří `EntryResource::make(handle)` s vlastním slugem, labelem a ikonou
-3. `EntryResourceConfiguration` nese `collectionHandle`, `navigationLabel`, `navigationIcon`, `navigationSort`
-4. `EntryResource::shouldRegisterNavigation()` vrací `hasConfiguration()` — v navigaci se zobrazí jen konfigurované varianty
-5. Base route `/mpcp/entries` existuje, ale je skrytá z navigace
-
-### Registrované routy (33 GET)
-
-```
-mpcp/                           → Dashboard
-mpcp/pages[/create|/{id}/edit]  → Stránky (dynamický EntryResource)
-mpcp/articles[/...]             → Články (dynamický EntryResource)
-mpcp/testimonials[/...]         → Reference (dynamický EntryResource)
-mpcp/entries[/...]              → Záznamy — base (skrytý z nav)
-mpcp/collections[/...]          → Kolekce
-mpcp/taxonomies[/...]           → Taxonomie
-mpcp/blocks[/...]               → Bloky
-mpcp/globals/global-sets[/...]  → Globální nastavení
-mpcp/users[/...]                → Uživatelé
-mpcp/my-profile                 → Profil
-mpcp/login                      → Přihlášení
-mpcp/password-reset/...         → Reset hesla
-mpcp/two-factor-authentication  → 2FA
-```
+### Hlavní modely a odpovědnosti
 
----
+- `Collection`: typ obsahu, routing pravidla, řazení, stav a vazby na blueprinty a taxonomie.
+- `Blueprint`: struktura polí a rozdělení do sekcí, včetně translatable/non-translatable logiky.
+- `Entry`: hlavní obsahový záznam s URI, locale, publikací, překladem, hierarchií, termy a related entries.
+- `GlobalSet`: globální obsah s locale fallbackem a cache-on-read přístupem.
+- `Locale`: databázový zdroj pravdy pro jazykové chování frontendu i adminu.
+- `Revision`: historizace změn entry.
 
-## 6. Frontend
+### Modulární síla a technický tlak
 
-### Routování
+Obsahová doména je dobře navržená, ale `Entry` už teď nese velkou část důležité logiky. Další růst by měl preferovat přesun složitějších pravidel do služeb nebo pomocných tříd, aby model časem nepřerostl do obtížně udržovatelného centra všeho.
 
-```php
-// routes/web.php
-Route::get('/', fn () => view('welcome'));
-Route::get('{uri}', [EntryController::class, 'show'])->where('uri', '.*');
-```
+## Filament admin architektura
 
-- Catch-all route na konci — řeší CMS záznamy dle URI
-- `EntryController::show()` hledá publikované záznamy dle `uri` sloupce
-- Fallback šablona: `resources/views/entries/show.blade.php`
+Admin panel běží na `/mpcp` a je definovaný v `app/Providers/Filament/AdminPanelProvider.php`.
 
-### Stav frontendu
+### Ověřené architektonické vzory
 
-- **Minimalistický** — pouze `welcome.blade.php` a `entries/show.blade.php`
-- Žádné layout, žádné komponenty, žádné menu
-- CSS/JS: standardní `app.css` + `app.js` + Vite build
-- **Frontend je zatím nerozpracovaný** — potřebuje kompletní implementaci
+- Filament resources drží split pattern `Resource.php` + `Schemas/*` + `Tables/*` + `Pages/*`.
+- `AppServiceProvider` globálně nastavuje baseline chování Filament tabulek (`striped`, `deferLoading`, `stackedOnMobile`).
+- Panel customizace jsou soustředěné v provideru, včetně render hooků.
+- Locale správa není resource, ale samostatná Filament page `ManageLocales`.
 
----
+### Dynamic Entry Resources
 
-## 7. Testování
+Nejdůležitější repo-specific pattern je dynamická konfigurace entry resources podle aktivních kolekcí:
 
-### Konfigurace
-
-- Framework: **Pest 4**
-- Databáze: MySQL (`mipresscz_testing`)
-- Base: `tests/Pest.php` → TestCase + RefreshDatabase pro Feature testy
-
-### Aktuální testy
-
-| Soubor | Počet testů | Pokrytí |
-|--------|-------------|---------|
-| `ContentSystemTest.php` | 30 | Modely, vztahy, scopes, enumy, GlobalSet, revize |
-| `EntryRoutingTest.php` | 4 | Frontend routing, 404, draft, nested URI |
-| `ExampleTest.php` (Feature) | 1 | HTTP response |
-| `ExampleTest.php` (Unit) | 1 | Základní assertion |
-| **Celkem** | **36 testů, 65 assertions** | **Vše prochází** ✅ |
-
-### Nepokryté oblasti
-
-- Filament resource testy (Livewire::test)
-- Autorizace a role
-- Uživatelský resource
-- Block a GlobalSet resources
-- Validace formulářů
-- Edge cases multijazyčnosti
-
----
-
-## 8. Migrace (19)
-
-### Systémové (3)
-
-| Migrace | Tabulky |
-|---------|---------|
-| `create_users_table` | users, password_reset_tokens, sessions |
-| `create_cache_table` | cache, cache_locks |
-| `create_jobs_table` | jobs, job_batches, failed_jobs |
-
-### Vlastní (16)
-
-| Migrace | Tabulka | Poznámka |
-|---------|---------|----------|
-| `create_breezy_sessions_table` | breezy_sessions | 2FA sessions |
-| `alter_breezy_sessions_table` | breezy_sessions | Drops unused cols |
-| `add_role_to_users_table` | users | Adds role column |
-| `create_permission_tables` | roles, permissions, pivoty | Spatie Permission |
-| `create_collections_table` | collections | ULID, SoftDeletes |
-| `create_taxonomies_table` | taxonomies | ULID, SoftDeletes |
-| `create_blueprints_table` | blueprints | FK → collections |
-| `create_entries_table` | entries | Complex: FKs, unique constraints, indexes |
-| `create_terms_table` | terms | Hierarchical, FK → taxonomies |
-| `create_revisions_table` | revisions | No auto timestamps |
-| `create_blocks_table` | blocks | ULID, no SoftDeletes |
-| `create_global_sets_table` | global_sets | Multi-locale |
-| `create_collection_taxonomy_table` | collection_taxonomy | Pivot |
-| `create_termables_table` | termables | Polymorphic pivot |
-| `create_entry_relationships_table` | entry_relationships | Entry ↔ Entry |
-
----
-
-## 9. Ikony
-
-- **Font Awesome Light** (`fal-*`): 1000+ SVG ikon v `resources/svg/fa/light/`
-- **Font Awesome Brands** (`fab-*`): 500+ SVG ikon v `resources/svg/fa/brands/`
-- **Heroicon**: Použití přes `Filament\Support\Icons\Heroicon` enum
-- **IconServiceProvider**: Aliasy pro Filament ikony (dashboard = `fal-gauge-high`)
-
----
-
-## 10. Git
-
-### Historie commitů
-
-```
-5dc0fc0 (HEAD → main)      fix: invert shouldRegisterNavigation logic
-373e72f (origin/main)       feat: add rich editor integration and mason components
-5badc7e                     feat: lokalizované popisky pro uživatele
-7765d05                     first commit
-```
-
-### Nepushnuté změny
-
-1 commit ahead of `origin/main` — fix navigační logiky pro dynamické entry resources.
-
----
-
-## 11. Struktura souborů
-
-```
-app/
-├── Enums/              (4 enumy)
-├── Filament/
-│   └── Resources/
-│       ├── Blocks/     (Resource + Pages/ + Schemas/ + Tables/)
-│       ├── Collections/(Resource + Pages/ + Schemas/ + Tables/)
-│       ├── Entries/    (Resource + Configuration + Pages/ + Schemas/ + Tables/)
-│       ├── Globals/    (Resource + Pages/ + Schemas/ + Tables/)
-│       ├── Taxonomies/ (Resource + Pages/ + Schemas/ + Tables/)
-│       └── Users/      (Resource + Pages/ + Schemas/ + Tables/)
-├── Http/Controllers/   (Controller, EntryController)
-├── Models/             (9 modelů)
-├── Observers/          (EntryObserver)
-├── Providers/
-│   ├── AppServiceProvider.php
-│   ├── IconServiceProvider.php
-│   └── Filament/AdminPanelProvider.php
-└── helpers.php
-
-database/
-├── factories/          (6 factories)
-├── migrations/         (19 migrací)
-└── seeders/            (5 seederů)
-
-lang/
-├── cs/                 (content.php, roles.php, users.php)
-└── en/                 (content.php, roles.php, users.php)
-
-resources/
-├── css/                (app.css, filament/admin/theme.css)
-├── js/                 (app.js, bootstrap.js)
-├── svg/fa/             (light/ + brands/ — FontAwesome SVGs)
-└── views/              (welcome.blade.php, entries/show.blade.php)
-
-tests/
-├── Pest.php
-├── TestCase.php
-├── Feature/            (ContentSystemTest, EntryRoutingTest, ExampleTest)
-└── Unit/               (ExampleTest)
-```
-
----
-
-## 12. Co chybí / Další kroky
+- `AdminPanelProvider::getCollectionResources()` načítá aktivní kolekce,
+- `EntryResourceConfiguration` přenáší konfigurační data pro navigaci a slug,
+- jedna entry resource logika tak obsluhuje více kolekčně specifických admin sekcí.
+
+To přináší výhodu vysoké flexibility, ale také riziko, že změna v collections nebo konfiguraci resource nepřímo rozbije admin navigaci, routy nebo očekávané chování tabulek a formulářů.
+
+### Admin rizika a doporučení
+
+Rizika:
+
+- rozšiřování topbaru a panel customizací do více míst,
+- netriviální dopad změn v `Collection` na admin navigaci,
+- nižší coverage složitějších Filament interakcí.
+
+Doporučení:
+
+1. Držet panel customizace co nejvíc centralizované v `AdminPanelProvider`.
+2. Zachovat jeden jednoznačný pattern pro dynamické entry resources.
+3. Postupně doplnit Livewire/Filament testy pro důležité admin workflow.
+
+## Lokalizace a URL logika
+
+Locale workflow je jedna z nejdůležitějších a nejcitlivějších částí systému.
+
+### Hlavní stavební kameny
+
+- `Locale`
+- `LocaleService`
+- `SetFrontendLocale`
+- `ManageLocales`
+- `LanguageSwitcher`
+- locale-aware URL generování v `Entry`
+
+### Aktuální pravidla
+
+- admin i frontend dostupnost locale se řídí samostatnými flagy,
+- frontend používá prefixované i neprefixované route varianty,
+- pokud existuje více frontend jazyků, používají se locale prefixy,
+- pokud je aktivní jen jeden frontend jazyk, prefix se nepoužívá,
+- prefixované URL jsou v single-language režimu přesměrovány na čistou variantu,
+- hreflang a URL generování je odvozené od locale služby a entry vztahů.
+
+### Rizika locale subsystému
+
+- změna jedné části často vyžaduje změnu ve službě, middleware, URL generování, blade komponentě i testech,
+- prefix/no-prefix režimy zvyšují kombinatoriku testovacích scénářů,
+- UI změna v locale správě může nepřímo rozhodit frontend přepínání a canonical URL chování.
+
+### Doporučení
+
+1. Každou locale změnu ověřovat minimálně na úrovni služby, modelu a HTTP chování.
+2. Dál držet `LocaleService` jako centrální zdroj pravdy pro locale rozhodování.
+3. Pokud URL logika dál poroste, zvážit vyčlenění specializované služby pro frontend URL resolution.
+
+## Frontend a asset pipeline
+
+Frontend je zatím poměrně lehký a opírá se o blade views a CMS routing.
+
+### Ověřený stav
+
+- `routes/web.php` používá root route a locale-aware catch-all entry routing,
+- `EntryController` rozhoduje o renderingu entry view,
+- `resources/views/` už obsahuje `components`, `entries`, `filament`, `mason`, `vendor` a `welcome.blade.php`,
+- Vite build používá tři vstupy: app CSS, app JS a admin theme CSS,
+- `resources/css/filament/admin/theme.css` už integruje Filament, Mason i Curator a drží potřebné `@source` cesty.
+
+### Rizika
+
+- frontend je zatím spíš základ než plně rozvinutá prezentační vrstva,
+- při rychlém rozšiřování mohou vzniknout nekonzistentní layouty a duplicita komponent,
+- `welcome.blade.php` a fallback views mohou časem míchat demo a skutečný produkční obsah.
+
+### Doporučení
+
+1. Při růstu frontendu zavést jasný layout a komponentový pattern.
+2. Standardizovat práci s global sets a locale switcherem do několika sdílených komponent.
+3. Udržet admin styling na existujícím theme entrypointu a neobcházet ho novými build cestami.
+
+## Content builder a média
+
+Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
+
+- Mason pro block builder obsah,
+- Curator pro média.
+
+### Co funguje dobře
+
+- admin theme je už připravená pro oba pluginy,
+- seedery ukazují realistický Mason obsah,
+- entries mají připravené media vztahy přes Curator model.
+
+### Rizika
+
+- změny brick struktur mohou mít zpětně nekompatibilní dopad na data,
+- při změnách v admin theme je nutné hlídat `@source` a plugin CSS,
+- při rozšiřování frontendu bude důležitější správně hlídat public/private media visibility.
+
+### Doporučení
+
+1. U větších změn builderu doplňovat realistické seed nebo test scénáře.
+2. Před změnou media workflow ověřit vazbu na frontend použití a visibility model.
+
+## Seedery a referenční data
+
+`DatabaseSeeder` spouští tyto seedy:
+
+- `RolesAndPermissionsSeeder`
+- `LocaleSeeder`
+- `GlobalsSeeder`
+- `ContentSeeder`
+
+Seedery tu neslouží jen jako bootstrap. Jsou zároveň referenční ukázkou očekávaného datového modelu projektu.
+
+### Důsledky
+
+- refaktory doménových modelů musí počítat i s dopadem do seed dat,
+- seedery by měly zůstat idempotentní a čitelné,
+- pokud bude demo obsah dál růst, vyplatí se ho rozdělit do menších tematických seederů.
+
+## Authorization a role model
+
+Role model je postavený nad `UserRole` enumem a Spatie Permission.
+
+### Co funguje dobře
+
+- role jsou explicitní a srozumitelné,
+- superadmin bypass přes `Gate::before()` je jednoduchý,
+- vazba role -> permissions je čitelná.
+
+### Rizika
+
+- permissions jsou rozdělené mezi enum, policy logiku a seedery,
+- při změnách hrozí drift mezi těmito vrstvami,
+- contributor-specific omezení nad entries může časem růst do složitějšího business pravidla.
+
+### Doporučení
+
+1. Při změně oprávnění vždy validovat enum, policy i seed data současně.
+2. Přidávat behaviorální testy pro autorizaci důležitých workflow.
+
+## Testování a kvalita
+
+Projekt používá Pest 4 a MySQL test databázi `mipresscz_testing`.
+
+### Ověřený stav
+
+- `tests/Pest.php` aplikuje `RefreshDatabase` pro Feature testy,
+- testy pokrývají content system, entry routing, locale workflow, locale observer, locale service a roles/permissions,
+- testovací nastavení odpovídá reálnějšímu MySQL chování, ne SQLite-only variantě.
+
+### Rizika
+
+- Filament resource interakce a admin UX nejsou pokryté tak dobře jako backend doména a locale systém,
+- s růstem admin funkcí může bez Livewire/Filament testů přibývat tichých regresí.
+
+### Doporučení
+
+1. Priorita dalšího testování: admin resources, policy flows, locale admin page.
+2. U průřezových změn preferovat feature testy nad izolovanými unit testy.
+
+## Dokumentace a governance
+
+Repo už jednou narazilo na dokumentační drift. To je explicitní provozní poučení.
+
+### Aktuální pravidla
+
+- README slouží pro onboarding a rychlou orientaci,
+- tento dokument je hlavní živá analýza projektu,
+- architektonické změny mají být doprovázené změnou dokumentace v `docs/`.
+
+### Rizika
+
+- bez disciplíny se vrátí rozpad mezi realitou v kódu a markdown dokumentací,
+- staré snapshoty analýz zvyšují šum a zhoršují onboarding.
+
+### Doporučení
+
+1. Držet jen jeden hlavní analytický dokument.
+2. Doplňovat samostatně jen roadmapu nebo úzce zaměřené technické návrhy, ne další paralelní obecné analýzy.
+
+## Hlavní silné stránky
+
+- Dobře čitelný doménový model.
+- Smysluplné využití Filament 5 bez vendor hackování.
+- Databázově řízená lokalizace.
+- Připravená admin integrace pro média i block builder.
+- Funkční testovací základ nad realistickým MySQL prostředím.
+
+## Hlavní rizika
 
 ### Vysoká priorita
 
-1. **Frontend šablony** — Layout, navigace, stránky, články, homepage
-2. **Mason integrace** — Block-based obsah v Entries (propojení s Blueprinty)
-3. **Curator integrace** — Media picker v Entry formulářích
-4. **Oprávnění na resources** — Policy classes pro Collections, Entries, atd.
+1. Regrese v locale a URL logice kvůli průřezovým závislostem.
+2. Skrytý dopad změn collections na dynamické entry resources a admin navigaci.
+3. Nízké pokrytí složitějších Filament interakcí automatizovanými testy.
 
 ### Střední priorita
 
-5. **Filament testy** — Livewire::test pro všechny resources
-6. **SEO pole** — Meta title, description, OG image na Entries
-7. **Navigace (frontend)** — Menu builder nebo automatické menu z kolekcí
-8. **Vyhledávání** — Full-text search přes záznamy
-9. **Slug unikátnost** — Across collections (aktuálně unique per collection+locale)
+1. Růst komplexity `Entry` modelu.
+2. Dokumentační drift mezi kódem a dokumentací.
+3. Budoucí frontend nekonzistence při rychlém rozšiřování UI.
 
-### Nízká priorita
+### Nižší priorita
 
-10. **API** — REST/JSON API pro headless přístup
-11. **Import/Export** — Content migration nástroje
-12. **Koše** — UI pro obnovení soft-deleted záznamů
-13. **Activity log** — Audit trail pro admin akce
-14. **Cache strategie** — Invalidation při změnách obsahu
+1. Default Laravel metadata v `composer.json`.
+2. Ne vždy zcela jasná role všech instalovaných balíčků bez průběžně psané usage dokumentace.
 
----
+## Doporučený způsob práce v tomto repu
 
-*Vygenerováno: 8. března 2026*
+1. Za zdroj pravdy ber kód a aktuální dokumentaci v `docs/`.
+2. Při zásahu do entries vždy ověř dopad na dynamické resource konfigurace.
+3. Při zásahu do locale workflow měň společně službu, middleware, URL generování, admin správu a testy.
+4. Při admin UI zásazích zkontroluj `AdminPanelProvider`, render hooky a existující panel customizace.
+5. Po architektonické změně aktualizuj README i tento dokument.
+
+## Závěr
+
+miPress je ve stavu solidního vlastního CMS základu se zdravou doménovou architekturou a dobře zvoleným admin stackem. Největší technické riziko neleží v jednotlivých souborech, ale v místech, kde se propojuje více vrstev najednou: locale workflow, dynamické admin resources a budoucí růst frontendu. Pokud se udrží disciplína v testech, dokumentaci a panel customizacích, je kódová základna dobře rozšiřitelná.

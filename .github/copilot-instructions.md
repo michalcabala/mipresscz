@@ -12,6 +12,7 @@ miPress is a modular CMS built on Laravel 12 + Filament 5, designed as a profess
 ## Installed Packages
 - spatie/laravel-permission — roles and permissions
 - bezhansalleh/filament-language-switch — language switching (cs/en)
+- craft-forge/filament-language-switcher — installed alongside the locale workflow; verify actual usage before changing locale UI
 - jeffgreco13/filament-breezy — user profile, 2FA
 - caresome/filament-auth-designer — auth page design
 - awcodes/mason — block-based drag & drop page builder field for Filament
@@ -20,14 +21,23 @@ miPress is a modular CMS built on Laravel 12 + Filament 5, designed as a profess
 ## Project Structure
 - Filament panel: `admin` at `/mpcp` (AdminPanelProvider)
 - Resources auto-discovered from `app/Filament/Resources/`
+- Entry resources are dynamic per active collection via `EntryResourceConfiguration` and `AdminPanelProvider::getCollectionResources()`
+- Locale management lives in `app/Filament/Pages/ManageLocales.php` as a Filament Page, not a Resource
+- Frontend language switcher is a custom view component: `app/View/Components/LanguageSwitcher.php` + `resources/views/components/language-switcher.blade.php`
+- Theme CSS entrypoint is `resources/css/filament/admin/theme.css` and already imports Mason + Curator plugin styles and `@source` paths
 - Custom FontAwesome icon sets via blade-icons:
   - `fal-*` — FA Light (`resources/svg/fa/light/`)
   - `fab-*` — FA Brands (`resources/svg/fa/brands/`)
   - Prefix must NOT contain hyphens (blade-icons splits on first `-`)
+- `README.md` is still the default Laravel scaffold and is not the source of truth for this project
 
 ## Architecture
 - Content model: Collections → Blueprints → Entries (inspired by Statamic)
 - Session driver: database
+- Frontend routing uses both prefixed and unprefixed catch-all entry routes in `routes/web.php`
+- Locale behavior is database-driven via `Locale`, `LocaleService`, and `SetFrontendLocale` middleware
+- Single-language frontend mode omits locale prefixes and redirects prefixed URLs to unprefixed URLs
+- Global locale access is centralized through the autoloaded `locales()` helper in `app/helpers.php`
 
 ## Roles & Permissions
 - Enum `App\Enums\UserRole` (SuperAdmin, Admin, Editor, Contributor)
@@ -48,6 +58,7 @@ miPress is a modular CMS built on Laravel 12 + Filament 5, designed as a profess
 - Follow PSR-12 coding standard
 - Models in `app/Models/`, enums in `app/Enums/`
 - Filament resources in `app/Filament/Resources/`
+- Follow the existing Filament split pattern: `Resource.php` delegates to `Schemas/*Form.php`, `Tables/*Table.php`, and `Pages/*`
 - All UI strings must be translated via `__()` or `trans()`
 - Database columns and code in English, UI text in Czech with English fallback
 - Run `vendor/bin/pint --dirty --format agent` after modifying PHP files
@@ -55,6 +66,8 @@ miPress is a modular CMS built on Laravel 12 + Filament 5, designed as a profess
 - Always pass `--no-interaction` to Artisan commands
 - Filament icons: use `Heroicon` enum or blade-icons string (e.g. `fal-house`)
 - Translations: Czech (`cs`) is primary, English (`en`) secondary
+- Prefer `GlobalSet::findByHandle()` / `GlobalSet::getValue()` over inventing new global helpers
+- Preserve existing render-hook based admin customizations in `AdminPanelProvider` unless the task explicitly changes panel chrome
 
 ### Testing
 - Write corresponding tests after creating any new class, model, seeder, or service
@@ -63,6 +76,9 @@ miPress is a modular CMS built on Laravel 12 + Filament 5, designed as a profess
 - Run each test and verify it passes: `php artisan test --filter=TestName`
 - If a test fails, fix the code and re-run until it passes
 - Test edge cases and validation
+- Test suite uses MySQL database `mipresscz_testing` via `phpunit.xml`, not SQLite
+- `tests/Pest.php` applies `RefreshDatabase` automatically to Feature tests
+- Existing coverage includes content system, entry routing, locale workflow, locale observer, locale service, and roles/permissions
 
 ### Artisan Commands — run automatically after each relevant operation
 - After migration change: `php artisan migrate`
@@ -79,6 +95,10 @@ miPress is a modular CMS built on Laravel 12 + Filament 5, designed as a profess
 - Commit after each logical unit with a descriptive message in English
 - Format: `feat: add roles and permissions system`
 - Types: feat, fix, refactor, test, chore, docs
+
+### Documentation
+- Treat application code and current docs in `docs/` as more reliable than `README.md`
+- If a task changes core architecture, routing, locale behavior, or admin structure, update the relevant project documentation in `docs/`
 
 ## Workflow for Each Task
 1. Read the assignment and make sure you understand it

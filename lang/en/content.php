@@ -6,7 +6,7 @@ return [
         'label' => 'Collection',
         'plural_label' => 'Collections',
         'navigation_label' => 'Collections',
-        'navigation_group' => 'Content',
+        'navigation_group' => 'Structure',
     ],
 
     'collection_fields' => [
@@ -30,7 +30,7 @@ return [
         'label' => 'Blueprint',
         'plural_label' => 'Blueprints',
         'navigation_label' => 'Blueprints',
-        'navigation_group' => 'Content',
+        'navigation_group' => 'Structure',
     ],
 
     'blueprint_fields' => [
@@ -102,7 +102,7 @@ return [
         'label' => 'Taxonomy',
         'plural_label' => 'Taxonomies',
         'navigation_label' => 'Taxonomies',
-        'navigation_group' => 'Content',
+        'navigation_group' => 'Structure',
     ],
 
     'taxonomy_fields' => [
@@ -118,6 +118,7 @@ return [
         'label' => 'Term',
         'plural_label' => 'Terms',
         'navigation_label' => 'Terms',
+        'navigation_group' => 'Structure',
     ],
 
     'term_fields' => [
@@ -166,7 +167,7 @@ return [
         'label' => 'Global Set',
         'plural_label' => 'Global Sets',
         'navigation_label' => 'Global Settings',
-        'navigation_group' => 'Content',
+        'navigation_group' => 'Structure',
     ],
 
     'global_fields' => [

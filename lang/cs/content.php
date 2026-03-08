@@ -6,7 +6,7 @@ return [
         'label' => 'Kolekce',
         'plural_label' => 'Kolekce',
         'navigation_label' => 'Kolekce',
-        'navigation_group' => 'Obsah',
+        'navigation_group' => 'Struktura',
     ],
 
     'collection_fields' => [
@@ -30,7 +30,7 @@ return [
         'label' => 'Blueprint',
         'plural_label' => 'Blueprinty',
         'navigation_label' => 'Blueprinty',
-        'navigation_group' => 'Obsah',
+        'navigation_group' => 'Struktura',
     ],
 
     'blueprint_fields' => [
@@ -102,7 +102,7 @@ return [
         'label' => 'Taxonomie',
         'plural_label' => 'Taxonomie',
         'navigation_label' => 'Taxonomie',
-        'navigation_group' => 'Obsah',
+        'navigation_group' => 'Struktura',
     ],
 
     'taxonomy_fields' => [
@@ -118,6 +118,7 @@ return [
         'label' => 'Termín',
         'plural_label' => 'Termíny',
         'navigation_label' => 'Termíny',
+        'navigation_group' => 'Struktura',
     ],
 
     'term_fields' => [
@@ -166,7 +167,7 @@ return [
         'label' => 'Globální sada',
         'plural_label' => 'Globální sady',
         'navigation_label' => 'Globální nastavení',
-        'navigation_group' => 'Obsah',
+        'navigation_group' => 'Struktura',
     ],
 
     'global_fields' => [
