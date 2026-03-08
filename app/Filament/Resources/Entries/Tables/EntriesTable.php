@@ -46,19 +46,21 @@ class EntriesTable
                     ->label(__('content.entry_fields.locale'))
                     ->html()
                     ->state(function (Entry $record): string {
-                        $flagMap = [
-                            'cs' => asset('assets/flags/CZ.svg'),
-                            'en' => asset('assets/flags/GB-UKM.svg'),
-                        ];
-
                         return collect([$record->locale])
                             ->merge($record->translations->pluck('locale'))
                             ->unique()
                             ->sort()
-                            ->map(fn (string $locale): string => isset($flagMap[$locale])
-                                ? '<img src="'.e($flagMap[$locale]).'" alt="'.e($locale).'" title="'.e(strtoupper($locale)).'" style="display:inline-block;width:1.35rem;height:1rem;border-radius:2px;margin-right:3px;" />'
-                                : '<span class="text-xs font-mono">'.e(strtoupper($locale)).'</span>')
-                            ->implode('');
+                            ->map(function (string $locale): string {
+                                $localeModel = locales()->findByCode($locale);
+                                if ($localeModel?->flag) {
+                                    $url = e(asset('assets/flags/'.$localeModel->flag));
+
+                                    return '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full overflow-hidden shrink-0" title="'.e($localeModel->native_name).'"><img src="'.$url.'" alt="'.e($locale).'" class="w-full h-full object-cover" /></span>';
+                                }
+
+                                return '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 text-xs font-bold">'.e(strtoupper($locale)).'</span>';
+                            })
+                            ->implode(' ');
                     }),
                 TextColumn::make('author.name')
                     ->label(__('content.entry_fields.author'))
@@ -85,10 +87,7 @@ class EntriesTable
                     ->options(EntryStatus::class),
                 SelectFilter::make('locale')
                     ->label(__('content.entry_fields.locale'))
-                    ->options([
-                        'cs' => __('content.locales.cs'),
-                        'en' => __('content.locales.en'),
-                    ])
+                    ->options(fn (): array => locales()->toSelectOptions())
                     ->query(fn (Builder $query, array $data): Builder => blank($data['value'])
                         ? $query
                         : $query->where(fn (Builder $q) => $q

@@ -9,17 +9,18 @@
                 <li>
                     @if($item['is_current'])
                         <span
-                            class="language-switcher__item language-switcher__item--active"
+                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 font-medium text-sm"
                             aria-current="true"
                         >
                             @if($locale->flag)
-                                <img
-                                    src="{{ asset('assets/flags/'.$locale->flag) }}"
-                                    alt="{{ $locale->native_name }}"
-                                    width="20"
-                                    height="15"
-                                    loading="lazy"
-                                />
+                                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full overflow-hidden shrink-0">
+                                    <img
+                                        src="{{ asset('assets/flags/'.$locale->flag) }}"
+                                        alt="{{ $locale->native_name }}"
+                                        class="w-full h-full object-cover"
+                                        loading="lazy"
+                                    />
+                                </span>
                             @endif
                             <span>{{ $locale->native_name }}</span>
                         </span>
@@ -28,16 +29,17 @@
                             href="{{ $item['url'] }}"
                             hreflang="{{ $locale->code }}"
                             lang="{{ $locale->code }}"
-                            class="language-switcher__item"
+                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                             @if($locale->flag)
-                                <img
-                                    src="{{ asset('assets/flags/'.$locale->flag) }}"
-                                    alt="{{ $locale->native_name }}"
-                                    width="20"
-                                    height="15"
-                                    loading="lazy"
-                                />
+                                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full overflow-hidden shrink-0">
+                                    <img
+                                        src="{{ asset('assets/flags/'.$locale->flag) }}"
+                                        alt="{{ $locale->native_name }}"
+                                        class="w-full h-full object-cover"
+                                        loading="lazy"
+                                    />
+                                </span>
                             @endif
                             <span>{{ $locale->native_name }}</span>
                         </a>

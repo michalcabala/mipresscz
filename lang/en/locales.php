@@ -11,7 +11,14 @@ return [
     'set_as_default_success' => 'Default language has been updated.',
     'cannot_delete_default' => 'The default language cannot be deleted.',
     'no_prefix' => '(default)',
+    'url_prefix_help' => 'Empty = default locale without prefix',
     'language_switcher' => 'Language selector',
+
+    'form_sections' => [
+        'general' => 'General',
+        'url' => 'URL & formatting',
+        'availability' => 'Availability',
+    ],
 
     'fields' => [
         'code' => 'Code',

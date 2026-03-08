@@ -11,7 +11,14 @@ return [
     'set_as_default_success' => 'Výchozí jazyk byl nastaven.',
     'cannot_delete_default' => 'Výchozí jazyk nelze smazat.',
     'no_prefix' => '(výchozí)',
+    'url_prefix_help' => 'Prázdné = výchozí jazyk bez prefixu',
     'language_switcher' => 'Výběr jazyka',
+
+    'form_sections' => [
+        'general' => 'Základní údaje',
+        'url' => 'URL a formátování',
+        'availability' => 'Dostupnost',
+    ],
 
     'fields' => [
         'code' => 'Kód',

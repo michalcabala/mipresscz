@@ -96,11 +96,8 @@ class EntryForm
                                 ->required(),
                             Select::make('locale')
                                 ->label(__('content.entry_fields.locale'))
-                                ->options([
-                                    'cs' => __('content.locales.cs'),
-                                    'en' => __('content.locales.en'),
-                                ])
-                                ->default('cs')
+                                ->options(fn (): array => locales()->toSelectOptions())
+                                ->default(fn (): string => locales()->getDefaultCode())
                                 ->required(),
                             DateTimePicker::make('published_at')
                                 ->label(__('content.entry_fields.published_at')),

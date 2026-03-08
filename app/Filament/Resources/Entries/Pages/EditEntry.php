@@ -15,6 +15,17 @@ class EditEntry extends EditRecord
 {
     protected static string $resource = EntryResource::class;
 
+    protected function renderFlagHtml(?string $flagFile, string $alt): string
+    {
+        if (! $flagFile) {
+            return '';
+        }
+
+        $url = e(asset("assets/flags/{$flagFile}"));
+
+        return '<span class="inline-flex items-center justify-center w-5 h-5 rounded-full overflow-hidden align-middle mr-1 shrink-0"><img src="'.$url.'" alt="'.e($alt).'" class="w-full h-full object-cover" /></span>';
+    }
+
     protected function resolveRecord(int|string $key): Entry
     {
         return Entry::with(['translations', 'origin.translations', 'blueprint'])
@@ -45,18 +56,13 @@ class EditEntry extends EditRecord
 
         $currentLocale = $record->locale;
         $currentFlagFile = $flagMap[$currentLocale] ?? null;
-        $currentFlagHtml = $currentFlagFile
-            ? '<img src="'.e(asset("assets/flags/{$currentFlagFile}")).'" alt="'.e($currentLocale).'" style="display:inline-block;width:1.25rem;height:.9rem;border-radius:2px;vertical-align:middle;margin-right:.3rem;" />'
-            : '';
+        $currentFlagHtml = $this->renderFlagHtml($currentFlagFile, $currentLocale);
 
         // Existing translations (excluding current)
         $switchItems = $translations
             ->reject(fn (Entry $entry) => $entry->id === $record->id)
             ->map(function (Entry $entry, string $locale) use ($flagMap): Action {
-                $flagFile = $flagMap[$locale] ?? null;
-                $flagHtml = $flagFile
-                    ? '<img src="'.e(asset("assets/flags/{$flagFile}")).'" alt="'.e($locale).'" style="display:inline-block;width:1.25rem;height:.9rem;border-radius:2px;vertical-align:middle;margin-right:.3rem;" />'
-                    : '';
+                $flagHtml = $this->renderFlagHtml($flagMap[$locale] ?? null, $locale);
 
                 return Action::make("locale_switch_{$locale}")
                     ->label(new HtmlString($flagHtml.strtoupper($locale)))
@@ -69,10 +75,7 @@ class EditEntry extends EditRecord
         // Create translation actions for missing locales
         $createItems = collect($missingLocales)
             ->map(function (string $locale) use ($record, $flagMap): Action {
-                $flagFile = $flagMap[$locale] ?? null;
-                $flagHtml = $flagFile
-                    ? '<img src="'.e(asset("assets/flags/{$flagFile}")).'" alt="'.e($locale).'" style="display:inline-block;width:1.25rem;height:.9rem;border-radius:2px;vertical-align:middle;margin-right:.3rem;" />'
-                    : '';
+                $flagHtml = $this->renderFlagHtml($flagMap[$locale] ?? null, $locale);
 
                 return Action::make("locale_create_{$locale}")
                     ->label(new HtmlString($flagHtml.strtoupper($locale).' +'))

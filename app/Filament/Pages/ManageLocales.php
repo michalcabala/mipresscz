@@ -12,6 +12,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -68,6 +70,14 @@ class ManageLocales extends Page implements HasTable
             ->query(Locale::query()->orderBy('order'))
             ->reorderable('order')
             ->columns([
+                TextColumn::make('flag')
+                    ->label('')
+                    ->html()
+                    ->state(fn (Locale $record): string => $record->flag
+                        ? '<span class="inline-flex items-center justify-center w-7 h-7 rounded-full overflow-hidden"><img src="'.e(asset("assets/flags/{$record->flag}")).'" class="w-full h-full object-cover" /></span>'
+                        : '<span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-700 text-xs font-bold">'.e(strtoupper(mb_substr($record->code, 0, 2))).'</span>')
+                    ->width(40),
+
                 TextColumn::make('code')
                     ->label(__('locales.fields.code'))
                     ->badge()
@@ -75,11 +85,8 @@ class ManageLocales extends Page implements HasTable
                     ->weight('bold'),
 
                 TextColumn::make('native_name')
-                    ->label(__('locales.fields.native_name')),
-
-                TextColumn::make('name')
-                    ->label(__('locales.fields.name'))
-                    ->color('gray'),
+                    ->label(__('locales.fields.native_name'))
+                    ->description(fn (Locale $record): string => $record->name),
 
                 TextColumn::make('url_prefix')
                     ->label(__('locales.fields.url_prefix'))
@@ -97,6 +104,11 @@ class ManageLocales extends Page implements HasTable
                 IconColumn::make('is_active')
                     ->label(__('locales.fields.is_active'))
                     ->boolean(),
+
+                IconColumn::make('is_admin_available')
+                    ->label(__('locales.fields.is_admin_available'))
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 IconColumn::make('is_frontend_available')
                     ->label(__('locales.fields.is_frontend_available'))
@@ -138,65 +150,94 @@ class ManageLocales extends Page implements HasTable
             ]);
     }
 
-    /** @return list<\Filament\Forms\Components\Component> */
+    /** @return list<\Filament\Schemas\Components\Component> */
     protected function getLocaleForm(): array
     {
         return [
-            TextInput::make('code')
-                ->label(__('locales.fields.code'))
-                ->required()
-                ->maxLength(10)
-                ->alphaDash()
-                ->unique(ignoreRecord: true),
+            Section::make(__('locales.form_sections.general'))
+                ->schema([
+                    Grid::make(2)->schema([
+                        TextInput::make('code')
+                            ->label(__('locales.fields.code'))
+                            ->required()
+                            ->maxLength(10)
+                            ->alphaDash()
+                            ->unique(ignoreRecord: true),
 
-            TextInput::make('name')
-                ->label(__('locales.fields.name'))
-                ->required()
-                ->maxLength(100),
+                        TextInput::make('name')
+                            ->label(__('locales.fields.name'))
+                            ->required()
+                            ->maxLength(100),
 
-            TextInput::make('native_name')
-                ->label(__('locales.fields.native_name'))
-                ->required()
-                ->maxLength(100),
+                        TextInput::make('native_name')
+                            ->label(__('locales.fields.native_name'))
+                            ->required()
+                            ->maxLength(100),
 
-            TextInput::make('flag')
-                ->label(__('locales.fields.flag'))
-                ->maxLength(50)
-                ->placeholder('CZ.svg'),
+                        Select::make('flag')
+                            ->label(__('locales.fields.flag'))
+                            ->options(function (): array {
+                                $path = public_path('assets/flags');
+                                if (! is_dir($path)) {
+                                    return [];
+                                }
 
-            TextInput::make('url_prefix')
-                ->label(__('locales.fields.url_prefix'))
-                ->maxLength(10)
-                ->nullable()
-                ->unique(ignoreRecord: true),
+                                return collect(scandir($path))
+                                    ->filter(fn (string $file): bool => str_ends_with($file, '.svg'))
+                                    ->sort()
+                                    ->mapWithKeys(fn (string $file): array => [$file => pathinfo($file, PATHINFO_FILENAME)])
+                                    ->all();
+                            })
+                            ->searchable()
+                            ->nullable(),
+                    ]),
+                ]),
 
-            TextInput::make('fallback_locale')
-                ->label(__('locales.fields.fallback_locale'))
-                ->maxLength(10)
-                ->nullable(),
+            Section::make(__('locales.form_sections.url'))
+                ->schema([
+                    Grid::make(3)->schema([
+                        TextInput::make('url_prefix')
+                            ->label(__('locales.fields.url_prefix'))
+                            ->maxLength(10)
+                            ->nullable()
+                            ->unique(ignoreRecord: true)
+                            ->helperText(__('locales.url_prefix_help')),
 
-            Select::make('direction')
-                ->label(__('locales.fields.direction'))
-                ->options(['ltr' => 'LTR', 'rtl' => 'RTL'])
-                ->default('ltr')
-                ->required(),
+                        TextInput::make('fallback_locale')
+                            ->label(__('locales.fields.fallback_locale'))
+                            ->maxLength(10)
+                            ->nullable(),
 
-            TextInput::make('date_format')
-                ->label(__('locales.fields.date_format'))
-                ->default('d.m.Y')
-                ->required(),
+                        Select::make('direction')
+                            ->label(__('locales.fields.direction'))
+                            ->options(['ltr' => 'LTR', 'rtl' => 'RTL'])
+                            ->default('ltr')
+                            ->required(),
+                    ]),
 
-            Toggle::make('is_active')
-                ->label(__('locales.fields.is_active'))
-                ->default(true),
+                    TextInput::make('date_format')
+                        ->label(__('locales.fields.date_format'))
+                        ->default('d.m.Y')
+                        ->required()
+                        ->maxLength(30),
+                ]),
 
-            Toggle::make('is_admin_available')
-                ->label(__('locales.fields.is_admin_available'))
-                ->default(true),
+            Section::make(__('locales.form_sections.availability'))
+                ->schema([
+                    Grid::make(3)->schema([
+                        Toggle::make('is_active')
+                            ->label(__('locales.fields.is_active'))
+                            ->default(true),
 
-            Toggle::make('is_frontend_available')
-                ->label(__('locales.fields.is_frontend_available'))
-                ->default(true),
+                        Toggle::make('is_admin_available')
+                            ->label(__('locales.fields.is_admin_available'))
+                            ->default(true),
+
+                        Toggle::make('is_frontend_available')
+                            ->label(__('locales.fields.is_frontend_available'))
+                            ->default(true),
+                    ]),
+                ]),
         ];
     }
 }
