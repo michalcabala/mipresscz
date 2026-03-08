@@ -15,15 +15,15 @@ class EditEntry extends EditRecord
 {
     protected static string $resource = EntryResource::class;
 
-    protected function renderFlagHtml(?string $flagFile, string $alt): string
+    protected function renderFlagHtml(?string $flagFile, string $alt, string $size = 'w-5 h-5'): string
     {
         if (! $flagFile) {
-            return '';
+            return '<span class="inline-flex items-center justify-center '.$size.' rounded-full bg-gray-100 dark:bg-gray-700 align-middle mr-1.5 shrink-0 text-[10px] font-bold text-gray-500">'.e(strtoupper(mb_substr($alt, 0, 2))).'</span>';
         }
 
         $url = e(asset("assets/flags/{$flagFile}"));
 
-        return '<span class="inline-flex items-center justify-center w-5 h-5 rounded-full overflow-hidden align-middle mr-1 shrink-0"><img src="'.$url.'" alt="'.e($alt).'" class="w-full h-full object-cover" /></span>';
+        return '<span class="inline-flex items-center justify-center '.$size.' rounded-full overflow-hidden align-middle mr-1.5 shrink-0"><img src="'.$url.'" alt="'.e($alt).'" class="w-full h-full object-cover" /></span>';
     }
 
     protected function resolveRecord(int|string $key): Entry
@@ -48,24 +48,26 @@ class EditEntry extends EditRecord
         $translations = $record->getTranslations();
         $missingLocales = $record->getMissingLocales();
 
-        /** @var array<string, string> $flagMap code => filename */
-        $flagMap = locales()->getActive()
-            ->filter(fn ($l) => $l->flag !== null)
-            ->mapWithKeys(fn ($l) => [$l->code => $l->flag])
-            ->all();
+        $activeLocales = locales()->getActive();
+        $localeMap = $activeLocales->keyBy('code');
 
         $currentLocale = $record->locale;
-        $currentFlagFile = $flagMap[$currentLocale] ?? null;
-        $currentFlagHtml = $this->renderFlagHtml($currentFlagFile, $currentLocale);
+        $currentLocaleModel = $localeMap->get($currentLocale);
+        $currentFlagHtml = $this->renderFlagHtml($currentLocaleModel?->flag, $currentLocale, 'w-6 h-6');
+
+        $existingCount = $translations->count();
+        $totalCount = $existingCount + count($missingLocales);
 
         // Existing translations (excluding current)
         $switchItems = $translations
             ->reject(fn (Entry $entry) => $entry->id === $record->id)
-            ->map(function (Entry $entry, string $locale) use ($flagMap): Action {
-                $flagHtml = $this->renderFlagHtml($flagMap[$locale] ?? null, $locale);
+            ->map(function (Entry $entry, string $locale) use ($localeMap): Action {
+                $localeModel = $localeMap->get($locale);
+                $flagHtml = $this->renderFlagHtml($localeModel?->flag, $locale);
+                $label = $localeModel?->native_name ?? strtoupper($locale);
 
                 return Action::make("locale_switch_{$locale}")
-                    ->label(new HtmlString($flagHtml.strtoupper($locale)))
+                    ->label(new HtmlString($flagHtml.e($label)))
                     ->url(static::getResource()::getUrl('edit', ['record' => $entry->id]))
                     ->color('gray');
             })
@@ -74,13 +76,18 @@ class EditEntry extends EditRecord
 
         // Create translation actions for missing locales
         $createItems = collect($missingLocales)
-            ->map(function (string $locale) use ($record, $flagMap): Action {
-                $flagHtml = $this->renderFlagHtml($flagMap[$locale] ?? null, $locale);
+            ->map(function (string $locale) use ($record, $localeMap): Action {
+                $localeModel = $localeMap->get($locale);
+                $flagHtml = $this->renderFlagHtml($localeModel?->flag, $locale);
+                $label = $localeModel?->native_name ?? strtoupper($locale);
 
                 return Action::make("locale_create_{$locale}")
-                    ->label(new HtmlString($flagHtml.strtoupper($locale).' +'))
+                    ->label(new HtmlString($flagHtml.e($label)))
                     ->icon(Heroicon::Plus)
                     ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading(__('content.actions.create_translation_for', ['locale' => $label]))
+                    ->modalDescription(__('content.actions.create_translation_confirm', ['locale' => $label]))
                     ->action(function () use ($record, $locale) {
                         $origin = $record->getOrigin();
 
@@ -105,15 +112,29 @@ class EditEntry extends EditRecord
             })
             ->all();
 
-        $allItems = array_merge($switchItems, $createItems);
-
-        if (empty($allItems)) {
+        if (empty($switchItems) && empty($createItems)) {
             return [];
         }
 
+        // Build dropdown items with a divider between groups
+        $dropdownItems = [];
+
+        if (! empty($switchItems)) {
+            $dropdownItems[] = ActionGroup::make($switchItems)->dropdown(false);
+        }
+
+        if (! empty($createItems)) {
+            $dropdownItems[] = ActionGroup::make($createItems)->dropdown(false);
+        }
+
+        $triggerLabel = $currentFlagHtml.e(strtoupper($currentLocale));
+        if ($totalCount > 1) {
+            $triggerLabel .= ' <span class="text-xs text-gray-400 ml-1">'.$existingCount.'/'.$totalCount.'</span>';
+        }
+
         return [
-            ActionGroup::make($allItems)
-                ->label(new HtmlString($currentFlagHtml.strtoupper($currentLocale)))
+            ActionGroup::make($dropdownItems)
+                ->label(new HtmlString($triggerLabel))
                 ->color('gray')
                 ->button()
                 ->dropdownPlacement('bottom-end'),
