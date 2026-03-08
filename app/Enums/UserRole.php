@@ -42,14 +42,24 @@ enum UserRole: string
         return match ($this) {
             self::SuperAdmin => [],
             self::Admin => [
-                'view.users',
-                'manage.users',
+                'view.users', 'manage.users',
+                'view.collections', 'manage.collections',
+                'view.entries', 'create.entries', 'update.entries', 'delete.entries',
+                'view.taxonomies', 'manage.taxonomies',
+                'view.blocks', 'manage.blocks',
+                'view.global_sets', 'manage.global_sets',
             ],
             self::Editor => [
                 'view.users',
+                'view.collections',
+                'view.entries', 'create.entries', 'update.entries', 'delete.entries',
+                'view.taxonomies', 'manage.taxonomies',
+                'view.blocks',
+                'view.global_sets',
             ],
             self::Contributor => [
-                'view.users',
+                'view.entries', 'create.entries', 'update.entries',
+                'view.taxonomies',
             ],
         };
     }

@@ -52,6 +52,15 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saved(function (User $user) {
+            if ($user->role && $user->wasChanged('role')) {
+                $user->syncRoles([$user->role->value]);
+            }
+        });
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
