@@ -23,6 +23,7 @@ return [
         'icon' => 'Icon',
         'is_active' => 'Active',
         'settings' => 'Settings',
+        'taxonomies' => 'Taxonomies',
     ],
 
     // ── Blueprints ──

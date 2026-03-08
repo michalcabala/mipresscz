@@ -83,6 +83,15 @@ class CollectionForm
                             ->label(__('content.collection_fields.is_active'))
                             ->default(true),
                     ]),
+                Section::make(__('content.collection_fields.taxonomies'))
+                    ->schema([
+                        Select::make('taxonomies')
+                            ->label(__('content.collection_fields.taxonomies'))
+                            ->relationship('taxonomies', 'title')
+                            ->multiple()
+                            ->preload()
+                            ->searchable(),
+                    ]),
             ]);
     }
 }

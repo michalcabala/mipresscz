@@ -66,7 +66,8 @@ class EntryForm
                                 ->columnSpanFull(),
                             Select::make('collection_id')
                                 ->label(__('content.entry_fields.collection'))
-                                ->relationship('collection', 'title')
+                                ->options(fn () => Collection::query()->where('is_active', true)->orderBy('title')->pluck('title', 'id'))
+                                ->searchable()
                                 ->required()
                                 ->live()
                                 ->default(fn () => $collectionHandle
@@ -77,14 +78,20 @@ class EntryForm
                                 ->afterStateUpdated(fn (callable $set) => $set('blueprint_id', null)),
                             Select::make('blueprint_id')
                                 ->label(__('content.entry_fields.blueprint'))
-                                ->options(function (Get $get) {
+                                ->options(function (Get $get) use ($collectionHandle) {
                                     $collectionId = $get('collection_id');
+
+                                    if (! $collectionId && $collectionHandle) {
+                                        $collectionId = Collection::query()->where('handle', $collectionHandle)->value('id');
+                                    }
+
                                     if (! $collectionId) {
                                         return [];
                                     }
 
                                     return Blueprint::query()
                                         ->where('collection_id', $collectionId)
+                                        ->where('is_active', true)
                                         ->pluck('title', 'id');
                                 })
                                 ->required()
