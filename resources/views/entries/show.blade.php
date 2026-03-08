@@ -19,8 +19,13 @@
             <p>{{ $entry->author->name }}</p>
         @endif
 
-        @if(!empty($entry->data['content']))
-            <div>
+        @if(!empty($entry->content))
+            <div class="entry-content">
+                {!! mason(content: $entry->content, bricks: \App\Mason\BrickCollection::all())->toHtml() !!}
+            </div>
+        @elseif(!empty($entry->data['content']))
+            {{-- Legacy fallback for entries not yet migrated to Mason --}}
+            <div class="entry-content prose">
                 {!! $entry->data['content'] !!}
             </div>
         @endif

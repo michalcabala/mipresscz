@@ -46,7 +46,6 @@ enum UserRole: string
                 'view.collections', 'manage.collections',
                 'view.entries', 'create.entries', 'update.entries', 'delete.entries',
                 'view.taxonomies', 'manage.taxonomies',
-                'view.blocks', 'manage.blocks',
                 'view.global_sets', 'manage.global_sets',
             ],
             self::Editor => [
@@ -54,7 +53,6 @@ enum UserRole: string
                 'view.collections',
                 'view.entries', 'create.entries', 'update.entries', 'delete.entries',
                 'view.taxonomies', 'manage.taxonomies',
-                'view.blocks',
                 'view.global_sets',
             ],
             self::Contributor => [

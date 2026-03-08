@@ -1,0 +1,58 @@
+<?php
+
+return [
+    'text' => 'Text',
+    'heading' => 'Heading',
+    'image' => 'Image',
+    'gallery' => 'Gallery',
+    'quote' => 'Quote',
+    'video' => 'Video',
+    'columns' => 'Columns',
+    'hero' => 'Hero section',
+    'button' => 'Button',
+    'divider' => 'Divider',
+    'html' => 'HTML',
+    'testimonial' => 'Testimonial',
+
+    'fields' => [
+        'content' => 'Content',
+        'text' => 'Text',
+        'heading' => 'Heading',
+        'heading_level' => 'Heading level',
+        'alignment' => 'Alignment',
+        'image' => 'Image',
+        'images' => 'Images',
+        'alt_text' => 'Alt text',
+        'caption' => 'Caption',
+        'columns' => 'Number of columns',
+        'left_column' => 'Left column',
+        'right_column' => 'Right column',
+        'column_ratio' => 'Column ratio',
+        'video_url' => 'Video URL',
+        'html_code' => 'HTML code',
+        'quote_text' => 'Quote text',
+        'author' => 'Author',
+        'source' => 'Source',
+        'company' => 'Company',
+        'rating' => 'Rating',
+        'author_photo' => 'Author photo',
+        'subheading' => 'Subheading',
+        'background_image' => 'Background image',
+        'button_label' => 'Button label',
+        'button_url' => 'Button URL',
+        'button_variant' => 'Button style',
+        'open_in_new_tab' => 'Open in new tab',
+    ],
+
+    'alignment' => [
+        'left' => 'Left',
+        'center' => 'Center',
+        'right' => 'Right',
+    ],
+
+    'variants' => [
+        'primary' => 'Primary',
+        'secondary' => 'Secondary',
+        'outline' => 'Outline',
+    ],
+];

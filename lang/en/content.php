@@ -63,6 +63,8 @@ return [
         'order' => 'Order',
         'data' => 'Data',
         'content' => 'Content',
+        'extra_fields' => 'Additional fields',
+        'metadata' => 'Metadata',
         'featured_image' => 'Featured image',
         'excerpt' => 'Excerpt',
     ],

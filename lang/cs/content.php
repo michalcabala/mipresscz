@@ -63,6 +63,8 @@ return [
         'order' => 'Pořadí',
         'data' => 'Data',
         'content' => 'Obsah',
+        'extra_fields' => 'Další pole',
+        'metadata' => 'Metadata',
         'featured_image' => 'Hlavní obrázek',
         'excerpt' => 'Perex',
     ],

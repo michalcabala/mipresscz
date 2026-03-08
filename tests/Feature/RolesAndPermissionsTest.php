@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Models\Block;
 use App\Models\Blueprint;
 use App\Models\Collection;
 use App\Models\Entry;
@@ -36,7 +35,6 @@ it('superadmin bypasses all authorization', function () {
         'author_id' => $superadmin->id,
     ]);
     $taxonomy = Taxonomy::factory()->create();
-    $block = Block::factory()->create();
     $globalSet = GlobalSet::factory()->create();
 
     expect($superadmin->can('viewAny', User::class))->toBeTrue()
@@ -47,8 +45,6 @@ it('superadmin bypasses all authorization', function () {
         ->and($superadmin->can('update', $collection))->toBeTrue()
         ->and($superadmin->can('viewAny', Taxonomy::class))->toBeTrue()
         ->and($superadmin->can('update', $taxonomy))->toBeTrue()
-        ->and($superadmin->can('viewAny', Block::class))->toBeTrue()
-        ->and($superadmin->can('update', $block))->toBeTrue()
         ->and($superadmin->can('viewAny', GlobalSet::class))->toBeTrue()
         ->and($superadmin->can('update', $globalSet))->toBeTrue();
 });
@@ -103,16 +99,6 @@ it('admin can manage taxonomies', function () {
         ->and($admin->can('delete', $taxonomy))->toBeTrue();
 });
 
-it('admin can manage blocks', function () {
-    $admin = createUserWithRole(UserRole::Admin);
-    $block = Block::factory()->create();
-
-    expect($admin->can('viewAny', Block::class))->toBeTrue()
-        ->and($admin->can('create', Block::class))->toBeTrue()
-        ->and($admin->can('update', $block))->toBeTrue()
-        ->and($admin->can('delete', $block))->toBeTrue();
-});
-
 it('admin can manage global sets', function () {
     $admin = createUserWithRole(UserRole::Admin);
     $globalSet = GlobalSet::factory()->create();
@@ -154,17 +140,6 @@ it('editor can view but not manage collections', function () {
         ->and($editor->can('create', Collection::class))->toBeFalse()
         ->and($editor->can('update', $collection))->toBeFalse()
         ->and($editor->can('delete', $collection))->toBeFalse();
-});
-
-it('editor can view but not manage blocks', function () {
-    $editor = createUserWithRole(UserRole::Editor);
-    $block = Block::factory()->create();
-
-    expect($editor->can('viewAny', Block::class))->toBeTrue()
-        ->and($editor->can('view', $block))->toBeTrue()
-        ->and($editor->can('create', Block::class))->toBeFalse()
-        ->and($editor->can('update', $block))->toBeFalse()
-        ->and($editor->can('delete', $block))->toBeFalse();
 });
 
 it('editor can view but not manage global sets', function () {
@@ -259,13 +234,6 @@ it('contributor cannot access collections', function () {
         ->and($contributor->can('create', Collection::class))->toBeFalse();
 });
 
-it('contributor cannot access blocks', function () {
-    $contributor = createUserWithRole(UserRole::Contributor);
-
-    expect($contributor->can('viewAny', Block::class))->toBeFalse()
-        ->and($contributor->can('create', Block::class))->toBeFalse();
-});
-
 it('contributor cannot access global sets', function () {
     $contributor = createUserWithRole(UserRole::Contributor);
 
@@ -299,7 +267,6 @@ it('defines correct permissions per role', function (UserRole $role, string $per
     'admin can manage.users' => [UserRole::Admin, 'manage.users', true],
     'admin can manage.collections' => [UserRole::Admin, 'manage.collections', true],
     'admin can delete.entries' => [UserRole::Admin, 'delete.entries', true],
-    'admin can manage.blocks' => [UserRole::Admin, 'manage.blocks', true],
     'admin can manage.global_sets' => [UserRole::Admin, 'manage.global_sets', true],
 
     // Editor partial access
@@ -309,7 +276,6 @@ it('defines correct permissions per role', function (UserRole $role, string $per
     'editor cannot manage.collections' => [UserRole::Editor, 'manage.collections', false],
     'editor can delete.entries' => [UserRole::Editor, 'delete.entries', true],
     'editor can manage.taxonomies' => [UserRole::Editor, 'manage.taxonomies', true],
-    'editor cannot manage.blocks' => [UserRole::Editor, 'manage.blocks', false],
     'editor cannot manage.global_sets' => [UserRole::Editor, 'manage.global_sets', false],
 
     // Contributor minimal access
@@ -321,6 +287,5 @@ it('defines correct permissions per role', function (UserRole $role, string $per
     'contributor cannot manage.taxonomies' => [UserRole::Contributor, 'manage.taxonomies', false],
     'contributor cannot view.users' => [UserRole::Contributor, 'view.users', false],
     'contributor cannot view.collections' => [UserRole::Contributor, 'view.collections', false],
-    'contributor cannot view.blocks' => [UserRole::Contributor, 'view.blocks', false],
     'contributor cannot view.global_sets' => [UserRole::Contributor, 'view.global_sets', false],
 ]);

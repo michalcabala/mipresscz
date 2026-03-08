@@ -15,6 +15,24 @@ use Illuminate\Database\Seeder;
 
 class ContentSeeder extends Seeder
 {
+    /**
+     * Wrap HTML content as a single Mason TextBrick array.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private static function textBrick(string $html): array
+    {
+        return [
+            [
+                'type' => 'masonBrick',
+                'attrs' => [
+                    'id' => 'text',
+                    'config' => ['content' => $html],
+                ],
+            ],
+        ];
+    }
+
     public function run(): void
     {
         $author = User::first() ?? User::factory()->create(['name' => 'Admin', 'email' => 'admin@mipress.cz']);
@@ -43,8 +61,7 @@ class ContentSeeder extends Seeder
                 'title' => 'Standardní stránka',
                 'is_default' => true,
                 'fields' => [
-                    ['handle' => 'content', 'type' => 'rich_editor', 'display' => 'Obsah', 'instructions' => 'Hlavní obsah stránky', 'required' => true, 'translatable' => true, 'width' => 100, 'section' => 'main', 'config' => [], 'order' => 1, 'conditions' => []],
-                    ['handle' => 'featured_image', 'type' => 'media', 'display' => 'Hlavní obrázek', 'instructions' => '', 'required' => false, 'translatable' => false, 'width' => 100, 'section' => 'sidebar', 'config' => ['max_files' => 1, 'accepted_types' => ['image/*']], 'order' => 2, 'conditions' => []],
+                    ['handle' => 'featured_image', 'type' => 'curator', 'display' => 'Hlavní obrázek', 'instructions' => '', 'required' => false, 'translatable' => false, 'width' => 100, 'section' => 'sidebar', 'config' => ['max_files' => 1, 'accepted_types' => ['image/*']], 'order' => 1, 'conditions' => []],
                 ],
             ],
         );
@@ -57,8 +74,7 @@ class ContentSeeder extends Seeder
                 'is_default' => false,
                 'fields' => [
                     ['handle' => 'hero_heading', 'type' => 'text', 'display' => 'Hero nadpis', 'instructions' => '', 'required' => true, 'translatable' => true, 'width' => 100, 'section' => 'main', 'config' => [], 'order' => 1, 'conditions' => []],
-                    ['handle' => 'hero_image', 'type' => 'media', 'display' => 'Hero obrázek', 'instructions' => '', 'required' => false, 'translatable' => false, 'width' => 100, 'section' => 'main', 'config' => ['max_files' => 1], 'order' => 2, 'conditions' => []],
-                    ['handle' => 'content_blocks', 'type' => 'blocks', 'display' => 'Bloky obsahu', 'instructions' => '', 'required' => false, 'translatable' => true, 'width' => 100, 'section' => 'main', 'config' => [], 'order' => 3, 'conditions' => []],
+                    ['handle' => 'hero_image', 'type' => 'curator', 'display' => 'Hero obrázek', 'instructions' => '', 'required' => false, 'translatable' => false, 'width' => 100, 'section' => 'main', 'config' => ['max_files' => 1], 'order' => 2, 'conditions' => []],
                 ],
             ],
         );
@@ -86,10 +102,9 @@ class ContentSeeder extends Seeder
                 'title' => 'Článek',
                 'is_default' => true,
                 'fields' => [
-                    ['handle' => 'content', 'type' => 'rich_editor', 'display' => 'Obsah', 'instructions' => '', 'required' => true, 'translatable' => true, 'width' => 100, 'section' => 'main', 'config' => [], 'order' => 1, 'conditions' => []],
-                    ['handle' => 'featured_image', 'type' => 'media', 'display' => 'Hlavní obrázek', 'instructions' => '', 'required' => false, 'translatable' => false, 'width' => 100, 'section' => 'sidebar', 'config' => ['max_files' => 1, 'accepted_types' => ['image/*']], 'order' => 2, 'conditions' => []],
-                    ['handle' => 'excerpt', 'type' => 'textarea', 'display' => 'Perex', 'instructions' => 'Krátký výtah článku', 'required' => false, 'translatable' => true, 'width' => 100, 'section' => 'main', 'config' => [], 'order' => 3, 'conditions' => []],
-                    ['handle' => 'related_articles', 'type' => 'entries', 'display' => 'Související články', 'instructions' => '', 'required' => false, 'translatable' => false, 'width' => 100, 'section' => 'sidebar', 'config' => ['collections' => ['articles'], 'max_items' => 3, 'create' => false], 'order' => 4, 'conditions' => []],
+                    ['handle' => 'featured_image', 'type' => 'curator', 'display' => 'Hlavní obrázek', 'instructions' => '', 'required' => false, 'translatable' => false, 'width' => 100, 'section' => 'sidebar', 'config' => ['max_files' => 1, 'accepted_types' => ['image/*']], 'order' => 1, 'conditions' => []],
+                    ['handle' => 'excerpt', 'type' => 'textarea', 'display' => 'Perex', 'instructions' => 'Krátký výtah článku', 'required' => false, 'translatable' => true, 'width' => 100, 'section' => 'sidebar', 'config' => [], 'order' => 2, 'conditions' => []],
+                    ['handle' => 'related_articles', 'type' => 'entries', 'display' => 'Související články', 'instructions' => '', 'required' => false, 'translatable' => false, 'width' => 100, 'section' => 'sidebar', 'config' => ['collections' => ['articles'], 'max_items' => 3, 'create' => false], 'order' => 3, 'conditions' => []],
                 ],
             ],
         );
@@ -193,9 +208,8 @@ class ContentSeeder extends Seeder
                 'published_at' => now(),
                 'author_id' => $author->id,
                 'order' => 1,
-                'data' => [
-                    'content' => '<h1>Vítejte na miPress</h1><p>Moderní CMS postavený na Laravel a Filament. Jednoduchý, rychlý a flexibilní.</p>',
-                ],
+                'data' => [],
+                'content' => self::textBrick('<h1>Vítejte na miPress</h1><p>Moderní CMS postavený na Laravel a Filament. Jednoduchý, rychlý a flexibilní.</p>'),
             ],
         );
 
@@ -210,9 +224,8 @@ class ContentSeeder extends Seeder
                 'author_id' => $author->id,
                 'parent_id' => $homepage->id,
                 'order' => 2,
-                'data' => [
-                    'content' => '<h1>O nás</h1><p>Jsme tým vývojářů, kteří milují open-source a Laravel ekosystém.</p>',
-                ],
+                'data' => [],
+                'content' => self::textBrick('<h1>O nás</h1><p>Jsme tým vývojářů, kteří milují open-source a Laravel ekosystém.</p>'),
             ],
         );
 
@@ -227,9 +240,8 @@ class ContentSeeder extends Seeder
                 'author_id' => $author->id,
                 'parent_id' => $homepage->id,
                 'order' => 3,
-                'data' => [
-                    'content' => '<h1>Kontakt</h1><p>Napište nám na <a href="mailto:info@mipress.cz">info@mipress.cz</a>.</p>',
-                ],
+                'data' => [],
+                'content' => self::textBrick('<h1>Kontakt</h1><p>Napište nám na <a href="mailto:info@mipress.cz">info@mipress.cz</a>.</p>'),
             ],
         );
 
@@ -245,10 +257,8 @@ class ContentSeeder extends Seeder
                 'published_at' => now()->subDays(10),
                 'author_id' => $author->id,
                 'order' => 1,
-                'data' => [
-                    'content' => '<p>Laravel je moderní PHP framework pro webové aplikace. V tomto článku si ukážeme základy.</p>',
-                    'excerpt' => 'Seznamte se s Laravel frameworkem — nejpopulárnějším PHP frameworkem současnosti.',
-                ],
+                'data' => ['excerpt' => 'Seznamte se s Laravel frameworkem — nejpopulárnějším PHP frameworkem současnosti.'],
+                'content' => self::textBrick('<p>Laravel je moderní PHP framework pro webové aplikace. V tomto článku si ukážeme základy.</p>'),
             ],
         );
         $article1->terms()->syncWithoutDetaching([$laravel->id, $php->id, $tagTutorial->id]);
@@ -263,10 +273,8 @@ class ContentSeeder extends Seeder
                 'published_at' => now()->subDays(7),
                 'author_id' => $author->id,
                 'order' => 2,
-                'data' => [
-                    'content' => '<p>Filament je nejrychlejší způsob, jak vytvořit administrační rozhraní v Laravelu.</p>',
-                    'excerpt' => 'Filament přináší elegantní řešení pro stavbu admin panelů.',
-                ],
+                'data' => ['excerpt' => 'Filament přináší elegantní řešení pro stavbu admin panelů.'],
+                'content' => self::textBrick('<p>Filament je nejrychlejší způsob, jak vytvořit administrační rozhraní v Laravelu.</p>'),
             ],
         );
         $article2->terms()->syncWithoutDetaching([$laravel->id, $php->id, $tagNovinka->id]);
@@ -281,10 +289,8 @@ class ContentSeeder extends Seeder
                 'published_at' => now()->subDays(4),
                 'author_id' => $author->id,
                 'order' => 3,
-                'data' => [
-                    'content' => '<p>Tailwind CSS je utility-first CSS framework. Zde je 10 tipů pro efektivní práci.</p>',
-                    'excerpt' => 'Vylepšete svůj workflow s Tailwind CSS pomocí těchto tipů.',
-                ],
+                'data' => ['excerpt' => 'Vylepšete svůj workflow s Tailwind CSS pomocí těchto tipů.'],
+                'content' => self::textBrick('<p>Tailwind CSS je utility-first CSS framework. Zde je 10 tipů pro efektivní práci.</p>'),
             ],
         );
         $article3->terms()->syncWithoutDetaching([$ui->id, $js->id, $tagTip->id]);
@@ -299,10 +305,8 @@ class ContentSeeder extends Seeder
                 'published_at' => now()->subDays(2),
                 'author_id' => $author->id,
                 'order' => 4,
-                'data' => [
-                    'content' => '<p>Livewire umožňuje stavět interaktivní rozhraní přímo v PHP. Žádný JavaScript není potřeba.</p>',
-                    'excerpt' => 'Objevte sílu Livewire pro tvorbu dynamických komponent.',
-                ],
+                'data' => ['excerpt' => 'Objevte sílu Livewire pro tvorbu dynamických komponent.'],
+                'content' => self::textBrick('<p>Livewire umožňuje stavět interaktivní rozhraní přímo v PHP. Žádný JavaScript není potřeba.</p>'),
             ],
         );
         $article4->terms()->syncWithoutDetaching([$laravel->id, $tagTutorial->id]);
@@ -317,10 +321,8 @@ class ContentSeeder extends Seeder
                 'published_at' => now()->subDays(1),
                 'author_id' => $author->id,
                 'order' => 5,
-                'data' => [
-                    'content' => '<p>Pest PHP je elegantní testovací framework. Ukážeme si, jak ho využít v Laravel projektu.</p>',
-                    'excerpt' => 'Naučte se psát testy s Pest PHP — moderní alternativou k PHPUnit.',
-                ],
+                'data' => ['excerpt' => 'Naučte se psát testy s Pest PHP — moderní alternativou k PHPUnit.'],
+                'content' => self::textBrick('<p>Pest PHP je elegantní testovací framework. Ukážeme si, jak ho využít v Laravel projektu.</p>'),
             ],
         );
         $article5->terms()->syncWithoutDetaching([$php->id, $laravel->id, $tagTutorial->id, $tagRecenze->id]);
@@ -338,10 +340,8 @@ class ContentSeeder extends Seeder
                 'published_at' => now()->subDays(10),
                 'author_id' => $author->id,
                 'order' => 1,
-                'data' => [
-                    'content' => '<p>Laravel is a modern PHP framework for web applications. In this article we will show you the basics.</p>',
-                    'excerpt' => 'Get to know the Laravel framework — the most popular PHP framework today.',
-                ],
+                'data' => ['excerpt' => 'Get to know the Laravel framework — the most popular PHP framework today.'],
+                'content' => self::textBrick('<p>Laravel is a modern PHP framework for web applications. In this article we will show you the basics.</p>'),
             ],
         );
 

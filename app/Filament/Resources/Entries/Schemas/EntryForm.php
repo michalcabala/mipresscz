@@ -4,12 +4,16 @@ namespace App\Filament\Resources\Entries\Schemas;
 
 use App\Enums\EntryStatus;
 use App\Filament\Resources\Entries\EntryResource;
+use App\Mason\BrickCollection;
 use App\Models\Blueprint;
 use App\Models\Collection;
 use App\Models\Entry;
+use Awcodes\Curator\Components\Forms\CuratorPicker;
+use Awcodes\Mason\Mason;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
@@ -44,7 +48,12 @@ class EntryForm
                                 ->required()
                                 ->maxLength(255),
 
-                            ...static::dynamicFields(),
+                            Mason::make('content')
+                                ->label(__('content.entry_fields.content'))
+                                ->bricks(BrickCollection::all())
+                                ->columnSpanFull(),
+
+                            ...static::dynamicMainFields(),
                         ]),
                     Section::make(__('content.entry_fields.status'))
                         ->columnSpan(1)
@@ -124,21 +133,122 @@ class EntryForm
                                 ->label(__('content.entry_fields.order'))
                                 ->numeric()
                                 ->default(0),
+
+                            ...static::dynamicSidebarFields(),
                         ]),
                 ]),
             ]);
     }
 
     /**
-     * @return array<int, \Filament\Forms\Components\Component>
+     * Build typed Filament form components from a blueprint's fields for the given section.
+     *
+     * @param  array<int, array<string, mixed>>  $fields
+     * @return array<int, \Filament\Schemas\Components\Component>
      */
-    protected static function dynamicFields(): array
+    protected static function buildFieldComponents(array $fields): array
+    {
+        $components = [];
+
+        foreach ($fields as $field) {
+            $handle = $field['handle'] ?? null;
+            $type = $field['type'] ?? 'text';
+            $label = $field['display'] ?? $handle;
+            $required = $field['required'] ?? false;
+
+            if (! $handle) {
+                continue;
+            }
+
+            $name = "data.{$handle}";
+
+            $component = match ($type) {
+                'textarea' => Textarea::make($name)->label($label)->rows(4),
+                'rich_editor' => RichEditor::make($name)->label($label),
+                'curator', 'media' => CuratorPicker::make($name)->label($label)->constrained(true)->lazyLoad(true),
+                'select' => Select::make($name)->label($label)->options($field['config']['options'] ?? []),
+                'toggle' => Toggle::make($name)->label($label),
+                'number' => TextInput::make($name)->label($label)->numeric(),
+                default => TextInput::make($name)->label($label)->maxLength(255),
+            };
+
+            if ($required) {
+                $component = $component->required();
+            }
+
+            $components[] = $component->columnSpanFull();
+        }
+
+        return $components;
+    }
+
+    /**
+     * @return array<int, \Filament\Schemas\Components\Component>
+     */
+    protected static function dynamicMainFields(): array
     {
         return [
-            KeyValue::make('data')
-                ->label(__('content.entry_fields.data'))
-                ->columnSpanFull()
-                ->addActionLabel(__('content.actions.create_entry')),
+            Section::make(__('content.entry_fields.extra_fields'))
+                ->schema(fn (Get $get): array => static::buildMainFieldsForBlueprint($get('blueprint_id')))
+                ->visible(fn (Get $get): bool => count(static::buildMainFieldsForBlueprint($get('blueprint_id'))) > 0)
+                ->collapsible(),
         ];
+    }
+
+    /**
+     * @return array<int, \Filament\Schemas\Components\Component>
+     */
+    protected static function dynamicSidebarFields(): array
+    {
+        return [
+            Section::make(__('content.entry_fields.metadata'))
+                ->schema(fn (Get $get): array => static::buildSidebarFieldsForBlueprint($get('blueprint_id')))
+                ->visible(fn (Get $get): bool => count(static::buildSidebarFieldsForBlueprint($get('blueprint_id'))) > 0)
+                ->collapsible(),
+        ];
+    }
+
+    /**
+     * @return array<int, \Filament\Schemas\Components\Component>
+     */
+    protected static function buildMainFieldsForBlueprint(?string $blueprintId): array
+    {
+        if (! $blueprintId) {
+            return [];
+        }
+
+        $blueprint = Blueprint::find($blueprintId);
+
+        if (! $blueprint) {
+            return [];
+        }
+
+        // Skip rich content types — they are replaced by Mason
+        $contentTypes = ['rich_editor', 'blocks', 'mason'];
+
+        $fields = collect($blueprint->getFieldsBySection('main'))
+            ->reject(fn (array $f) => in_array($f['type'] ?? '', $contentTypes))
+            ->values()
+            ->all();
+
+        return static::buildFieldComponents($fields);
+    }
+
+    /**
+     * @return array<int, \Filament\Schemas\Components\Component>
+     */
+    protected static function buildSidebarFieldsForBlueprint(?string $blueprintId): array
+    {
+        if (! $blueprintId) {
+            return [];
+        }
+
+        $blueprint = Blueprint::find($blueprintId);
+
+        if (! $blueprint) {
+            return [];
+        }
+
+        return static::buildFieldComponents($blueprint->getFieldsBySection('sidebar'));
     }
 }

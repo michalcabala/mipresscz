@@ -31,6 +31,7 @@ class EntryFactory extends Factory
             'title' => $title,
             'slug' => Str::slug($title),
             'data' => [],
+            'content' => null,
             'status' => EntryStatus::Draft,
             'order' => 0,
             'author_id' => User::factory(),

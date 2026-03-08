@@ -20,7 +20,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'view.collections', 'manage.collections',
             'view.entries', 'create.entries', 'update.entries', 'delete.entries',
             'view.taxonomies', 'manage.taxonomies',
-            'view.blocks', 'manage.blocks',
             'view.global_sets', 'manage.global_sets',
         ];
 

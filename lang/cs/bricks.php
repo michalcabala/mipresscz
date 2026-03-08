@@ -1,0 +1,58 @@
+<?php
+
+return [
+    'text' => 'Text',
+    'heading' => 'Nadpis',
+    'image' => 'Obrázek',
+    'gallery' => 'Galerie',
+    'quote' => 'Citát',
+    'video' => 'Video',
+    'columns' => 'Sloupce',
+    'hero' => 'Hero sekce',
+    'button' => 'Tlačítko',
+    'divider' => 'Oddělovač',
+    'html' => 'HTML',
+    'testimonial' => 'Reference',
+
+    'fields' => [
+        'content' => 'Obsah',
+        'text' => 'Text',
+        'heading' => 'Nadpis',
+        'heading_level' => 'Úroveň nadpisu',
+        'alignment' => 'Zarovnání',
+        'image' => 'Obrázek',
+        'images' => 'Obrázky',
+        'alt_text' => 'Alt text',
+        'caption' => 'Popisek',
+        'columns' => 'Počet sloupců',
+        'left_column' => 'Levý sloupec',
+        'right_column' => 'Pravý sloupec',
+        'column_ratio' => 'Poměr sloupců',
+        'video_url' => 'URL videa',
+        'html_code' => 'HTML kód',
+        'quote_text' => 'Text citátu',
+        'author' => 'Autor',
+        'source' => 'Zdroj',
+        'company' => 'Společnost',
+        'rating' => 'Hodnocení',
+        'author_photo' => 'Foto autora',
+        'subheading' => 'Podnadpis',
+        'background_image' => 'Obrázek pozadí',
+        'button_label' => 'Text tlačítka',
+        'button_url' => 'URL tlačítka',
+        'button_variant' => 'Styl tlačítka',
+        'open_in_new_tab' => 'Otevřít na nové záložce',
+    ],
+
+    'alignment' => [
+        'left' => 'Vlevo',
+        'center' => 'Na střed',
+        'right' => 'Vpravo',
+    ],
+
+    'variants' => [
+        'primary' => 'Primární',
+        'secondary' => 'Sekundární',
+        'outline' => 'Obrys',
+    ],
+];

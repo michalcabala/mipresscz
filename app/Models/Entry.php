@@ -28,6 +28,7 @@ class Entry extends Model
         'slug',
         'uri',
         'data',
+        'content',
         'status',
         'published_at',
         'expired_at',
@@ -42,6 +43,7 @@ class Entry extends Model
     {
         return [
             'data' => 'array',
+            'content' => 'array',
             'settings' => 'array',
             'status' => EntryStatus::class,
             'published_at' => 'datetime',
