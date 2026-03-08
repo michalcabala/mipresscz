@@ -58,6 +58,12 @@ class EntryForm
                     Section::make(__('content.entry_fields.status'))
                         ->columnSpan(1)
                         ->schema([
+                            CuratorPicker::make('featured_image_id')
+                                ->label(__('content.entry_fields.featured_image'))
+                                ->relationship('featuredImage', 'id')
+                                ->constrained(true)
+                                ->lazyLoad(true)
+                                ->columnSpanFull(),
                             Select::make('collection_id')
                                 ->label(__('content.entry_fields.collection'))
                                 ->relationship('collection', 'title')
@@ -224,10 +230,13 @@ class EntryForm
         }
 
         // Skip rich content types — they are replaced by Mason
+        // Skip featured_image — it's a fixed field in the sidebar
         $contentTypes = ['rich_editor', 'blocks', 'mason'];
+        $alwaysFixed = ['featured_image'];
 
         $fields = collect($blueprint->getFieldsBySection('main'))
             ->reject(fn (array $f) => in_array($f['type'] ?? '', $contentTypes))
+            ->reject(fn (array $f) => in_array($f['handle'] ?? '', $alwaysFixed))
             ->values()
             ->all();
 
@@ -249,6 +258,12 @@ class EntryForm
             return [];
         }
 
-        return static::buildFieldComponents($blueprint->getFieldsBySection('sidebar'));
+        // Skip featured_image — it's a fixed field in the sidebar
+        $fields = collect($blueprint->getFieldsBySection('sidebar'))
+            ->reject(fn (array $f) => in_array($f['handle'] ?? '', ['featured_image']))
+            ->values()
+            ->all();
+
+        return static::buildFieldComponents($fields);
     }
 }

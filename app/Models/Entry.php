@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EntryStatus;
+use Awcodes\Curator\Models\Media;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,6 +38,7 @@ class Entry extends Model
         'author_id',
         'is_pinned',
         'settings',
+        'featured_image_id',
     ];
 
     protected function casts(): array
@@ -76,6 +78,11 @@ class Entry extends Model
     public function collection(): BelongsTo
     {
         return $this->belongsTo(Collection::class);
+    }
+
+    public function featuredImage(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'featured_image_id');
     }
 
     public function blueprint(): BelongsTo

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Entries\Tables;
 
 use App\Enums\EntryStatus;
 use App\Filament\Resources\Entries\EntryResource;
+use Awcodes\Curator\Components\Tables\CuratorColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -19,6 +20,10 @@ class EntriesTable
 
         return $table
             ->columns([
+                CuratorColumn::make('featuredImage')
+                    ->label(__('content.entry_fields.featured_image'))
+                    ->size(48)
+                    ->toggleable(),
                 TextColumn::make('title')
                     ->label(__('content.entry_fields.title'))
                     ->searchable()
