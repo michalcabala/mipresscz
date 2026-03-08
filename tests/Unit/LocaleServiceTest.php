@@ -64,6 +64,26 @@ it('detects multilingual site', function () {
     expect(locales()->isMultilingual())->toBeTrue();
 });
 
+it('shouldPrefixUrls returns false for single frontend locale', function () {
+    Locale::factory()->create(['code' => 'cs', 'is_active' => true, 'is_frontend_available' => true, 'order' => 1]);
+
+    expect(locales()->shouldPrefixUrls())->toBeFalse();
+});
+
+it('shouldPrefixUrls returns true for multiple frontend locales', function () {
+    Locale::factory()->create(['code' => 'cs', 'is_active' => true, 'is_frontend_available' => true, 'order' => 1]);
+    Locale::factory()->create(['code' => 'en', 'is_active' => true, 'is_frontend_available' => true, 'order' => 2]);
+
+    expect(locales()->shouldPrefixUrls())->toBeTrue();
+});
+
+it('shouldPrefixUrls ignores non-frontend locales', function () {
+    Locale::factory()->create(['code' => 'cs', 'is_active' => true, 'is_frontend_available' => true, 'order' => 1]);
+    Locale::factory()->create(['code' => 'en', 'is_active' => true, 'is_frontend_available' => false, 'order' => 2]);
+
+    expect(locales()->shouldPrefixUrls())->toBeFalse();
+});
+
 it('caches locales', function () {
     Locale::factory()->create(['code' => 'cs', 'is_active' => true, 'order' => 1]);
 

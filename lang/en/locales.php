@@ -12,6 +12,7 @@ return [
     'cannot_delete_default' => 'The default language cannot be deleted.',
     'no_prefix' => '(default)',
     'url_prefix_help' => 'Empty = default locale without prefix',
+    'url_prefix_single_locale_hint' => 'Prefix is not used — only one frontend language is active.',
     'language_switcher' => 'Language selector',
 
     'form_sections' => [

@@ -91,6 +91,11 @@ class LocaleService
         return $this->getActive()->count() > 1;
     }
 
+    public function shouldPrefixUrls(): bool
+    {
+        return $this->getFrontendLocales()->count() > 1;
+    }
+
     public function clearCache(): void
     {
         Cache::forget(self::CACHE_KEY);

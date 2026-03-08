@@ -201,7 +201,9 @@ class ManageLocales extends Page implements HasTable
                             ->maxLength(10)
                             ->nullable()
                             ->unique(ignoreRecord: true)
-                            ->helperText(__('locales.url_prefix_help')),
+                            ->helperText(__('locales.url_prefix_help'))
+                            ->hint(fn (): ?string => locales()->shouldPrefixUrls() ? null : __('locales.url_prefix_single_locale_hint'))
+                            ->hintColor('warning'),
 
                         TextInput::make('fallback_locale')
                             ->label(__('locales.fields.fallback_locale'))

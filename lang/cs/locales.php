@@ -12,6 +12,7 @@ return [
     'cannot_delete_default' => 'Výchozí jazyk nelze smazat.',
     'no_prefix' => '(výchozí)',
     'url_prefix_help' => 'Prázdné = výchozí jazyk bez prefixu',
+    'url_prefix_single_locale_hint' => 'Prefix se nepoužívá — na frontendu je aktivní jen jeden jazyk.',
     'language_switcher' => 'Výběr jazyka',
 
     'form_sections' => [

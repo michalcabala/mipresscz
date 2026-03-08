@@ -132,3 +132,57 @@ it('frontend routes locale-prefixed entries correctly', function () {
 
     $this->get('/en/home')->assertSuccessful();
 });
+
+// ── Single-locale behavior ──
+
+it('getFullUrl omits prefix when single frontend locale', function () {
+    // Replace the two-locale beforeEach setup with single locale
+    Locale::query()->delete();
+    locales()->clearCache();
+    Locale::factory()->create(['code' => 'cs', 'is_default' => true, 'is_active' => true, 'is_frontend_available' => true, 'url_prefix' => 'cs', 'order' => 1]);
+    locales()->clearCache();
+
+    $collection = Collection::factory()->create(['route_template' => '/{slug}', 'handle' => 'pages']);
+    $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
+
+    $entry = Entry::factory()->create([
+        'collection_id' => $collection->id,
+        'blueprint_id' => $blueprint->id,
+        'locale' => 'cs',
+        'slug' => 'uvod',
+    ]);
+
+    $url = $entry->getFullUrl();
+
+    expect($url)->toContain('/uvod');
+    expect($url)->not->toContain('/cs/');
+});
+
+it('getHreflangTags returns empty when single frontend locale', function () {
+    Locale::query()->delete();
+    locales()->clearCache();
+    Locale::factory()->create(['code' => 'cs', 'is_default' => true, 'is_active' => true, 'is_frontend_available' => true, 'url_prefix' => null, 'order' => 1]);
+    locales()->clearCache();
+
+    $collection = Collection::factory()->create(['route_template' => '/{slug}', 'handle' => 'pages']);
+    $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
+
+    $origin = Entry::factory()->create([
+        'collection_id' => $collection->id,
+        'blueprint_id' => $blueprint->id,
+        'locale' => 'cs',
+        'slug' => 'uvod',
+        'status' => EntryStatus::Published,
+    ]);
+
+    expect($origin->getHreflangTags())->toBeEmpty();
+});
+
+it('redirects prefixed URL to unprefixed when single frontend locale', function () {
+    Locale::query()->delete();
+    locales()->clearCache();
+    Locale::factory()->create(['code' => 'cs', 'is_default' => true, 'is_active' => true, 'is_frontend_available' => true, 'url_prefix' => 'cs', 'order' => 1]);
+    locales()->clearCache();
+
+    $this->get('/cs/uvod')->assertRedirect('/uvod');
+});

@@ -286,8 +286,12 @@ class Entry extends Model
             return null;
         }
 
-        $locale = locales()->findByCode($this->locale);
-        $prefix = $locale?->url_prefix ? '/'.$locale->url_prefix : '';
+        $prefix = '';
+
+        if (locales()->shouldPrefixUrls()) {
+            $locale = locales()->findByCode($this->locale);
+            $prefix = $locale?->url_prefix ? '/'.$locale->url_prefix : '';
+        }
 
         return url($prefix.$this->uri);
     }
@@ -297,6 +301,10 @@ class Entry extends Model
      */
     public function getHreflangTags(): array
     {
+        if (! locales()->shouldPrefixUrls()) {
+            return [];
+        }
+
         $translations = $this->getTranslations();
         $tags = [];
 
