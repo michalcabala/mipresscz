@@ -30,6 +30,7 @@ return [
         'label' => 'Blueprint',
         'plural_label' => 'Blueprinty',
         'navigation_label' => 'Blueprinty',
+        'navigation_group' => 'Obsah',
     ],
 
     'blueprint_fields' => [
@@ -38,6 +39,33 @@ return [
         'is_default' => 'Výchozí',
         'fields' => 'Pole',
         'collection' => 'Kolekce',
+        'add_field' => 'Přidat pole',
+    ],
+
+    'field_types' => [
+        'label' => 'Typ pole',
+        'text' => 'Text',
+        'textarea' => 'Víceřádkový text',
+        'rich_editor' => 'Bohatý text',
+        'mason' => 'Mason (bloky)',
+        'number' => 'Číslo',
+        'select' => 'Výběr',
+        'toggle' => 'Přepínač',
+        'curator' => 'Média',
+        'entries' => 'Záznamy',
+    ],
+
+    'field_config' => [
+        'instructions' => 'Nápověda',
+        'section' => 'Sekce',
+        'section_main' => 'Hlavní',
+        'section_sidebar' => 'Postranní panel',
+        'width' => 'Šířka',
+        'width_half' => '1/2 šířky',
+        'width_full' => 'Celá šířka',
+        'required' => 'Povinné',
+        'translatable' => 'Přeložitelné',
+        'config' => 'Konfigurace',
     ],
 
     // ── Entries ──

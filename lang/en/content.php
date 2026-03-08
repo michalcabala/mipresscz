@@ -30,6 +30,7 @@ return [
         'label' => 'Blueprint',
         'plural_label' => 'Blueprints',
         'navigation_label' => 'Blueprints',
+        'navigation_group' => 'Content',
     ],
 
     'blueprint_fields' => [
@@ -38,6 +39,33 @@ return [
         'is_default' => 'Default',
         'fields' => 'Fields',
         'collection' => 'Collection',
+        'add_field' => 'Add field',
+    ],
+
+    'field_types' => [
+        'label' => 'Field type',
+        'text' => 'Text',
+        'textarea' => 'Textarea',
+        'rich_editor' => 'Rich editor',
+        'mason' => 'Mason (blocks)',
+        'number' => 'Number',
+        'select' => 'Select',
+        'toggle' => 'Toggle',
+        'curator' => 'Media',
+        'entries' => 'Entries',
+    ],
+
+    'field_config' => [
+        'instructions' => 'Instructions',
+        'section' => 'Section',
+        'section_main' => 'Main',
+        'section_sidebar' => 'Sidebar',
+        'width' => 'Width',
+        'width_half' => '1/2 width',
+        'width_full' => 'Full width',
+        'required' => 'Required',
+        'translatable' => 'Translatable',
+        'config' => 'Configuration',
     ],
 
     // ── Entries ──
