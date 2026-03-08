@@ -215,6 +215,7 @@ return [
         'translate' => 'Translate',
         'create_translation' => 'Create translation',
         'create_translation_for' => 'Create translation — :locale',
+        'add_short' => 'Add',
         'create_translation_confirm' => 'A new translation for :locale will be created. Data will be copied from the original entry.',
         'restore_revision' => 'Restore revision',
         'view_revisions' => 'View revisions',

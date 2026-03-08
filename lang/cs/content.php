@@ -215,6 +215,7 @@ return [
         'translate' => 'Přeložit',
         'create_translation' => 'Vytvořit překlad',
         'create_translation_for' => 'Vytvořit překlad — :locale',
+        'add_short' => 'Přidat',
         'create_translation_confirm' => 'Bude vytvořen nový překlad pro jazyk :locale. Data budou zkopírována z původního záznamu.',
         'restore_revision' => 'Obnovit revizi',
         'view_revisions' => 'Zobrazit revize',

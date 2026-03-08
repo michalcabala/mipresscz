@@ -4,39 +4,17 @@ namespace App\Filament\Resources\Entries\Pages;
 
 use App\Filament\Resources\Entries\EntryResource;
 use App\Models\Entry;
+use App\Models\Locale;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 
 class EditEntry extends EditRecord
 {
     protected static string $resource = EntryResource::class;
-
-    protected function renderFlagHtml(?string $flagFile, string $alt, string $size = 'size-5'): string
-    {
-        if (! $flagFile) {
-            return '<span class="inline-flex items-center justify-center '.$size.' rounded-full bg-gray-100 dark:bg-gray-700 shrink-0 text-[10px] font-bold text-gray-500 uppercase">'.e(mb_substr($alt, 0, 2)).'</span>';
-        }
-
-        $url = e(asset("assets/flags/{$flagFile}"));
-
-        return '<span class="inline-flex items-center justify-center '.$size.' rounded-full overflow-hidden shrink-0"><img src="'.$url.'" alt="'.e($alt).'" class="w-full h-full object-cover" /></span>';
-    }
-
-    protected function buildLabel(string $flagHtml, string $text, ?string $suffix = null): HtmlString
-    {
-        $html = '<span class="flex items-center gap-x-2">'.$flagHtml.'<span class="truncate">'.e($text).'</span>';
-
-        if ($suffix) {
-            $html .= $suffix;
-        }
-
-        $html .= '</span>';
-
-        return new HtmlString($html);
-    }
 
     protected function resolveRecord(int|string $key): Entry
     {
@@ -52,6 +30,21 @@ class EditEntry extends EditRecord
         ];
     }
 
+    /**
+     * Inline round flag <img> tag that works inside Filament's truncated
+     * dropdown-item labels (no wrapper spans, just a plain <img>).
+     */
+    protected function flagImg(?string $flagFile, string $alt, string $sizeClass = 'size-5'): string
+    {
+        if (! $flagFile) {
+            return '';
+        }
+
+        $url = e(asset("assets/flags/{$flagFile}"));
+
+        return '<img src="'.$url.'" alt="'.e($alt).'" class="inline '.$sizeClass.' rounded-full object-cover align-middle" />';
+    }
+
     /** @return list<Action|ActionGroup> */
     protected function getLocaleActions(): array
     {
@@ -60,47 +53,53 @@ class EditEntry extends EditRecord
         $translations = $record->getTranslations();
         $missingLocales = $record->getMissingLocales();
 
+        /** @var Collection<string, Locale> $localeMap */
         $localeMap = locales()->getActive()->keyBy('code');
 
+        if ($localeMap->count() <= 1) {
+            return [];
+        }
+
         $currentLocale = $record->locale;
-        $currentLocaleModel = $localeMap->get($currentLocale);
-        $currentFlagHtml = $this->renderFlagHtml($currentLocaleModel?->flag, $currentLocale, 'size-6');
+        $currentModel = $localeMap->get($currentLocale);
 
         $existingCount = $translations->count();
         $totalCount = $existingCount + count($missingLocales);
 
-        // Existing translations (excluding current)
+        // --- Switch to existing translation ---
         $switchItems = $translations
             ->reject(fn (Entry $entry) => $entry->id === $record->id)
             ->map(function (Entry $entry, string $locale) use ($localeMap): Action {
-                $localeModel = $localeMap->get($locale);
-                $flagHtml = $this->renderFlagHtml($localeModel?->flag, $locale);
-                $name = $localeModel?->native_name ?? strtoupper($locale);
+                $model = $localeMap->get($locale);
+                $flag = $this->flagImg($model?->flag, $locale, 'size-4');
+                $name = $model?->native_name ?? strtoupper($locale);
 
                 return Action::make("locale_switch_{$locale}")
-                    ->label($this->buildLabel($flagHtml, $name))
-                    ->url(static::getResource()::getUrl('edit', ['record' => $entry->id]))
-                    ->color('gray');
+                    ->label(new HtmlString($flag ? "{$flag} ".e($name) : e($name)))
+                    ->badge(strtoupper($locale))
+                    ->badgeColor('gray')
+                    ->color('gray')
+                    ->url(static::getResource()::getUrl('edit', ['record' => $entry->id]));
             })
             ->values()
             ->all();
 
-        // Create translation actions for missing locales
+        // --- Create missing translation ---
         $createItems = collect($missingLocales)
             ->map(function (string $locale) use ($record, $localeMap): Action {
-                $localeModel = $localeMap->get($locale);
-                $flagHtml = $this->renderFlagHtml($localeModel?->flag, $locale);
-                $name = $localeModel?->native_name ?? strtoupper($locale);
+                $model = $localeMap->get($locale);
+                $flag = $this->flagImg($model?->flag, $locale, 'size-4');
+                $name = $model?->native_name ?? strtoupper($locale);
 
                 return Action::make("locale_create_{$locale}")
-                    ->label($this->buildLabel($flagHtml, $name))
-                    ->badge('+')
+                    ->label(new HtmlString($flag ? "{$flag} ".e($name) : e($name)))
+                    ->badge(__('content.actions.add_short'))
                     ->badgeColor('success')
                     ->color('gray')
                     ->requiresConfirmation()
                     ->modalHeading(__('content.actions.create_translation_for', ['locale' => $name]))
                     ->modalDescription(__('content.actions.create_translation_confirm', ['locale' => $name]))
-                    ->action(function () use ($record, $locale) {
+                    ->action(function () use ($record, $locale): void {
                         $origin = $record->getOrigin();
 
                         $translation = Entry::create([
@@ -128,7 +127,7 @@ class EditEntry extends EditRecord
             return [];
         }
 
-        // Build dropdown items with a divider between groups
+        // --- Group with divider between existing / missing ---
         $dropdownItems = [];
 
         if (! empty($switchItems)) {
@@ -139,16 +138,18 @@ class EditEntry extends EditRecord
             $dropdownItems[] = ActionGroup::make($createItems)->dropdown(false);
         }
 
-        // Trigger button label
-        $counterHtml = ($totalCount > 1)
-            ? '<span class="text-xs opacity-50 tabular-nums">'.$existingCount.'/'.$totalCount.'</span>'
-            : '';
-
-        $triggerLabel = $this->buildLabel($currentFlagHtml, strtoupper($currentLocale), $counterHtml);
+        // --- Trigger button ---
+        $triggerFlag = $this->flagImg($currentModel?->flag, $currentLocale, 'size-5');
+        $triggerText = strtoupper($currentLocale);
+        $triggerHtml = $triggerFlag
+            ? "{$triggerFlag} {$triggerText}"
+            : $triggerText;
 
         return [
             ActionGroup::make($dropdownItems)
-                ->label($triggerLabel)
+                ->label(new HtmlString($triggerHtml))
+                ->badge($totalCount > 1 ? "{$existingCount}/{$totalCount}" : null)
+                ->badgeColor($existingCount < $totalCount ? 'warning' : 'success')
                 ->color('gray')
                 ->button()
                 ->dropdownPlacement('bottom-end'),
