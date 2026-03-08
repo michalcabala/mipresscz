@@ -8,22 +8,34 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
-use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\HtmlString;
 
 class EditEntry extends EditRecord
 {
     protected static string $resource = EntryResource::class;
 
-    protected function renderFlagHtml(?string $flagFile, string $alt, string $size = 'w-5 h-5'): string
+    protected function renderFlagHtml(?string $flagFile, string $alt, string $size = 'size-5'): string
     {
         if (! $flagFile) {
-            return '<span class="inline-flex items-center justify-center '.$size.' rounded-full bg-gray-100 dark:bg-gray-700 align-middle mr-1.5 shrink-0 text-[10px] font-bold text-gray-500">'.e(strtoupper(mb_substr($alt, 0, 2))).'</span>';
+            return '<span class="inline-flex items-center justify-center '.$size.' rounded-full bg-gray-100 dark:bg-gray-700 shrink-0 text-[10px] font-bold text-gray-500 uppercase">'.e(mb_substr($alt, 0, 2)).'</span>';
         }
 
         $url = e(asset("assets/flags/{$flagFile}"));
 
-        return '<span class="inline-flex items-center justify-center '.$size.' rounded-full overflow-hidden align-middle mr-1.5 shrink-0"><img src="'.$url.'" alt="'.e($alt).'" class="w-full h-full object-cover" /></span>';
+        return '<span class="inline-flex items-center justify-center '.$size.' rounded-full overflow-hidden shrink-0"><img src="'.$url.'" alt="'.e($alt).'" class="w-full h-full object-cover" /></span>';
+    }
+
+    protected function buildLabel(string $flagHtml, string $text, ?string $suffix = null): HtmlString
+    {
+        $html = '<span class="flex items-center gap-x-2">'.$flagHtml.'<span class="truncate">'.e($text).'</span>';
+
+        if ($suffix) {
+            $html .= $suffix;
+        }
+
+        $html .= '</span>';
+
+        return new HtmlString($html);
     }
 
     protected function resolveRecord(int|string $key): Entry
@@ -48,12 +60,11 @@ class EditEntry extends EditRecord
         $translations = $record->getTranslations();
         $missingLocales = $record->getMissingLocales();
 
-        $activeLocales = locales()->getActive();
-        $localeMap = $activeLocales->keyBy('code');
+        $localeMap = locales()->getActive()->keyBy('code');
 
         $currentLocale = $record->locale;
         $currentLocaleModel = $localeMap->get($currentLocale);
-        $currentFlagHtml = $this->renderFlagHtml($currentLocaleModel?->flag, $currentLocale, 'w-6 h-6');
+        $currentFlagHtml = $this->renderFlagHtml($currentLocaleModel?->flag, $currentLocale, 'size-6');
 
         $existingCount = $translations->count();
         $totalCount = $existingCount + count($missingLocales);
@@ -64,10 +75,10 @@ class EditEntry extends EditRecord
             ->map(function (Entry $entry, string $locale) use ($localeMap): Action {
                 $localeModel = $localeMap->get($locale);
                 $flagHtml = $this->renderFlagHtml($localeModel?->flag, $locale);
-                $label = $localeModel?->native_name ?? strtoupper($locale);
+                $name = $localeModel?->native_name ?? strtoupper($locale);
 
                 return Action::make("locale_switch_{$locale}")
-                    ->label(new HtmlString($flagHtml.e($label)))
+                    ->label($this->buildLabel($flagHtml, $name))
                     ->url(static::getResource()::getUrl('edit', ['record' => $entry->id]))
                     ->color('gray');
             })
@@ -79,15 +90,16 @@ class EditEntry extends EditRecord
             ->map(function (string $locale) use ($record, $localeMap): Action {
                 $localeModel = $localeMap->get($locale);
                 $flagHtml = $this->renderFlagHtml($localeModel?->flag, $locale);
-                $label = $localeModel?->native_name ?? strtoupper($locale);
+                $name = $localeModel?->native_name ?? strtoupper($locale);
 
                 return Action::make("locale_create_{$locale}")
-                    ->label(new HtmlString($flagHtml.e($label)))
-                    ->icon(Heroicon::Plus)
-                    ->color('success')
+                    ->label($this->buildLabel($flagHtml, $name))
+                    ->badge('+')
+                    ->badgeColor('success')
+                    ->color('gray')
                     ->requiresConfirmation()
-                    ->modalHeading(__('content.actions.create_translation_for', ['locale' => $label]))
-                    ->modalDescription(__('content.actions.create_translation_confirm', ['locale' => $label]))
+                    ->modalHeading(__('content.actions.create_translation_for', ['locale' => $name]))
+                    ->modalDescription(__('content.actions.create_translation_confirm', ['locale' => $name]))
                     ->action(function () use ($record, $locale) {
                         $origin = $record->getOrigin();
 
@@ -127,14 +139,16 @@ class EditEntry extends EditRecord
             $dropdownItems[] = ActionGroup::make($createItems)->dropdown(false);
         }
 
-        $triggerLabel = $currentFlagHtml.e(strtoupper($currentLocale));
-        if ($totalCount > 1) {
-            $triggerLabel .= ' <span class="text-xs text-gray-400 ml-1">'.$existingCount.'/'.$totalCount.'</span>';
-        }
+        // Trigger button label
+        $counterHtml = ($totalCount > 1)
+            ? '<span class="text-xs opacity-50 tabular-nums">'.$existingCount.'/'.$totalCount.'</span>'
+            : '';
+
+        $triggerLabel = $this->buildLabel($currentFlagHtml, strtoupper($currentLocale), $counterHtml);
 
         return [
             ActionGroup::make($dropdownItems)
-                ->label(new HtmlString($triggerLabel))
+                ->label($triggerLabel)
                 ->color('gray')
                 ->button()
                 ->dropdownPlacement('bottom-end'),
