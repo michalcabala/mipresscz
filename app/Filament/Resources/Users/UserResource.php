@@ -11,7 +11,6 @@ use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 class UserResource extends Resource
@@ -21,6 +20,21 @@ class UserResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'fal-user-group';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getModelLabel(): string
+    {
+        return __('users.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('users.plural_label');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('users.navigation_label');
+    }
 
     public static function form(Schema $schema): Schema
     {

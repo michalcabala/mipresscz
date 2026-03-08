@@ -15,17 +15,21 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('users.fields.name'))
                     ->description(fn ($record) => $record->email)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('email_verified_at')
+                    ->label(__('users.fields.email_verified_at'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label(__('users.fields.created_at'))
                     ->isoDateTime('LLL')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('users.fields.updated_at'))
                     ->isoDateTime('LLL')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
