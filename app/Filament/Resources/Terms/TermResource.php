@@ -28,11 +28,6 @@ class TermResource extends Resource
         return __('content.terms.navigation_group');
     }
 
-    public static function getNavigationParentItem(): ?string
-    {
-        return __('content.taxonomies.navigation_label');
-    }
-
     public static function getModelLabel(): string
     {
         return __('content.terms.label');
