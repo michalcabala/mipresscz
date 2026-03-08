@@ -112,6 +112,7 @@ return [
         'is_hierarchical' => 'Hierarchická',
         'is_active' => 'Aktivní',
         'description' => 'Popis',
+        'collections' => 'Kolekce',
     ],
 
     // ── Terms ──

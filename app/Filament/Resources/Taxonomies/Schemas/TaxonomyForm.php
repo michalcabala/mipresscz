@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Taxonomies\Schemas;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -37,6 +38,12 @@ class TaxonomyForm
                 Toggle::make('is_active')
                     ->label(__('content.taxonomy_fields.is_active'))
                     ->default(true),
+                Select::make('collections')
+                    ->label(__('content.taxonomy_fields.collections'))
+                    ->relationship('collections', 'title')
+                    ->multiple()
+                    ->preload()
+                    ->searchable(),
             ]);
     }
 }

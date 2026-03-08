@@ -112,6 +112,7 @@ return [
         'is_hierarchical' => 'Hierarchical',
         'is_active' => 'Active',
         'description' => 'Description',
+        'collections' => 'Collections',
     ],
 
     // ── Terms ──
