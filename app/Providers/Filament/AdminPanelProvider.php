@@ -2,15 +2,20 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Resources\Entries\EntryResource;
+use App\Models\Collection;
+use Caresome\FilamentAuthDesigner\AuthDesignerPlugin;
+use Caresome\FilamentAuthDesigner\Data\AuthPageConfig;
+use Caresome\FilamentAuthDesigner\Enums\MediaPosition;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
-use Filament\Support\Enums\Width;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -18,10 +23,8 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Caresome\FilamentAuthDesigner\AuthDesignerPlugin;
-use Caresome\FilamentAuthDesigner\Data\AuthPageConfig;
-use Caresome\FilamentAuthDesigner\Enums\MediaPosition;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
 
 class AdminPanelProvider extends PanelProvider
@@ -44,10 +47,11 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
+            ->resources($this->getCollectionResources())
             ->plugins([
                 AuthDesignerPlugin::make()
                     ->login(
-                        fn(AuthPageConfig $config) => $config
+                        fn (AuthPageConfig $config) => $config
                             ->media(asset('assets/auth-bg.webp'))
                             ->mediaPosition(MediaPosition::Left)
                             ->blur(8)
@@ -55,14 +59,14 @@ class AdminPanelProvider extends PanelProvider
                     ),
                 BreezyCore::make()
                     ->myProfile(
-                        shouldRegisterUserMenu: true, // Sets the 'account' link in the panel User Menu (default = true)
-                        userMenuLabel: 'My Profile', // Customizes the 'account' link label in the panel User Menu (default = null)
-                        shouldRegisterNavigation: false, // Adds a main navigation item for the My Profile page (default = false)
-                        navigationGroup: 'Settings', // Sets the navigation group for the My Profile page (default = null)
-                        hasAvatars: false, // Enables the avatar upload form component (default = false)
-                        slug: 'my-profile' // Sets the slug for the profile page (default = 'my-profile')
+                        shouldRegisterUserMenu: true,
+                        userMenuLabel: 'My Profile',
+                        shouldRegisterNavigation: false,
+                        navigationGroup: 'Settings',
+                        hasAvatars: false,
+                        slug: 'my-profile'
                     )
-                    ->enableBrowserSessions(condition: true)
+                    ->enableBrowserSessions(condition: true),
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
@@ -83,5 +87,28 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /**
+     * @return array<int, \Filament\Resources\ResourceConfiguration>
+     */
+    protected function getCollectionResources(): array
+    {
+        if (! Schema::hasTable('collections')) {
+            return [];
+        }
+
+        return Collection::query()
+            ->where('is_active', true)
+            ->orderBy('title')
+            ->get()
+            ->map(fn (Collection $collection, int $index) => EntryResource::make($collection->handle)
+                ->slug($collection->handle)
+                ->collectionHandle($collection->handle)
+                ->navigationLabel($collection->title)
+                ->navigationIcon($collection->icon ?? 'fal-file-lines')
+                ->navigationSort($index + 2)
+            )
+            ->all();
     }
 }

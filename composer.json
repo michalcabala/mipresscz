@@ -7,6 +7,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "awcodes/filament-curator": "^5.0",
+        "awcodes/mason": "^3.0",
         "bezhansalleh/filament-language-switch": "^4.1",
         "caresome/filament-auth-designer": "^3.0",
         "craft-forge/filament-language-switcher": "^1.2",
@@ -29,6 +31,9 @@
         "pestphp/pest-plugin-laravel": "^4.1"
     },
     "autoload": {
+        "files": [
+            "app/helpers.php"
+        ],
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",

@@ -14,7 +14,8 @@ miPress is a modular CMS built on Laravel 12 + Filament 5, designed as a profess
 - bezhansalleh/filament-language-switch — language switching (cs/en)
 - jeffgreco13/filament-breezy — user profile, 2FA
 - caresome/filament-auth-designer — auth page design
-- spatie/laravel-medialibrary — media management
+- awcodes/mason — block-based drag & drop page builder field for Filament
+- awcodes/filament-curator — media picker/manager plugin for Filament (replaces spatie/laravel-medialibrary for Filament UI)
 
 ## Project Structure
 - Filament panel: `admin` at `/mpcp` (AdminPanelProvider)
@@ -88,6 +89,225 @@ miPress is a modular CMS built on Laravel 12 + Filament 5, designed as a profess
 6. Run tests and verify they pass
 7. If tests fail, fix and repeat
 8. Commit with a descriptive message
+
+## Mason (awcodes/mason)
+Block-based drag & drop page/document builder field for Filament.
+
+### Key Facts
+- Data stored as JSON — cast model column to `array` or `json`, use `longText` DB column
+- Bricks live in `App\Mason` namespace, views in `resources/views/mason/`
+- Create bricks: `php artisan make:mason-brick BrickName`
+- Config: `config/mason.php` (publish with `php artisan vendor:publish --tag="mason-config"`)
+- Theme CSS must include Mason styles:
+  ```css
+  @import '../../../../vendor/awcodes/mason/resources/css/plugin.css';
+  @source '../../../../vendor/awcodes/mason/resources/**/*.blade.php';
+  ```
+
+### Form Field Usage
+```php
+use Awcodes\Mason\Mason;
+
+Mason::make('content')
+    ->bricks([\App\Mason\Section::class])
+    ->previewLayout('layouts.mason-preview') // app layout with @masonStyles
+    ->doubleClickToEdit() // optional
+    ->colorModeToggle() // optional light/dark
+    ->sidebarPosition(SidebarPosition::Start) // optional
+    ->sortBricks('asc') // optional
+    ->displayActionsAsGrid() // optional
+```
+
+### Infolist Entry Usage
+```php
+use Awcodes\Mason\MasonEntry;
+
+MasonEntry::make('content')
+    ->bricks([\App\Mason\Section::class])
+    ->previewLayout('layouts.mason-entry') // layout with @masonEntryStyles
+```
+
+### Rendering Content in Blade
+```php
+{!! mason(content: $post->content, bricks: BrickCollection::make())->toHtml() !!}
+```
+
+### Brick Class Structure
+```php
+use Awcodes\Mason\Brick;
+use Filament\Actions\Action;
+
+class Section extends Brick
+{
+    public static function getId(): string { return 'section'; }
+    public static function getLabel(): string { return parent::getLabel(); }
+    public static function getIcon(): string|Heroicon|Htmlable|null { return Heroicon::RectangleGroup; }
+
+    public static function toHtml(array $config, ?array $data = null): ?string
+    {
+        return view('mason.section.index', $config)->render();
+    }
+
+    public static function configureBrickAction(Action $action): Action
+    {
+        return $action->slideOver()->schema([
+            // Filament form components
+        ]);
+    }
+}
+```
+
+### Faking Content in Tests
+```php
+use Awcodes\Mason\Support\Faker;
+
+Faker::make()
+    ->brick(id: 'section', config: ['text' => '<p>Test</p>'])
+    ->asJson();
+```
+
+### Tips
+- Use BrickCollection classes to avoid repeating brick arrays
+- For static bricks (no form): return `$action->modalHidden()` in `configureBrickAction`
+- Custom height: `->extraInputAttributes(['style' => 'min-height: 30rem;'])`
+- Auth guard config: set `routes.middleware` in `config/mason.php`
+
+## Filament Curator (awcodes/filament-curator)
+Media picker/manager plugin for Filament Panels.
+
+### Key Facts
+- WARNING: Does NOT work with Spatie Media Library
+- Install: `composer require awcodes/filament-curator` then `php artisan curator:install`
+- Config: `config/curator.php` (publish with `php artisan vendor:publish --tag="curator-config"`)
+- Theme CSS must include Curator styles:
+  ```css
+  @import '../../../../vendor/awcodes/filament-curator/resources/css/plugin.css';
+  @source '../../../../vendor/awcodes/filament-curator/resources/**/*.blade.php';
+  ```
+
+### Panel Registration
+```php
+use Awcodes\Curator\CuratorPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel->plugins([
+        CuratorPlugin::make()
+            ->label('Media')
+            ->pluralLabel('Media')
+            ->navigationIcon(Heroicon::OutlinedPhoto)
+            ->navigationGroup('Content')
+            ->navigationSort(3)
+            ->showBadge(true)
+            ->registerNavigation(true)
+            ->curations(true)
+            ->fileSwap(true),
+    ]);
+}
+```
+
+### CuratorPicker Form Field
+```php
+use Awcodes\Curator\Components\Forms\CuratorPicker;
+
+CuratorPicker::make('featured_image_id')
+    ->label('Featured Image')
+    ->relationship('featured_image', 'id') // single
+    ->constrained(true)
+    ->lazyLoad(true)
+    ->pathGenerator(DatePathGenerator::class) // optional
+    ->visibility('public') // if public access needed
+```
+
+Multiple images:
+```php
+CuratorPicker::make('gallery_ids')
+    ->multiple()
+    ->relationship('gallery', 'id')
+    ->orderColumn('order')
+```
+
+### CuratorColumn Table Column
+```php
+use Awcodes\Curator\Components\Tables\CuratorColumn;
+
+CuratorColumn::make('featured_image')->size(40)
+
+// Multiple with stacking
+CuratorColumn::make('gallery')->ring(2)->overlap(4)->limit(3)
+```
+
+### Model Relationships
+```php
+use Awcodes\Curator\Models\Media;
+
+// Single image
+public function featuredImage(): BelongsTo
+{
+    return $this->belongsTo(Media::class, 'featured_image_id', 'id');
+}
+
+// Multiple images
+public function gallery(): BelongsToMany
+{
+    return $this->belongsToMany(Media::class, 'media_post', 'post_id', 'media_id')
+        ->withPivot('order')->orderBy('order');
+}
+```
+
+### Eager Loading (prevent N+1)
+```php
+protected function getTableQuery(): Builder
+{
+    return parent::getTableQuery()->with(['featured_image', 'gallery']);
+}
+```
+
+### RichEditor Integration
+```php
+use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
+
+RichEditor::make('content')
+    ->tools(['attachCuratorMedia'])
+    ->plugins([AttachCuratorMediaPlugin::make()])
+```
+
+### Path Generators
+- `DefaultPathGenerator` — saves in disk/directory
+- `DatePathGenerator` — saves in disk/directory/Y/m/d
+- `UserPathGenerator` — saves in disk/directory/user-auth-identifier
+- Custom: implement `PathGenerator` interface
+
+### Glider Blade Component
+```blade
+<x-curator-glider :media="$mediaId" width="800" height="600" format="webp" quality="80" />
+```
+
+### Curation Presets
+```php
+use Awcodes\Curator\Curations\CurationPreset;
+use Awcodes\Curator\Facades\Curation;
+
+Curation::presets([
+    CurationPreset::make('Thumbnail')->height(200)->width(200)->format('webp')->quality(80),
+]);
+```
+
+### Curation Blade Component
+```blade
+<x-curator-curation :media="$media" curation="thumbnail" loading="lazy" />
+```
+
+### Custom Media Model
+```php
+use Awcodes\Curator\Models\Media;
+
+class CustomMedia extends Media
+{
+    protected $table = 'media';
+}
+// Set in config: 'model' => \App\Models\CustomMedia::class
+```
 
 ## Do NOT
 - Install new composer/npm packages without explicit instruction

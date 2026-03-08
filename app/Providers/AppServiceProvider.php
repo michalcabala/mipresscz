@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\Entry;
+use App\Observers\EntryObserver;
+use BezhanSalleh\LanguageSwitch\Enums\Placement;
+use BezhanSalleh\LanguageSwitch\LanguageSwitch;
+use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use BezhanSalleh\LanguageSwitch\LanguageSwitch;
-use BezhanSalleh\LanguageSwitch\Enums\Placement;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +27,15 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::before(function ($user, $ability) {
             return $user->isSuperAdmin() ? true : null;
+        });
+
+        Entry::observe(EntryObserver::class);
+
+        Table::configureUsing(function (Table $table): void {
+            $table
+                ->striped()
+                ->deferLoading()
+                ->stackedOnMobile();
         });
 
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {

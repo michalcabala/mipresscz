@@ -5,3 +5,8 @@
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../vendor/bezhansalleh/filament-language-switch/resources/views/**/*.blade.php';
 @source '../../../../vendor/jeffgreco13/filament-breezy/resources/**/*';
+
+.fi-sidebar-item-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+}

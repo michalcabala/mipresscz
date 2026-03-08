@@ -11,7 +11,27 @@ enum UserRole: string
 
     public function label(): string
     {
-        return __('roles.' . $this->value);
+        return __('roles.'.$this->value);
+    }
+
+    public function icon(): string
+    {
+        return match ($this) {
+            self::SuperAdmin => 'fal-user-crown',
+            self::Admin => 'fal-user-shield',
+            self::Editor => 'fal-user-pen',
+            self::Contributor => 'fal-user',
+        };
+    }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::SuperAdmin => 'danger',
+            self::Admin => 'warning',
+            self::Editor => 'info',
+            self::Contributor => 'gray',
+        };
     }
 
     /**
