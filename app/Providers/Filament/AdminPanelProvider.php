@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Resources\Entries\EntryResource;
 use App\Models\Collection;
+use Awcodes\Curator\CuratorPlugin;
 use Caresome\FilamentAuthDesigner\AuthDesignerPlugin;
 use Caresome\FilamentAuthDesigner\Data\AuthPageConfig;
 use Caresome\FilamentAuthDesigner\Enums\MediaPosition;
@@ -49,6 +50,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->resources($this->getCollectionResources())
             ->plugins([
+                CuratorPlugin::make()
+                    ->label('Médium')
+                    ->pluralLabel('Média')
+                    ->navigationGroup('Obsah')
+                    ->navigationSort(4),
                 AuthDesignerPlugin::make()
                     ->login(
                         fn (AuthPageConfig $config) => $config
