@@ -13,8 +13,10 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if (is_dir(__DIR__.'/../database/migrations')) {
-            $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../database/migrations' => database_path('migrations'),
+            ], 'mipresscz-migrations');
         }
     }
 }

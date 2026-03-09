@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Enums\DateBehavior;
-use App\Enums\DefaultStatus;
-use App\Enums\EntryStatus;
+use MiPressCz\Core\Enums\DateBehavior;
+use MiPressCz\Core\Enums\DefaultStatus;
+use MiPressCz\Core\Enums\EntryStatus;
 use App\Models\Blueprint;
 use App\Models\Collection;
 use App\Models\Entry;

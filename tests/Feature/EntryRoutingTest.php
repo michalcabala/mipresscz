@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\EntryStatus;
+use MiPressCz\Core\Enums\EntryStatus;
 use App\Models\Blueprint;
 use App\Models\Collection;
 use App\Models\Entry;

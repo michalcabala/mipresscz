@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Entries\Tables;
 
-use App\Enums\EntryStatus;
+use MiPressCz\Core\Enums\EntryStatus;
 use App\Filament\Resources\Entries\EntryResource;
 use App\Models\Entry;
 use Awcodes\Curator\Components\Tables\CuratorColumn;

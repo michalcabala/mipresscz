@@ -1,11 +1,11 @@
 <?php
 
-namespace Database\Factories;
+namespace MiPressCz\Core\Database\Factories;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use MiPressCz\Core\Enums\DateBehavior;
 use MiPressCz\Core\Enums\DefaultStatus;
-use App\Models\Collection;
-use Illuminate\Database\Eloquent\Factories\Factory;
+use MiPressCz\Core\Models\Collection;
 
 /**
  * @extends Factory<Collection>

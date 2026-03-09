@@ -5,9 +5,9 @@ namespace App\Providers\Filament;
 use App\Filament\Resources\Entries\EntryResource;
 use App\Filament\Resources\Terms\TermResource;
 use App\Models\Collection;
-use App\Models\Taxonomy;
 use Filament\Navigation\NavigationItem;
 use Illuminate\Support\Facades\Schema;
+use MiPressCz\Core\Models\Taxonomy;
 use MiPressCz\Core\Providers\MiPressCzAdminPanelProvider;
 
 class AdminPanelProvider extends MiPressCzAdminPanelProvider

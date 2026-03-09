@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Entries\Schemas;
 
-use App\Enums\EntryStatus;
+use MiPressCz\Core\Enums\EntryStatus;
 use App\Filament\Resources\Entries\EntryResource;
 use App\Mason\BrickCollection;
 use App\Models\Blueprint;

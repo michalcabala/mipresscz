@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Collections\Schemas;
 
-use App\Enums\DateBehavior;
-use App\Enums\DefaultStatus;
+use MiPressCz\Core\Enums\DateBehavior;
+use MiPressCz\Core\Enums\DefaultStatus;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;

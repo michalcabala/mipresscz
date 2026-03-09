@@ -1,14 +1,14 @@
 <?php
 
-namespace Database\Factories;
+namespace MiPressCz\Core\Database\Factories;
 
-use MiPressCz\Core\Enums\EntryStatus;
-use App\Models\Blueprint;
-use App\Models\Collection;
-use App\Models\Entry;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use MiPressCz\Core\Enums\EntryStatus;
+use MiPressCz\Core\Models\Blueprint;
+use MiPressCz\Core\Models\Collection;
+use MiPressCz\Core\Models\Entry;
+use MiPressCz\Core\Models\User;
 
 /**
  * @extends Factory<Entry>

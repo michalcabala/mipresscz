@@ -1,14 +1,4 @@
 <?php
 
-namespace App\Enums;
-
-enum DefaultStatus: string
-{
-    case Draft = 'draft';
-    case Published = 'published';
-
-    public function label(): string
-    {
-        return __('content.statuses.'.$this->value);
-    }
-}
+// This enum has been moved to the core package.
+// Use: \MiPressCz\Core\Enums\DefaultStatus
