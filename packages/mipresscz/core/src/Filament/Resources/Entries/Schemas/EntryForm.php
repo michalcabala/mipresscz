@@ -229,6 +229,7 @@ class EntryForm
             return [];
         }
 
+        /** @var Blueprint $blueprint */
         $blueprint = Blueprint::find($blueprintId);
 
         if (! $blueprint) {
@@ -258,6 +259,7 @@ class EntryForm
             return [];
         }
 
+        /** @var Blueprint $blueprint */
         $blueprint = Blueprint::find($blueprintId);
 
         if (! $blueprint) {

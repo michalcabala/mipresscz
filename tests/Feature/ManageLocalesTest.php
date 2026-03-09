@@ -1,13 +1,14 @@
 <?php
 
 use App\Enums\UserRole;
-use MiPressCz\Core\Filament\Pages\ManageLocales;
 use App\Models\Locale;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Livewire\Livewire;
+use MiPressCz\Core\Filament\Pages\ManageLocales;
 
 beforeEach(function () {
+    /** @var \Tests\TestCase $this */
     $this->seed(RolesAndPermissionsSeeder::class);
     locales()->clearCache();
 

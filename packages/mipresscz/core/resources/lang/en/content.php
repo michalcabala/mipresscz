@@ -97,6 +97,7 @@ return [
         'featured_image' => 'Featured image',
         'excerpt' => 'Excerpt',
         'is_pinned' => 'Pinned',
+        'updated_at' => 'Updated',
     ],
 
     // ── Media (Curator) ──

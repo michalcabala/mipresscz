@@ -71,7 +71,7 @@ class EntriesTable
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('updated_at')
-                    ->label('Upraveno')
+                    ->label(__('content.entry_fields.updated_at'))
                     ->isoDateTime('LLL')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

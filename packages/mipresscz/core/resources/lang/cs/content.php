@@ -97,6 +97,7 @@ return [
         'featured_image' => 'Hlavní obrázek',
         'excerpt' => 'Perex',
         'is_pinned' => 'Připnuto',
+        'updated_at' => 'Upraveno',
     ],
 
     // ── Media (Curator) ──
