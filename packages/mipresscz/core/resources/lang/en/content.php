@@ -154,23 +154,6 @@ return [
         'created_at' => 'Created at',
     ],
 
-    // ── Blocks ──
-    'blocks' => [
-        'label' => 'Block',
-        'plural_label' => 'Blocks',
-        'navigation_label' => 'Blocks',
-        'navigation_group' => 'Content',
-    ],
-
-    'block_fields' => [
-        'name' => 'Name',
-        'handle' => 'Handle',
-        'description' => 'Description',
-        'icon' => 'Icon',
-        'fields' => 'Fields',
-        'is_active' => 'Active',
-    ],
-
     // ── Global Sets ──
     'globals' => [
         'label' => 'Global Set',

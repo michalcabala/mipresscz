@@ -154,23 +154,6 @@ return [
         'created_at' => 'Vytvořeno',
     ],
 
-    // ── Blocks ──
-    'blocks' => [
-        'label' => 'Blok',
-        'plural_label' => 'Bloky',
-        'navigation_label' => 'Bloky',
-        'navigation_group' => 'Obsah',
-    ],
-
-    'block_fields' => [
-        'name' => 'Název',
-        'handle' => 'Handle',
-        'description' => 'Popis',
-        'icon' => 'Ikona',
-        'fields' => 'Pole',
-        'is_active' => 'Aktivní',
-    ],
-
     // ── Global Sets ──
     'globals' => [
         'label' => 'Globální sada',
