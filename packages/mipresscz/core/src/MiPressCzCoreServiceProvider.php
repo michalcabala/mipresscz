@@ -38,6 +38,13 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         Gate::policy(GlobalSet::class, GlobalSetPolicy::class);
         Gate::policy(Taxonomy::class, TaxonomyPolicy::class);
 
+        // Core catch-all frontend routes are registered after the application's
+        // own routes so that app-specific routes always take precedence.
+        // $this->app->booted() fires after withRouting() loads web routes.
+        $this->app->booted(function () {
+            $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        });
+
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../database/migrations' => database_path('migrations'),
