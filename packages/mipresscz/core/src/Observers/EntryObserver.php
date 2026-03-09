@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Observers;
+namespace MiPressCz\Core\Observers;
 
-use App\Models\Entry;
-use App\Models\Revision;
+use MiPressCz\Core\Models\Entry;
+use MiPressCz\Core\Models\Revision;
 
 class EntryObserver
 {

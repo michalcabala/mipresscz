@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace MiPressCz\Core\Http\Controllers;
 
-use App\Models\Entry;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use MiPressCz\Core\Models\Entry;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class EntryController extends Controller
+class EntryController
 {
     public function show(Request $request): View
     {

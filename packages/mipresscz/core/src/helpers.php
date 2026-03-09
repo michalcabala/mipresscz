@@ -1,4 +1,10 @@
 <?php
 
-// Core helpers will be migrated here in Fáze 3.
-// Current location: app/helpers.php
+use MiPressCz\Core\Services\LocaleService;
+
+if (! function_exists('locales')) {
+    function locales(): LocaleService
+    {
+        return app(LocaleService::class);
+    }
+}

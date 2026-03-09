@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Locale;
-use App\Services\LocaleService;
+use MiPressCz\Core\Services\LocaleService;
 use Illuminate\Support\Facades\Cache;
 
 beforeEach(function () {

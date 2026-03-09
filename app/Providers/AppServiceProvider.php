@@ -5,21 +5,21 @@ namespace App\Providers;
 use App\Mason\BrickCollection;
 use App\Models\Entry;
 use App\Models\Locale;
-use App\Observers\EntryObserver;
-use App\Observers\LocaleObserver;
-use App\Services\LocaleService;
 use BezhanSalleh\LanguageSwitch\Enums\Placement;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use MiPressCz\Core\Filament\Resources\Entries\Schemas\EntryForm;
+use MiPressCz\Core\Observers\EntryObserver;
+use MiPressCz\Core\Observers\LocaleObserver;
+use MiPressCz\Core\Services\LocaleService;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(LocaleService::class);
+        // LocaleService is registered as a singleton in MiPressCzCoreServiceProvider.
     }
 
     public function boot(): void

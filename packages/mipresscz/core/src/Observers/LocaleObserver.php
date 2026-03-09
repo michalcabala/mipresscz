@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Observers;
+namespace MiPressCz\Core\Observers;
 
-use App\Models\Locale;
+use MiPressCz\Core\Models\Locale;
 
 class LocaleObserver
 {

@@ -3,12 +3,13 @@
 namespace MiPressCz\Core;
 
 use Illuminate\Support\ServiceProvider;
+use MiPressCz\Core\Services\LocaleService;
 
 class MiPressCzCoreServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(LocaleService::class);
     }
 
     public function boot(): void

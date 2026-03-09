@@ -1,10 +1,4 @@
 <?php
 
-use App\Services\LocaleService;
-
-if (! function_exists('locales')) {
-    function locales(): LocaleService
-    {
-        return app(LocaleService::class);
-    }
-}
+// locales() helper is provided by the core package (packages/mipresscz/core/src/helpers.php).
+// This file is intentionally left empty.

@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\EntryController;
-use App\Http\Middleware\SetFrontendLocale;
 use Illuminate\Support\Facades\Route;
+use MiPressCz\Core\Http\Controllers\EntryController;
+use MiPressCz\Core\Http\Middleware\SetFrontendLocale;
 
 Route::get('/', function () {
     return view('welcome');

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services;
+namespace MiPressCz\Core\Services;
 
-use App\Models\Locale;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use MiPressCz\Core\Models\Locale;
 
 class LocaleService
 {
