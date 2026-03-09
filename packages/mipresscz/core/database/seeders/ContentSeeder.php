@@ -1,17 +1,16 @@
 <?php
 
-namespace Database\Seeders;
+namespace MiPressCz\Core\Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use MiPressCz\Core\Enums\DateBehavior;
 use MiPressCz\Core\Enums\DefaultStatus;
 use MiPressCz\Core\Enums\EntryStatus;
-use App\Models\Blueprint;
-use App\Models\Collection;
-use App\Models\Entry;
-use App\Models\Taxonomy;
-use App\Models\Term;
-use App\Models\User;
-use Illuminate\Database\Seeder;
+use MiPressCz\Core\Models\Blueprint;
+use MiPressCz\Core\Models\Collection;
+use MiPressCz\Core\Models\Entry;
+use MiPressCz\Core\Models\Taxonomy;
+use MiPressCz\Core\Models\Term;
 
 class ContentSeeder extends Seeder
 {
@@ -35,7 +34,9 @@ class ContentSeeder extends Seeder
 
     public function run(): void
     {
-        $author = User::first() ?? User::factory()->create(['name' => 'Admin', 'email' => 'admin@mipress.cz']);
+        /** @var class-string<\Illuminate\Database\Eloquent\Model> $userModel */
+        $userModel = config('auth.providers.users.model', \App\Models\User::class);
+        $author = $userModel::first() ?? $userModel::factory()->create(['name' => 'Admin', 'email' => 'admin@mipress.cz']);
 
         // ── Collections & Blueprints ──
 

@@ -9,6 +9,15 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class EntryController
 {
+    /**
+     * Mason brick classes to use when rendering entry content.
+     * Host applications should populate this in their service provider,
+     * e.g. EntryController::$brickClasses = BrickCollection::all();
+     *
+     * @var array<int, class-string<\Awcodes\Mason\Brick>>
+     */
+    public static array $brickClasses = [];
+
     public function show(Request $request): View
     {
         $uri = '/'.ltrim((string) $request->route('uri', ''), '/');
@@ -39,6 +48,7 @@ class EntryController
             'entry' => $entry,
             'collection' => $entry->collection,
             'blueprint' => $entry->blueprint,
+            'bricks' => static::$brickClasses,
         ]);
     }
 
@@ -57,7 +67,12 @@ class EntryController
             return "entries.{$collection}.show";
         }
 
-        // Fallback: entries/show
-        return 'entries.show';
+        // Try: app-level fallback entries/show
+        if (view()->exists('entries.show')) {
+            return 'entries.show';
+        }
+
+        // Package fallback
+        return 'mipresscz-core::entries.show';
     }
 }

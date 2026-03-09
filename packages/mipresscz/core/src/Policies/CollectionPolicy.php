@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Policies;
+namespace MiPressCz\Core\Policies;
 
-use App\Models\Collection;
-use App\Models\User;
+use Illuminate\Foundation\Auth\User;
+use MiPressCz\Core\Models\Collection;
 
 class CollectionPolicy
 {

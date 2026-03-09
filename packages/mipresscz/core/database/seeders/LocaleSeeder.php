@@ -1,9 +1,9 @@
 <?php
 
-namespace Database\Seeders;
+namespace MiPressCz\Core\Database\Seeders;
 
-use App\Models\Locale;
 use Illuminate\Database\Seeder;
+use MiPressCz\Core\Models\Locale;
 
 class LocaleSeeder extends Seeder
 {

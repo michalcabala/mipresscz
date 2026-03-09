@@ -5,6 +5,9 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use MiPressCz\Core\Database\Seeders\ContentSeeder;
+use MiPressCz\Core\Database\Seeders\GlobalsSeeder;
+use MiPressCz\Core\Database\Seeders\LocaleSeeder;
 
 class DatabaseSeeder extends Seeder
 {

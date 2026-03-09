@@ -21,7 +21,7 @@
 
         @if(!empty($entry->content))
             <div class="entry-content">
-                {!! mason(content: $entry->content, bricks: \App\Mason\BrickCollection::all())->toHtml() !!}
+                {!! mason(content: $entry->content, bricks: $bricks)->toHtml() !!}
             </div>
         @elseif(!empty($entry->data['content']))
             {{-- Legacy fallback for entries not yet migrated to Mason --}}

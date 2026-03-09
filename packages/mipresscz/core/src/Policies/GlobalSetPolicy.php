@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Policies;
+namespace MiPressCz\Core\Policies;
 
-use App\Models\GlobalSet;
-use App\Models\User;
+use Illuminate\Foundation\Auth\User;
+use MiPressCz\Core\Models\GlobalSet;
 
 class GlobalSetPolicy
 {

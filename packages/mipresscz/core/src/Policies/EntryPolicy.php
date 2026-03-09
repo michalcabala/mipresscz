@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Policies;
+namespace MiPressCz\Core\Policies;
 
 use App\Enums\UserRole;
-use App\Models\Entry;
-use App\Models\User;
+use Illuminate\Foundation\Auth\User;
+use MiPressCz\Core\Models\Entry;
 
 class EntryPolicy
 {

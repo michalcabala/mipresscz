@@ -1,9 +1,9 @@
 <?php
 
-namespace Database\Seeders;
+namespace MiPressCz\Core\Database\Seeders;
 
-use App\Models\GlobalSet;
 use Illuminate\Database\Seeder;
+use MiPressCz\Core\Models\GlobalSet;
 
 class GlobalsSeeder extends Seeder
 {
