@@ -1,148 +1,277 @@
 # miPress CMS — Project Roadmap
 
-Datum: 8. března 2026
+Datum: 9. března 2026
 
-## Účel dokumentu
+## Strategický cíl
 
-Tato roadmapa převádí poznatky z projektové analýzy do konkrétních priorit. Není to backlog každého detailu, ale praktický plán hlavních vývojových proudů projektu.
+Dostat `mipresscz` do stavu **„product-ready core + tenká app vrstva"** jako `mipress`, s rozumnou inspirací z `tallcms` (modularita, provider/plugin pattern, release disciplína), ale bez zbytečného over-engineeringu.
 
-## Strategické cíle
+Referenční projekty:
 
-1. Stabilizovat jádro CMS a minimalizovat regresní rizika v locale, routing a admin vrstvách.
-2. Rozšířit frontend z technického základu na plnohodnotnou prezentační vrstvu.
-3. Posílit admin UX, test coverage a předvídatelnost dalšího vývoje.
-4. Udržet dokumentaci a architekturu konzistentní při růstu projektu.
+- `mipress` — target state (monorepo, core package, extensible panel provider, installer)
+- `tallcms` — inspirace pro package-first disciplínu, modular toggle, release governance
 
-## Etapa 1 — Stabilizace jádra
+---
 
-### Cíl
+## Architektonický target
 
-Snížit riziko regresí v nejcitlivějších částech systému.
+```
+mipresscz/
+├── packages/mipresscz/core/        # CMS jádro (doména, resources, HTTP, seed/lang/views)
+│   ├── composer.json
+│   ├── config/
+│   ├── database/migrations/
+│   ├── database/factories/
+│   ├── database/seeders/
+│   ├── resources/lang/
+│   ├── resources/views/
+│   └── src/
+│       ├── MiPressCzCoreServiceProvider.php
+│       ├── MiPressCzCorePlugin.php
+│       ├── Providers/Filament/MiPressCzAdminPanelProvider.php
+│       ├── Models/                  # Collection, Blueprint, Entry, Taxonomy, Term,
+│       │                            #   Revision, GlobalSet, Locale
+│       ├── Enums/                   # EntryStatus, DefaultStatus, DateBehavior
+│       ├── Services/                # LocaleService, URL resolution
+│       ├── Observers/               # EntryObserver
+│       ├── Policies/                # content-related policies
+│       ├── Filament/Resources/      # Collections, Entries, Taxonomies, Globals, Terms
+│       ├── Http/Controllers/        # EntryController, případně PreviewController
+│       ├── Console/Commands/        # mipresscz:install
+│       └── helpers.php
+│
+├── app/                             # Jen app-specific věci
+│   ├── Providers/Filament/
+│   │   └── AdminPanelProvider.php   # extends MiPressCzAdminPanelProvider
+│   ├── Mason/                       # custom bricks
+│   ├── Filament/Resources/          # app-specific resources/pages override
+│   ├── Http/Middleware/             # custom middleware
+│   └── Models/User.php              # app-level auth model
+│
+├── resources/
+│   └── assets/                     # brand assets, logo, favicon
+└── ...
+```
 
-### Prioritní úkoly
+### Co patří do core vs. app
 
-- Doplnit testy pro locale URL workflow, zejména kombinace prefix/no-prefix a redirect scénáře.
-- Doplnit testy pro `ManageLocales` page a související admin chování.
-- Doplnit behaviorální testy pro roles, policies a klíčové authorization scénáře.
-- Zkontrolovat a případně zjednodušit nejprůřezovější části `Entry` modelu.
+| Core | App |
+|------|-----|
+| Content modely (Entry, Collection, Blueprint…) | `User` model (auth) |
+| Locale, LocaleService, SetFrontendLocale | Brand assets, logo, favicon |
+| Enums pro obsah a workflow | AuthDesigner customize |
+| EntryObserver, revize | App-specific Filament customizations |
+| Policies pro obsah | Custom Mason bricks |
+| Filament resources (Collections, Entries…) | Web-specific pages/resource override |
+| EntryController, frontend routing | Custom middleware |
+| Installer command | Panel color/branding override |
+| Seedery, factories, migrace | — |
+| Lang `cs`/`en`, shared views | — |
 
-### Výstup
+---
 
-- Vyšší důvěra v locale systém, routing a permission model.
+## Fáze 0 — Freeze a baseline
+**Odhad: 1–2 dny**
 
-## Etapa 2 — Frontend foundation
+- [ ] Vytvořit `refactor/core-extraction` branch.
+- [ ] Zapsat baseline metriky (test pass rate, počet migrací/modelů/resources, URL scénáře).
+- [ ] Přidat ADR dokument: hranice core/app.
+- [ ] Zmrazit nové feature PR na dobu extrakce.
 
-### Cíl
+**Výstup:** jasný start, bezpečná izolace refactoru.
 
-Převést současný minimalistický frontend na udržitelný základ pro produkční prezentace.
+---
 
-### Prioritní úkoly
+## Fáze 1 — Vytvoření `mipresscz/core` balíčku
+**Odhad: 2–3 dny**
 
-- Zavést hlavní frontend layout a sdílené blade komponenty.
-- Standardizovat práci s navigací, patičkou a globálními sadami.
-- Navrhnout použití `LanguageSwitcher` ve frontend layoutu.
-- Oddělit demo / placeholder obsah od reálného frontend renderingu.
+- [ ] Vytvořit `packages/mipresscz/core` s `composer.json` (type: library).
+- [ ] Přidat `MiPressCzCoreServiceProvider` přes `spatie/laravel-package-tools`.
+- [ ] Definovat publish tags: `mipresscz-config`, `mipresscz-views`, `mipresscz-translations`, `mipresscz-migrations`.
+- [ ] Přesunout `app/helpers.php` do `packages/mipresscz/core/src/helpers.php`.
+- [ ] Přidat package do root `composer.json` jako path repository.
+- [ ] Ověřit boot aplikace, spustit testy.
 
-### Výstup
+**Výstup:** funkční core package načtený appkou.
 
-- Jednotná frontend architektura připravená pro další vývoj šablon.
+---
 
-## Etapa 3 — Content experience
+## Fáze 2 — Panel Provider pattern
+**Odhad: 2 dny**
 
-### Cíl
+- [ ] V core vytvořit `MiPressCzAdminPanelProvider` s hook metodami:
+  - `configureBase()` — path, colors, SPA, appearance
+  - `configureNavigation()` — navigation groups
+  - `configurePlugins()` — Curator, Breezy, language switch
+  - `configureMiddleware()` — middleware stack
+  - `configureDiscovery()` — resource/page auto-discovery
+- [ ] App provider zredukovat na:
+  ```php
+  class AdminPanelProvider extends MiPressCzAdminPanelProvider {}
+  ```
+- [ ] Přesunout Curator, Breezy, AuthDesigner config do core (s možností override v app).
+- [ ] Ověřit boot, spustit testy.
 
-Zlepšit editační i renderovací zkušenost s blokovým obsahem a médii.
+**Výstup:** čisté oddělení panel konfigurace, app provider je prázdná vrstva.
 
-### Prioritní úkoly
+---
 
-- Rozšířit použití Mason obsahu napříč relevantními blueprinty.
-- Ověřit a dopracovat media workflow přes Curator ve formulářích a renderingu.
-- Definovat doporučené block patterny pro landing page, články a standardní stránky.
-- Otestovat kompatibilitu builder JSON dat při budoucích změnách brick struktur.
+## Fáze 3 — Extrakce doménového jádra
+**Odhad: 5–8 dní**
 
-### Výstup
+### Modely
+- [ ] `Collection`, `Blueprint`, `Entry`, `Taxonomy`, `Term`, `Revision`, `GlobalSet`, `Locale`
+- [ ] Udržet ULID, HasRoles, SoftDeletes, všechny relationships
 
-- Konzistentní obsahový editor a předvídatelný frontend render.
+### Enums
+- [ ] `EntryStatus`, `DefaultStatus`, `DateBehavior`, `UserRole` (obsah část)
 
-## Etapa 4 — Admin UX a produktivita
+### Services a Observers
+- [ ] `LocaleService`, URL resolution helpery
+- [ ] `EntryObserver` (revize, pruning)
 
-### Cíl
+### Policies
+- [ ] `CollectionPolicy`, `EntryPolicy`, `TaxonomyPolicy`, `BlockPolicy`, `GlobalSetPolicy`
 
-Udržet admin panel rychlý, přehledný a bezpečný při rostoucím objemu funkcí.
+### Filament Resources
+- [ ] Collections, Entries (dynamic ResourceConfiguration), Taxonomies, Terms, Globals
 
-### Prioritní úkoly
+### HTTP a routing
+- [ ] `EntryController` (frontend rendering)
+- [ ] Základní frontend route registrace v core
 
-- Projít klíčové resource tabulky a formuláře z hlediska použitelnosti.
-- Doplnit Filament/Livewire testy pro nejčastější admin workflow.
-- Udržet všechny panel customizace centralizované v `AdminPanelProvider`.
-- Průběžně ověřovat dopad dynamic entry resources na navigaci a oprávnění.
+### Seedery a factories
+- [ ] `RolesAndPermissionsSeeder`, `ContentSeeder`, `GlobalsSeeder`, `LocaleSeeder`
+- [ ] Všechny content factories
 
-### Výstup
+### Lang a views
+- [ ] `lang/cs`, `lang/en` content překlady
+- [ ] `resources/views/entries/`, fallback views
 
-- Stabilnější a lépe testovaný admin panel.
+**Výstup:** core nese byznys logiku, app je tenká vrstva.
 
-## Etapa 5 — SEO a publikační vrstva
+---
 
-### Cíl
+## Fáze 4 — Routing a locale kontrakt
+**Odhad: 2–4 dny**
 
-Posílit produkční použitelnost projektu pro reálné weby.
+- [ ] Definovat routing kontrakt v core:
+  - locale prefix režim (více jazyků)
+  - single-language mode bez prefixu
+  - redirect prefixed → unprefixed v single mode
+- [ ] App `routes/web.php` ztenčit na include core + app-specific override.
+- [ ] Napsat explicitní routing test matrix pro locale scénáře.
 
-### Prioritní úkoly
+**Výstup:** stabilní i18n routing kontrakt bez driftu.
 
-- Navrhnout SEO metadata pro entries a případně global sets.
-- Vyjasnit canonical a hreflang strategii pro vícejazyčný frontend.
-- Doplnit doporučený pattern pro články, seznamové stránky a detail stránky.
-- Zvážit základní vyhledávání nebo indexační vrstvu pro obsah.
+---
 
-### Výstup
+## Fáze 5 — Installer command
+**Odhad: 2–3 dny**
 
-- Projekt lépe připravený pro reálné nasazení a obsahový marketing.
+- [ ] Vytvořit `php artisan mipresscz:install` v core s volbami:
+  - `--admin-name`, `--admin-email`, `--admin-password`
+  - `--force` (přeinstalování)
+  - `--seed` (demo obsah)
+- [ ] Installer zajistí:
+  - migrace
+  - role/permission setup
+  - výchozí Collection + Blueprint
+  - locale init
+  - admin user
+- [ ] Otestovat instalaci na čisté databázi.
 
-## Etapa 6 — Governance a maintainability
+**Výstup:** reprodukovatelné nasazení v jednom příkazu.
 
-### Cíl
+---
 
-Zabránit budoucímu technickému a dokumentačnímu driftu.
+## Fáze 6 — Test parity
+**Odhad: 4–6 dní**
 
-### Prioritní úkoly
+- [ ] Zachovat Pest jako primární test framework (žádný mix PHPUnit stylu).
+- [ ] Přidat kontraktní testy pro core modely (relationships, scopes, factories).
+- [ ] Přidat testy pro LocaleService a routing matrix.
+- [ ] Přidat policy matrix testy (kdo může co s jakým obsahem).
+- [ ] Přidat integration testy app vrstvy (panel boot, dynamic resources, middleware).
+- [ ] Dosáhnout alespoň parity s dnešním stavem (83+ Pest definic), ideálně výrazně přes 150.
 
-- Udržovat `docs/project-analysis.md` jako jedinou hlavní obecnou analýzu.
-- Po větších architektonických změnách aktualizovat README i docs.
-- Dokumentovat usage méně zřejmých balíčků, pokud se začnou používat výrazněji.
-- Průběžně revidovat, zda se logika v `Entry` a locale vrstvě nerozrůstá příliš koncentrovaně.
+**Výstup:** bezpečný refactor potvrzený testy, žádné nevykryté regrese.
 
-### Výstup
+---
 
-- Předvídatelnější vývoj a menší onboarding náklady.
+## Fáze 7 — Release a governance
+**Odhad: 2–3 dny**
 
-## Prioritizovaný backlog
+- [ ] Semver verzování v `packages/mipresscz/core/composer.json`.
+- [ ] `CHANGELOG.md` pro core.
+- [ ] CI: lint (Pint), testy, install smoke test.
+- [ ] Dokumentace:
+  - `docs/architecture-core.md` — hranice core/app, jak core rozšiřovat
+  - `docs/upgrade-guide.md` — versioning a breaking changes
+  - `docs/contributing-core.md` — workflow pro přispívání do core
 
-### Krátkodobě
+**Výstup:** dlouhodobě udržitelný model s jasnou governance.
 
-1. Testy pro locale admin workflow a policy flows.
-2. Frontend layout a shared components.
-3. Konsolidace Mason + Curator usage v hlavních blueprintech.
+---
 
-### Střednědobě
+## Prioritní To-Do backlog
 
-1. Filament/Livewire test coverage pro hlavní resources.
-2. SEO a publikační metadata.
-3. Vylepšení frontend navigace a list/detail page patterns.
+### P0 — Hned (Fáze 0–2)
+- Vytvořit `packages/mipresscz/core` skeleton + provider
+- Zavést dědění `AdminPanelProvider` z core
+- Přesunout content modely + services + observers
+- Přesunout základní Filament resources do core
+- Udržet všechny existující testy zelené
 
-### Dlouhodobě
+### P1 — Krátce (Fáze 3–4)
+- Installer command
+- Core route registrace + locale routing kontrakt
+- Přesun seeders/factories/lang/views
 
-1. Vyhledávání nad obsahem.
-2. Další modulární oddělení složité entry logiky.
-3. Případná API nebo headless vrstva podle produktových potřeb.
+### P2 — Střednědobě (Fáze 5–6)
+- API vrstva do core (headless/REST)
+- `mipresscz:new-site` command
+- Publish tags a dokumentace pro integrátory
+
+### P3 — Dlouhodobě (Fáze 7+)
+- `withoutX()` selective toggle pattern (po vzoru `tallcms`)
+- Optional plugin manager-like registry
+- Optional class alias compat layer pro budoucí distribuci
+
+---
+
+## Co převzít z `tallcms` a co ne
+
+| Převzít | Nepřebírat teď |
+|---------|----------------|
+| Package-first disciplína | Full standalone/plugin dual-mode |
+| Čistý service provider bootstrapping | Rozsáhlý alias compat layer |
+| Modular toggle pro features | Marketplace infrastruktura |
+| Release docs + changelog | Pro-feature ekosystém |
+| `withoutX()` pattern (Fáze P3) | — |
+
+---
+
+## Definition of Done
+
+- `mipresscz` běží na `packages/mipresscz/core`
+- `AdminPanelProvider` v app je tenká dědická vrstva
+- Core obsahuje všechny CMS-common součásti
+- Installer funguje na čisté instalaci
+- Kritické testy pro content + locale + routing + policy jsou zelené
+- `docs/architecture-core.md` jasně dokumentuje hranici core/app
+
+---
 
 ## Rozhodovací pravidla
 
-Při plánování dalších změn platí:
+1. Každé rozhodnutí „kam to patří" vždy v kontextu: bude to potřeba na jiném webu? → core. Jen pro tento web? → app.
+2. Nejdřív přesunout, pak refactorovat — nezlepšovat přesouvaný kód zároveň s přesunem.
+3. Testy musí být zelené po každé fázi, ne jen na konci.
+4. Neduplikovat logiku — pokud je v core, app ji neimplementuje znovu.
 
-1. Nejprve stabilita locale a routing logiky.
-2. Potom frontend foundation a editor experience.
-3. Teprve potom širší rozvoj nadstavbových funkcí.
+---
 
-## Poznámka k údržbě roadmapy
+## Poznámka k údržbě
 
-Roadmapa má být průběžně revidovaná podle reality v kódu a produktových priorit. Nemá suplovat detailní issue tracker, ale držet společný technický směr projektu.
+Po dokončení každé fáze: aktualizovat tento dokument (zaškrtnout `[ ]` → `[x]`) a doplnit datum. Roadmapa není statický dokument, ale živý plán.
