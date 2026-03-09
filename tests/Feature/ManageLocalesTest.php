@@ -11,18 +11,23 @@ beforeEach(function () {
     /** @var \Tests\TestCase $this */
     $this->seed(RolesAndPermissionsSeeder::class);
     locales()->clearCache();
-
-    $this->superAdmin = User::factory()->create(['role' => UserRole::SuperAdmin]);
-    $this->superAdmin->syncRoles([UserRole::SuperAdmin->value]);
 });
 
+function manageLocalesSuperAdmin(): User
+{
+    $user = User::factory()->create(['role' => UserRole::SuperAdmin]);
+    $user->syncRoles([UserRole::SuperAdmin->value]);
+
+    return $user;
+}
+
 it('renders the manage locales page', function () {
-    $this->actingAs($this->superAdmin);
+    $this->actingAs(manageLocalesSuperAdmin());
     Livewire::test(ManageLocales::class)->assertSuccessful();
 });
 
 it('shows locales in table', function () {
-    $this->actingAs($this->superAdmin);
+    $this->actingAs(manageLocalesSuperAdmin());
     $locale = Locale::factory()->create(['code' => 'cs', 'order' => 1]);
     Livewire::test(ManageLocales::class)
         ->call('loadTable')
@@ -30,7 +35,7 @@ it('shows locales in table', function () {
 });
 
 it('can create a new locale', function () {
-    $this->actingAs($this->superAdmin);
+    $this->actingAs(manageLocalesSuperAdmin());
     Livewire::test(ManageLocales::class)
         ->callAction('create', [
             'code' => 'de', 'name' => 'German', 'native_name' => 'Deutsch',
@@ -42,7 +47,7 @@ it('can create a new locale', function () {
 });
 
 it('cannot delete the default locale', function () {
-    $this->actingAs($this->superAdmin);
+    $this->actingAs(manageLocalesSuperAdmin());
     $defaultLocale = Locale::factory()->create(['code' => 'cs', 'is_default' => true, 'order' => 1]);
     Livewire::test(ManageLocales::class)
         ->callTableAction('delete', $defaultLocale)
@@ -51,7 +56,7 @@ it('cannot delete the default locale', function () {
 });
 
 it('can set a locale as default', function () {
-    $this->actingAs($this->superAdmin);
+    $this->actingAs(manageLocalesSuperAdmin());
     $cs = Locale::factory()->create(['code' => 'cs', 'is_default' => true, 'order' => 1]);
     $en = Locale::factory()->create(['code' => 'en', 'is_default' => false, 'order' => 2]);
     Livewire::test(ManageLocales::class)
