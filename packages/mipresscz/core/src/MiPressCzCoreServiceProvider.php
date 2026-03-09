@@ -4,6 +4,7 @@ namespace MiPressCz\Core;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use MiPressCz\Core\Console\Commands\InstallCommand;
 use MiPressCz\Core\Models\Blueprint;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
@@ -46,6 +47,10 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         });
 
         if ($this->app->runningInConsole()) {
+            $this->commands([
+                InstallCommand::class,
+            ]);
+
             $this->publishes([
                 __DIR__.'/../database/migrations' => database_path('migrations'),
             ], 'mipresscz-migrations');
