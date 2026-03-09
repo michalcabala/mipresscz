@@ -96,6 +96,13 @@ return [
         'metadata' => 'Metadata',
         'featured_image' => 'Featured image',
         'excerpt' => 'Excerpt',
+        'is_pinned' => 'Pinned',
+    ],
+
+    // ── Media (Curator) ──
+    'media' => [
+        'label' => 'Medium',
+        'plural_label' => 'Media',
     ],
 
     // ── Taxonomies ──

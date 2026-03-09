@@ -127,8 +127,8 @@ class MiPressCzAdminPanelProvider extends PanelProvider
     {
         return $panel->plugins([
             CuratorPlugin::make()
-                ->label('Médium')
-                ->pluralLabel('Média')
+                ->label(__('content.media.label'))
+                ->pluralLabel(__('content.media.plural_label'))
                 ->navigationGroup(__('content.entries.navigation_group'))
                 ->navigationSort(99),
             AuthDesignerPlugin::make()
@@ -142,7 +142,7 @@ class MiPressCzAdminPanelProvider extends PanelProvider
             BreezyCore::make()
                 ->myProfile(
                     shouldRegisterUserMenu: true,
-                    userMenuLabel: 'My Profile',
+                    userMenuLabel: __('panel.my_profile'),
                     shouldRegisterNavigation: false,
                     navigationGroup: 'Settings',
                     hasAvatars: false,

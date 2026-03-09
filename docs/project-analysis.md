@@ -323,3 +323,83 @@ Repo už jednou narazilo na dokumentační drift. To je explicitní provozní po
 ## Závěr
 
 miPress je ve stavu solidního vlastního CMS základu se zdravou doménovou architekturou a dobře zvoleným admin stackem. Největší technické riziko neleží v jednotlivých souborech, ale v místech, kde se propojuje více vrstev najednou: locale workflow, dynamické admin resources a budoucí růst frontendu. Pokud se udrží disciplína v testech, dokumentaci a panel customizacích, je kódová základna dobře rozšiřitelná.
+
+---
+
+## Hloubková revize — nálezy (v0.6.0, 9. března 2026)
+
+Tato sekce dokumentuje konkrétní bugy a nedostatky nalezené v revizi po dokončení Fáze 7.
+
+### Shrnutí nálezů
+
+| Priorita | Počet | Popis |
+|---|---|---|
+| 🔴 Kritické | 1 | Překlady `content.*` nefungují v celém Admin UI |
+| 🟠 Vysoké | 3 | Neúplná funkce, hardcoded stringy, chybějící policy |
+| 🟡 Střední | 4 | Duplicity, stub soubory, IDE chyby |
+| 🟢 Nízké | 2 | Cache optimalizace, balíčkové překlady |
+
+### 🔴 KRITICKÉ — Translation loader race condition
+
+**Projev:** Veškeré popisky v Admin UI zobrazují klíč místo textu — `content.collections.label` místo `Kolekce`, `content.entries.navigation_group` místo skupiny navigace atd.
+
+**Kořenová příčina:**
+`MiPressCzCoreServiceProvider::boot()` registruje cestu do překladového loaderu přes `addPath()`. Jenže `AdminPanelProvider` je v `bootstrap/providers.php` (explicitní provider), a proto jeho `boot()` proběhne dříve než `boot()` auto-discovered core providerů. Volání `__('content.entries.navigation_group')` uvnitř `configurePlugins()` nastane před `addPath()` — Translator skupinu `content` načte jako prázdné pole a toto uloží do cache. Všechna následující volání `__('content.*')` vrací klíč.
+
+Překlady pro `locales.*` fungují správně, protože se poprvé načítají lazy (přes closure) až po dokončení všech `boot()`.
+
+**Potřebné opravy (tři vrstvy):**
+1. Přesunout `addPath()` z `boot()` do `register()` v `MiPressCzCoreServiceProvider` (nebo použít `callAfterResolving`).
+2. Obalit argument `navigationGroup()` v `configurePlugins()` do lazy closure: `fn() => __('...')`.
+3. Přidat příkaz `vendor:publish --tag=mipresscz-translations` do `mipresscz:install`, aby `lang/cs/content.php` a `lang/en/content.php` existovaly přímo v app vrstvě jako fallback.
+
+### 🟠 VYSOKÉ — Hardcoded nepřeložené stringy
+
+V `EntryForm.php` na řádku 143:
+```php
+Toggle::make('is_pinned')->label('Připnuto'), // hardcoded Czech
+```
+Chybí i translation klíč `content.entry_fields.is_pinned` v obou `content.php` souborech.
+
+V `MiPressCzAdminPanelProvider`:
+```php
+CuratorPlugin::make()->label('Médium')->pluralLabel('Média') // hardcoded Czech
+BreezyCore::make()->myProfile(userMenuLabel: 'My Profile')   // hardcoded English
+```
+
+### 🟠 VYSOKÉ — Neúplná / osiřelá funkce Blocks
+
+Existují artefakty: `blocks_table` migrace (proběhla), překlady `content.blocks.*`, permissions `view.blocks`/`manage.blocks`.
+Neexistuje: `Block` model, `BlockPolicy`, Filament resource.
+
+Nutné rozhodnutí: buď dopsat celou Block feature (model → policy → resource), nebo smazat `blocks_table` migraci (novou `drop_blocks_table`), překlady a permissions.
+
+### 🟠 VYSOKÉ — Termín `Term` bez registrované Policy
+
+Model `Term` nemá žádnou policy. Výchozí Gate chování je deny, ale záleží na Resource implementaci. Doporučeno: přidat `TermPolicy` nebo explicitně mapovat Term na `TaxonomyPolicy` v `AppServiceProvider`.
+
+### 🟡 STŘEDNÍ — Duplicitní registrace policies
+
+`MiPressCzCoreServiceProvider` i `AppServiceProvider` registrují `Gate::policy()` pro stejné 5 core modelů (Collection, Entry, Blueprint, GlobalSet, Taxonomy). Posledním zápisem vyhraje `AppServiceProvider` (app wrapper → core policy), výsledek je správný, ale duplicita je matoucí. Doporučeno: buď registrovat jen v app provideru (s app-model wrapperem), nebo jen v core provideru.
+
+### 🟡 STŘEDNÍ — Stub soubory v `app/Enums/`
+
+`app/Enums/DateBehavior.php`, `DefaultStatus.php`, `EntryStatus.php` jsou soubory obsahující jen komentář. Nejsou to PHP třídy ani aliasy. Pokud by je kdokoli importoval, dostane `Parse error`. Řešení: smazat a případně přidat `class_alias` do ServiceProvider.
+
+### 🟡 STŘEDNÍ — IDE false positive chyby v EntryForm a ManageLocalesTest
+
+`EntryForm.php` — volání `getFieldsBySection()` na proměnné, které IDE vidí jako `stdClass` (Blueprint model nemá deklarovaný typový hint v closure). Runtime funguje, ale IDE hlásí error. Oprava: přidat `Blueprint $blueprint` type hint.
+
+`ManageLocalesTest.php` — IDE hlásí `seed()` a `$this->superAdmin` jako nedefinované, ale Pest přes `uses(\Tests\TestCase::class)->in('Feature')` tyto metody za runtime přidá. 185 testů zelených.
+
+### 🟢 NÍZKÉ — Uncached Filament assets
+
+`php artisan about` ukazuje `blade_icons: NOT CACHED` a `panel_components: NOT CACHED`. Pro produkci přidat do deployment pipeline:
+```bash
+php artisan icons:cache
+php artisan filament:cache-components
+```
+
+### 🟢 NÍZKÉ — Filament Breezy překlady
+
+Breezy Sessions page není lokalizovaná do češtiny. Spustit `php artisan vendor:publish --tag=filament-breezy-translations` a přeložit.

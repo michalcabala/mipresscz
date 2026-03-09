@@ -22,16 +22,21 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(LocaleService::class);
+
+        // Register core lang files as additional base-namespace paths so that
+        // __('content.*') and __('locales.*') resolve from the package when not
+        // overridden by the host application's own lang directory.
+        // IMPORTANT: must be in register() — boot() is too late because Filament
+        // panel providers (listed in bootstrap/providers.php) boot before
+        // auto-discovered providers and may call __() during their boot phase.
+        $this->callAfterResolving('translation.loader', function ($loader): void {
+            $loader->addPath(__DIR__.'/../resources/lang');
+        });
     }
 
     public function boot(): void
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'mipresscz-core');
-
-        // Register core lang files as additional base-namespace paths so that
-        // __('content.*') and __('locales.*') resolve from the package when not
-        // overridden by the host application's own lang directory.
-        $this->app->make('translation.loader')->addPath(__DIR__.'/../resources/lang');
 
         Gate::policy(Blueprint::class, BlueprintPolicy::class);
         Gate::policy(Collection::class, CollectionPolicy::class);

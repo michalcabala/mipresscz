@@ -140,7 +140,7 @@ class EntryForm
                                     return Collection::find($collectionId)?->is_tree ?? false;
                                 }),
                             Toggle::make('is_pinned')
-                                ->label('Připnuto'),
+                                ->label(__('content.entry_fields.is_pinned')),
                             TextInput::make('order')
                                 ->label(__('content.entry_fields.order'))
                                 ->numeric()

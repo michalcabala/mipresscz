@@ -96,6 +96,13 @@ return [
         'metadata' => 'Metadata',
         'featured_image' => 'Hlavní obrázek',
         'excerpt' => 'Perex',
+        'is_pinned' => 'Připnuto',
+    ],
+
+    // ── Media (Curator) ──
+    'media' => [
+        'label' => 'Médium',
+        'plural_label' => 'Média',
     ],
 
     // ── Taxonomies ──
