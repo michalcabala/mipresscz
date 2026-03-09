@@ -5,10 +5,13 @@ namespace MiPressCz\Core\Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Locale>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\MiPressCz\Core\Models\Locale>
  */
 class LocaleFactory extends Factory
 {
+    /** @var class-string<\MiPressCz\Core\Models\Locale> */
+    protected $model = \MiPressCz\Core\Models\Locale::class;
+
     public function definition(): array
     {
         $code = $this->faker->unique()->languageCode();

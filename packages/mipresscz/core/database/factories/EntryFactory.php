@@ -8,7 +8,6 @@ use MiPressCz\Core\Enums\EntryStatus;
 use MiPressCz\Core\Models\Blueprint;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
-use MiPressCz\Core\Models\User;
 
 /**
  * @extends Factory<Entry>
@@ -34,7 +33,7 @@ class EntryFactory extends Factory
             'content' => null,
             'status' => EntryStatus::Draft,
             'order' => 0,
-            'author_id' => User::factory(),
+            'author_id' => (config('auth.providers.users.model', \App\Models\User::class))::factory(),
             'is_pinned' => false,
         ];
     }

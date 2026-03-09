@@ -2,13 +2,16 @@
 
 namespace Database\Factories;
 
+use App\Models\Locale;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Locale>
+ * @extends Factory<Locale>
  */
 class LocaleFactory extends Factory
 {
+    protected $model = Locale::class;
+
     public function definition(): array
     {
         $code = $this->faker->unique()->languageCode();
