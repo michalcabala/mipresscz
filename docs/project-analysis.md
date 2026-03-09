@@ -1,6 +1,6 @@
 # miPress CMS — Project Analysis
 
-Datum: 8. března 2026
+Datum: 9. března 2026
 
 ## Účel dokumentu
 
@@ -78,6 +78,8 @@ Klíčové technické rysy:
 - enum-based stavy a konfigurace.
 
 ### Hlavní modely a odpovědnosti
+
+Všechny content modely žijí výhradně v `packages/mipresscz/core/src/Models/`. `app/Models/` obsahuje pouze `User.php`.
 
 - `Collection`: typ obsahu, routing pravidla, řazení, stav a vazby na blueprinty a taxonomie.
 - `Blueprint`: struktura polí a rozdělení do sekcí, včetně translatable/non-translatable logiky.
@@ -253,7 +255,8 @@ Projekt používá Pest 4 a MySQL test databázi `mipresscz_testing`.
 
 - `tests/Pest.php` aplikuje `RefreshDatabase` pro Feature testy,
 - testy pokrývají content system, entry routing, locale workflow, locale observer, locale service a roles/permissions,
-- testovací nastavení odpovídá reálnějšímu MySQL chování, ne SQLite-only variantě.
+- testovací nastavení odpovídá reálnějšímu MySQL chování, ne SQLite-only variantě,
+- aktuálně **185 testů, 371 assertions** — všechny zelené.
 
 ### Rizika
 
@@ -326,80 +329,70 @@ miPress je ve stavu solidního vlastního CMS základu se zdravou doménovou arc
 
 ---
 
-## Hloubková revize — nálezy (v0.6.0, 9. března 2026)
+## Hloubková revize a stav oprav (v0.6.0 → refactor/core-extraction, 9. března 2026)
 
-Tato sekce dokumentuje konkrétní bugy a nedostatky nalezené v revizi po dokončení Fáze 7.
+Tato sekce dokumentuje konkrétní bugy a nedostatky nalezené v revizi po Fázi 7 a jejich aktuální stav.
 
-### Shrnutí nálezů
+### Stav nálezů
 
-| Priorita | Počet | Popis |
+| Priorita | Nález | Stav |
 |---|---|---|
-| 🔴 Kritické | 1 | Překlady `content.*` nefungují v celém Admin UI |
-| 🟠 Vysoké | 3 | Neúplná funkce, hardcoded stringy, chybějící policy |
-| 🟡 Střední | 4 | Duplicity, stub soubory, IDE chyby |
-| 🟢 Nízké | 2 | Cache optimalizace, balíčkové překlady |
+| 🔴 | Překlady `content.*` nefungují v Admin UI | ✅ OPRAVENO (a598cd0) |
+| 🟠 | Hardcoded nepřeložené stringy | ✅ OPRAVENO (a598cd0) |
+| 🟠 | Osiřelá funkce Blocks | ✅ OPRAVENO (a1e2efb) |
+| 🟠 | Model `Term` bez Policy | ❌ OTEVŘENO |
+| 🟡 | Duplicitní registrace policies | ✅ OPRAVENO (0cafd13) |
+| 🟡 | Stub soubory v `app/Enums/` | ✅ OPRAVENO (a598cd0) |
+| 🟡 | IDE false positive chyby | ✅ OPRAVENO (77834ed, f1d960f) |
+| 🟢 | Uncached Filament assets | ❌ OTEVŘENO (produkce) |
+| 🟢 | Breezy překlady | ❌ OTEVŘENO |
 
-### 🔴 KRITICKÉ — Translation loader race condition
+### ✅ Opravené nálezy
 
-**Projev:** Veškeré popisky v Admin UI zobrazují klíč místo textu — `content.collections.label` místo `Kolekce`, `content.entries.navigation_group` místo skupiny navigace atd.
+**🔴 Translation loader race condition** (opraveno v a598cd0)
+`addPath()` přesunuto do `register()` přes `callAfterResolving()`. Všechny `content.*` překlady nyní fungují bez ohledu na pořadí bootování providerů.
 
-**Kořenová příčina:**
-`MiPressCzCoreServiceProvider::boot()` registruje cestu do překladového loaderu přes `addPath()`. Jenže `AdminPanelProvider` je v `bootstrap/providers.php` (explicitní provider), a proto jeho `boot()` proběhne dříve než `boot()` auto-discovered core providerů. Volání `__('content.entries.navigation_group')` uvnitř `configurePlugins()` nastane před `addPath()` — Translator skupinu `content` načte jako prázdné pole a toto uloží do cache. Všechna následující volání `__('content.*')` vrací klíč.
+**🟠 Hardcoded stringy** (opraveno v a598cd0)
+`is_pinned`, Curator `label`/`pluralLabel`, Breezy `myProfile` — vše nahrazeno `__()` voláním. Přidány klíče do `content.php` a nový soubor `panel.php` (cs + en).
 
-Překlady pro `locales.*` fungují správně, protože se poprvé načítají lazy (přes closure) až po dokončení všech `boot()`.
+**🟠 Blokový builder / blocks** (opraveno v a1e2efb)
+Bloky nahrazeny Mason pluginem. Přidána migrace `drop_blocks_table`, vyčištěny permissions a překlady.
 
-**Potřebné opravy (tři vrstvy):**
-1. Přesunout `addPath()` z `boot()` do `register()` v `MiPressCzCoreServiceProvider` (nebo použít `callAfterResolving`).
-2. Obalit argument `navigationGroup()` v `configurePlugins()` do lazy closure: `fn() => __('...')`.
-3. Přidat příkaz `vendor:publish --tag=mipresscz-translations` do `mipresscz:install`, aby `lang/cs/content.php` a `lang/en/content.php` existovaly přímo v app vrstvě jako fallback.
+**🟡 Duplicitní policy registrace** (opraveno v 0cafd13)
+`Gate::policy()` volání přesunuta výhradně do `MiPressCzCoreServiceProvider`. `AppServiceProvider` odstraněn od všech content policy registrací.
 
-### 🟠 VYSOKÉ — Hardcoded nepřeložené stringy
+**🟡 Stub soubory** (opraveno v a598cd0)
+`app/Enums/{DateBehavior,DefaultStatus,EntryStatus}.php` smazány. Enums žijí v core.
 
-V `EntryForm.php` na řádku 143:
-```php
-Toggle::make('is_pinned')->label('Připnuto'), // hardcoded Czech
-```
-Chybí i translation klíč `content.entry_fields.is_pinned` v obou `content.php` souborech.
+**🟡 IDE false positives** (opraveno v 77834ed, f1d960f)
+`@var Blueprint $blueprint` type hinty v `EntryForm`, helper funkce v `ManageLocalesTest`.
 
-V `MiPressCzAdminPanelProvider`:
-```php
-CuratorPlugin::make()->label('Médium')->pluralLabel('Média') // hardcoded Czech
-BreezyCore::make()->myProfile(userMenuLabel: 'My Profile')   // hardcoded English
-```
+### ❌ Stále otevřené nálezy
 
-### 🟠 VYSOKÉ — Neúplná / osiřelá funkce Blocks
+**🟠 VYSOKÉ — `Term` bez Policy**
+Model `Term` nemá registrovanou policy. Přidat `TermPolicy` do `packages/mipresscz/core/src/Policies/TermPolicy.php` a registrovat ji v `MiPressCzCoreServiceProvider`.
 
-Existují artefakty: `blocks_table` migrace (proběhla), překlady `content.blocks.*`, permissions `view.blocks`/`manage.blocks`.
-Neexistuje: `Block` model, `BlockPolicy`, Filament resource.
-
-Nutné rozhodnutí: buď dopsat celou Block feature (model → policy → resource), nebo smazat `blocks_table` migraci (novou `drop_blocks_table`), překlady a permissions.
-
-### 🟠 VYSOKÉ — Termín `Term` bez registrované Policy
-
-Model `Term` nemá žádnou policy. Výchozí Gate chování je deny, ale záleží na Resource implementaci. Doporučeno: přidat `TermPolicy` nebo explicitně mapovat Term na `TaxonomyPolicy` v `AppServiceProvider`.
-
-### 🟡 STŘEDNÍ — Duplicitní registrace policies
-
-`MiPressCzCoreServiceProvider` i `AppServiceProvider` registrují `Gate::policy()` pro stejné 5 core modelů (Collection, Entry, Blueprint, GlobalSet, Taxonomy). Posledním zápisem vyhraje `AppServiceProvider` (app wrapper → core policy), výsledek je správný, ale duplicita je matoucí. Doporučeno: buď registrovat jen v app provideru (s app-model wrapperem), nebo jen v core provideru.
-
-### 🟡 STŘEDNÍ — Stub soubory v `app/Enums/`
-
-`app/Enums/DateBehavior.php`, `DefaultStatus.php`, `EntryStatus.php` jsou soubory obsahující jen komentář. Nejsou to PHP třídy ani aliasy. Pokud by je kdokoli importoval, dostane `Parse error`. Řešení: smazat a případně přidat `class_alias` do ServiceProvider.
-
-### 🟡 STŘEDNÍ — IDE false positive chyby v EntryForm a ManageLocalesTest
-
-`EntryForm.php` — volání `getFieldsBySection()` na proměnné, které IDE vidí jako `stdClass` (Blueprint model nemá deklarovaný typový hint v closure). Runtime funguje, ale IDE hlásí error. Oprava: přidat `Blueprint $blueprint` type hint.
-
-`ManageLocalesTest.php` — IDE hlásí `seed()` a `$this->superAdmin` jako nedefinované, ale Pest přes `uses(\Tests\TestCase::class)->in('Feature')` tyto metody za runtime přidá. 185 testů zelených.
-
-### 🟢 NÍZKÉ — Uncached Filament assets
-
+**🟢 NÍZKÉ — Uncached Filament assets**
 `php artisan about` ukazuje `blade_icons: NOT CACHED` a `panel_components: NOT CACHED`. Pro produkci přidat do deployment pipeline:
 ```bash
 php artisan icons:cache
 php artisan filament:cache-components
 ```
 
-### 🟢 NÍZKÉ — Filament Breezy překlady
+**🟢 NÍZKÉ — Breezy překlady**
+Breezy Sessions page není lokalizovaná do češtiny. `php artisan vendor:publish --tag=filament-breezy-translations`
 
-Breezy Sessions page není lokalizovaná do češtiny. Spustit `php artisan vendor:publish --tag=filament-breezy-translations` a přeložit.
+---
+
+### 🏗️ Architektonická konsolidace modelů (commit 0cafd13, 9. března 2026)
+
+Výsledek refactoru z branch `refactor/core-extraction`:
+
+- `app/Models/` nyní obsahuje **pouze `User.php`** — 8 wrapper modelů smazáno
+- `database/factories/` obsahuje **pouze `UserFactory.php`** — 7 duplikátních továren smazáno
+- Všechny content modely žijí výhradně v `packages/mipresscz/core/src/Models/`
+- Všechny core factories žijí v `packages/mipresscz/core/database/factories/`
+- `MiPressCzCoreServiceProvider` registruje: observers, policies, `Factory::guessFactoryNamesUsing()`
+- `AppServiceProvider` zredukován na: `Gate::before()`, Table config defaults, LanguageSwitch config
+- Všechny test soubory aktualizovány na `MiPressCz\Core\Models\*` namespace
+- **185 testů zelených**

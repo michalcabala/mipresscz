@@ -70,116 +70,116 @@ mipresscz/
 
 ---
 
-## Fáze 0 — Freeze a baseline
-**Odhad: 1–2 dny**
+## Fáze 0 — Freeze a baseline ✅
+**Dokončeno: 9. března 2026**
 
-- [ ] Vytvořit `refactor/core-extraction` branch.
-- [ ] Zapsat baseline metriky (test pass rate, počet migrací/modelů/resources, URL scénáře).
-- [ ] Přidat ADR dokument: hranice core/app.
-- [ ] Zmrazit nové feature PR na dobu extrakce.
+- [x] Vytvořit `refactor/core-extraction` branch.
+- [x] Zapsat baseline metriky (test pass rate, počet migrací/modelů/resources, URL scénáře).
+- [x] Přidat ADR dokument: hranice core/app.
+- [x] Zmrazit nové feature PR na dobu extrakce.
 
 **Výstup:** jasný start, bezpečná izolace refactoru.
 
 ---
 
-## Fáze 1 — Vytvoření `mipresscz/core` balíčku
-**Odhad: 2–3 dny**
+## Fáze 1 — Vytvoření `mipresscz/core` balíčku ✅
+**Dokončeno: 9. března 2026**
 
-- [ ] Vytvořit `packages/mipresscz/core` s `composer.json` (type: library).
-- [ ] Přidat `MiPressCzCoreServiceProvider` přes `spatie/laravel-package-tools`.
-- [ ] Definovat publish tags: `mipresscz-config`, `mipresscz-views`, `mipresscz-translations`, `mipresscz-migrations`.
-- [ ] Přesunout `app/helpers.php` do `packages/mipresscz/core/src/helpers.php`.
-- [ ] Přidat package do root `composer.json` jako path repository.
-- [ ] Ověřit boot aplikace, spustit testy.
+- [x] Vytvořit `packages/mipresscz/core` s `composer.json` (type: library).
+- [x] Přidat `MiPressCzCoreServiceProvider` přes `spatie/laravel-package-tools`.
+- [x] Definovat publish tags: `mipresscz-config`, `mipresscz-views`, `mipresscz-translations`, `mipresscz-migrations`.
+- [x] Přesunout `app/helpers.php` do `packages/mipresscz/core/src/helpers.php`.
+- [x] Přidat package do root `composer.json` jako path repository.
+- [x] Ověřit boot aplikace, spustit testy.
 
 **Výstup:** funkční core package načtený appkou.
 
 ---
 
-## Fáze 2 — Panel Provider pattern
-**Odhad: 2 dny**
+## Fáze 2 — Panel Provider pattern ✅
+**Dokončeno: 9. března 2026**
 
-- [ ] V core vytvořit `MiPressCzAdminPanelProvider` s hook metodami:
+- [x] V core vytvořit `MiPressCzAdminPanelProvider` s hook metodami:
   - `configureBase()` — path, colors, SPA, appearance
   - `configureNavigation()` — navigation groups
   - `configurePlugins()` — Curator, Breezy, language switch
   - `configureMiddleware()` — middleware stack
   - `configureDiscovery()` — resource/page auto-discovery
-- [ ] App provider zredukovat na:
+- [x] App provider zredukovat na:
   ```php
   class AdminPanelProvider extends MiPressCzAdminPanelProvider {}
   ```
-- [ ] Přesunout Curator, Breezy, AuthDesigner config do core (s možností override v app).
-- [ ] Ověřit boot, spustit testy.
+- [x] Přesunout Curator, Breezy, AuthDesigner config do core (s možností override v app).
+- [x] Ověřit boot, spustit testy.
 
 **Výstup:** čisté oddělení panel konfigurace, app provider je prázdná vrstva.
 
 ---
 
-## Fáze 3 — Extrakce doménového jádra
-**Odhad: 5–8 dní**
+## Fáze 3 — Extrakce doménového jádra ✅
+**Dokončeno: 9. března 2026**
 
 ### Modely
-- [ ] `Collection`, `Blueprint`, `Entry`, `Taxonomy`, `Term`, `Revision`, `GlobalSet`, `Locale`
-- [ ] Udržet ULID, HasRoles, SoftDeletes, všechny relationships
+- [x] `Collection`, `Blueprint`, `Entry`, `Taxonomy`, `Term`, `Revision`, `GlobalSet`, `Locale`
+- [x] Udrzet ULID, SoftDeletes, všechny relationships; wrapper modely z `app/Models/` smazány
 
 ### Enums
-- [ ] `EntryStatus`, `DefaultStatus`, `DateBehavior`, `UserRole` (obsah část)
+- [x] `EntryStatus`, `DefaultStatus`, `DateBehavior` v core; `UserRole` v app (auth-specific)
 
 ### Services a Observers
-- [ ] `LocaleService`, URL resolution helpery
-- [ ] `EntryObserver` (revize, pruning)
+- [x] `LocaleService`, URL resolution helpery
+- [x] `EntryObserver` (revize, pruning) — registrace přesunuta do core SP
 
 ### Policies
-- [ ] `CollectionPolicy`, `EntryPolicy`, `TaxonomyPolicy`, `BlockPolicy`, `GlobalSetPolicy`
+- [x] `CollectionPolicy`, `EntryPolicy`, `TaxonomyPolicy`, `BlueprintPolicy`, `GlobalSetPolicy`; registrace výlučně v core SP
 
 ### Filament Resources
-- [ ] Collections, Entries (dynamic ResourceConfiguration), Taxonomies, Terms, Globals
+- [x] Collections, Entries (dynamic ResourceConfiguration), Taxonomies, Terms, Globals
 
 ### HTTP a routing
-- [ ] `EntryController` (frontend rendering)
-- [ ] Základní frontend route registrace v core
+- [x] `EntryController` (frontend rendering)
+- [x] Základní frontend route registrace v core
 
 ### Seedery a factories
-- [ ] `RolesAndPermissionsSeeder`, `ContentSeeder`, `GlobalsSeeder`, `LocaleSeeder`
-- [ ] Všechny content factories
+- [x] `RolesAndPermissionsSeeder`, `ContentSeeder`, `GlobalsSeeder`, `LocaleSeeder`
+- [x] Všechny content factories v core; duplikátní app factories smazány
 
 ### Lang a views
-- [ ] `lang/cs`, `lang/en` content překlady
-- [ ] `resources/views/entries/`, fallback views
+- [x] `lang/cs`, `lang/en` content překlady
+- [x] `resources/views/entries/`, fallback views
 
 **Výstup:** core nese byznys logiku, app je tenká vrstva.
 
 ---
 
-## Fáze 4 — Routing a locale kontrakt
-**Odhad: 2–4 dny**
+## Fáze 4 — Routing a locale kontrakt ✅
+**Dokončeno: 9. března 2026**
 
-- [ ] Definovat routing kontrakt v core:
+- [x] Definovat routing kontrakt v core:
   - locale prefix režim (více jazyků)
   - single-language mode bez prefixu
   - redirect prefixed → unprefixed v single mode
-- [ ] App `routes/web.php` ztenčit na include core + app-specific override.
-- [ ] Napsat explicitní routing test matrix pro locale scénáře.
+- [x] App `routes/web.php` ztenčit na include core + app-specific override.
+- [x] Napsat explicitní routing test matrix pro locale scénáře.
 
 **Výstup:** stabilní i18n routing kontrakt bez driftu.
 
 ---
 
-## Fáze 5 — Installer command
-**Odhad: 2–3 dny**
+## Fáze 5 — Installer command ✅
+**Dokončeno: 9. března 2026**
 
-- [ ] Vytvořit `php artisan mipresscz:install` v core s volbami:
+- [x] Vytvořit `php artisan mipresscz:install` v core s volbami:
   - `--admin-name`, `--admin-email`, `--admin-password`
-  - `--force` (přeinstalování)
+  - `--force` (přeinstalovaní)
   - `--seed` (demo obsah)
-- [ ] Installer zajistí:
+- [x] Installer zajiští:
   - migrace
   - role/permission setup
   - výchozí Collection + Blueprint
   - locale init
   - admin user
-- [ ] Otestovat instalaci na čisté databázi.
+- [x] Otestovat instalaci na čisté databázi.
 
 **Výstup:** reprodukovatelné nasazení v jednom příkazu.
 
@@ -216,27 +216,35 @@ mipresscz/
 
 ## Prioritní To-Do backlog
 
-### P0 — Hned (Fáze 0–2)
-- Vytvořit `packages/mipresscz/core` skeleton + provider
-- Zavést dědění `AdminPanelProvider` z core
-- Přesunout content modely + services + observers
-- Přesunout základní Filament resources do core
-- Udržet všechny existující testy zelené
+### ✅ Hotovo — Jádro extrahováno (Fáze 0–7, 9. března 2026)
 
-### P1 — Krátce (Fáze 3–4)
-- Installer command
-- Core route registrace + locale routing kontrakt
-- Přesun seeders/factories/lang/views
+Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 
-### P2 — Střednědobě (Fáze 5–6)
+- [x] `packages/mipresscz/core` s kompletní doménovou logikou
+- [x] `AdminPanelProvider` dědí z `MiPressCzAdminPanelProvider`
+- [x] Všechny content modely, services, observers, policies v core
+- [x] Filament resources v core
+- [x] Installer command (`php artisan mipresscz:install`)
+- [x] Routing + locale kontrakt v core
+- [x] Seeders/factories/lang/views v core
+- [x] 185 testů zelených
+- [x] Release governance (semver, changelog, CI, docs)
+
+### P2 — Střednědobě
 - API vrstva do core (headless/REST)
 - `mipresscz:new-site` command
 - Publish tags a dokumentace pro integrátory
 
-### P3 — Dlouhodobě (Fáze 7+)
+### P3 — Dlouhodobě
 - `withoutX()` selective toggle pattern (po vzoru `tallcms`)
 - Optional plugin manager-like registry
 - Optional class alias compat layer pro budoucí distribuci
+
+### Otevřené technical debt položky
+
+- 🟠 `TermPolicy` chybí — přidat `packages/mipresscz/core/src/Policies/TermPolicy.php` a registrovat v core SP
+- 🟢 Uncached Filament assets — `php artisan icons:cache && php artisan filament:cache-components`
+- 🟢 Breezy překlady — `php artisan vendor:publish --tag=filament-breezy-translations`
 
 ---
 
@@ -254,12 +262,14 @@ mipresscz/
 
 ## Definition of Done
 
-- `mipresscz` běží na `packages/mipresscz/core`
-- `AdminPanelProvider` v app je tenká dědická vrstva
-- Core obsahuje všechny CMS-common součásti
-- Installer funguje na čisté instalaci
-- Kritické testy pro content + locale + routing + policy jsou zelené
-- `docs/architecture-core.md` jasně dokumentuje hranici core/app
+- [x] `mipresscz` běží na `packages/mipresscz/core`
+- [x] `AdminPanelProvider` v app je tenká dědická vrstva
+- [x] Core obsahuje všechny CMS-common součásti
+- [x] Installer funguje na čisté instalaci
+- [x] Kritické testy pro content + locale + routing + policy jsou zelené (185/185)
+- [x] `docs/architecture-core.md` jasně dokumentuje hranici core/app
+
+**Stav: Definition of Done splněno. ✅**
 
 ---
 
