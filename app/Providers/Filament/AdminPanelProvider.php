@@ -2,11 +2,11 @@
 
 namespace App\Providers\Filament;
 
-use App\Models\Collection;
 use Filament\Navigation\NavigationItem;
 use Illuminate\Support\Facades\Schema;
 use MiPressCz\Core\Filament\Resources\Entries\EntryResource;
 use MiPressCz\Core\Filament\Resources\Terms\TermResource;
+use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Taxonomy;
 use MiPressCz\Core\Providers\MiPressCzAdminPanelProvider;
 

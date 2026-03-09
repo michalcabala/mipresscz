@@ -1,11 +1,11 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Models\Locale;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Livewire\Livewire;
 use MiPressCz\Core\Filament\Pages\ManageLocales;
+use MiPressCz\Core\Models\Locale;
 
 beforeEach(function () {
     /** @var \Tests\TestCase $this */

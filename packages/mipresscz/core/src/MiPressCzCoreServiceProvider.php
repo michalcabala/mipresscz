@@ -2,6 +2,7 @@
 
 namespace MiPressCz\Core;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use MiPressCz\Core\Console\Commands\InstallCommand;
@@ -9,7 +10,10 @@ use MiPressCz\Core\Models\Blueprint;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Models\GlobalSet;
+use MiPressCz\Core\Models\Locale;
 use MiPressCz\Core\Models\Taxonomy;
+use MiPressCz\Core\Observers\EntryObserver;
+use MiPressCz\Core\Observers\LocaleObserver;
 use MiPressCz\Core\Policies\BlueprintPolicy;
 use MiPressCz\Core\Policies\CollectionPolicy;
 use MiPressCz\Core\Policies\EntryPolicy;
@@ -38,11 +42,22 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'mipresscz-core');
 
+        Factory::guessFactoryNamesUsing(function (string $modelName): string {
+            if (str_starts_with($modelName, 'MiPressCz\\Core\\Models\\')) {
+                return 'MiPressCz\\Core\\Database\\Factories\\'.class_basename($modelName).'Factory';
+            }
+
+            return 'Database\\Factories\\'.class_basename($modelName).'Factory';
+        });
+
         Gate::policy(Blueprint::class, BlueprintPolicy::class);
         Gate::policy(Collection::class, CollectionPolicy::class);
         Gate::policy(Entry::class, EntryPolicy::class);
         Gate::policy(GlobalSet::class, GlobalSetPolicy::class);
         Gate::policy(Taxonomy::class, TaxonomyPolicy::class);
+
+        Entry::observe(EntryObserver::class);
+        Locale::observe(LocaleObserver::class);
 
         // Core catch-all frontend routes are registered after the application's
         // own routes so that app-specific routes always take precedence.

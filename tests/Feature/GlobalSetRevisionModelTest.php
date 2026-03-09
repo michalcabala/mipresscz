@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\Blueprint;
-use App\Models\Collection;
-use App\Models\Entry;
-use App\Models\GlobalSet;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use MiPressCz\Core\Models\Blueprint;
+use MiPressCz\Core\Models\Collection;
+use MiPressCz\Core\Models\Entry;
+use MiPressCz\Core\Models\GlobalSet;
 
 // -- GlobalSet --
 

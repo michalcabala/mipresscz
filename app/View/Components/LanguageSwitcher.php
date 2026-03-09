@@ -2,12 +2,12 @@
 
 namespace App\View\Components;
 
-use App\Models\Entry;
-use App\Models\Locale;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\View\Component;
+use MiPressCz\Core\Models\Entry;
+use MiPressCz\Core\Models\Locale;
 
 class LanguageSwitcher extends Component
 {

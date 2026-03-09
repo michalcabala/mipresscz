@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Blueprint;
-use App\Models\Collection;
-use App\Models\Entry;
+use MiPressCz\Core\Models\Blueprint;
+use MiPressCz\Core\Models\Collection;
+use MiPressCz\Core\Models\Entry;
 
 // ── Collection ──
 

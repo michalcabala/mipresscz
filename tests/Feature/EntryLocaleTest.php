@@ -1,10 +1,10 @@
 <?php
 
 use MiPressCz\Core\Enums\EntryStatus;
-use App\Models\Blueprint;
-use App\Models\Collection;
-use App\Models\Entry;
-use App\Models\Locale;
+use MiPressCz\Core\Models\Blueprint;
+use MiPressCz\Core\Models\Collection;
+use MiPressCz\Core\Models\Entry;
+use MiPressCz\Core\Models\Locale;
 
 beforeEach(function () {
     locales()->clearCache();

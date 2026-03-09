@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Collection;
-use App\Models\Taxonomy;
-use App\Models\Term;
+use MiPressCz\Core\Models\Collection;
+use MiPressCz\Core\Models\Taxonomy;
+use MiPressCz\Core\Models\Term;
 
 // ── Taxonomy ──
 

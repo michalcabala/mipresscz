@@ -1,13 +1,13 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Models\Blueprint;
-use App\Models\Collection;
-use App\Models\Entry;
-use App\Models\GlobalSet;
-use App\Models\Taxonomy;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
+use MiPressCz\Core\Models\Blueprint;
+use MiPressCz\Core\Models\Collection;
+use MiPressCz\Core\Models\Entry;
+use MiPressCz\Core\Models\GlobalSet;
+use MiPressCz\Core\Models\Taxonomy;
 
 beforeEach(function () {
     $this->seed(RolesAndPermissionsSeeder::class);

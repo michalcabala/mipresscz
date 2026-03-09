@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Blueprint;
 use Illuminate\Console\Command;
+use MiPressCz\Core\Models\Blueprint;
 
 class MigrateBlueprintFields extends Command
 {
