@@ -1,0 +1,30 @@
+{
+    "name": "mipresscz/core",
+    "description": "miPressCZ CMS Core — Collections, Blueprints, Entries content management",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "filament/filament": "^5.0",
+        "illuminate/support": "^12.0"
+    },
+    "autoload": {
+        "files": [
+            "src/helpers.php"
+        ],
+        "psr-4": {
+            "MiPressCz\\Core\\": "src/",
+            "MiPressCz\\Core\\Database\\Factories\\": "database/factories/",
+            "MiPressCz\\Core\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MiPressCz\\Core\\MiPressCzCoreServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
