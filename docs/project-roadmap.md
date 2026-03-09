@@ -185,27 +185,27 @@ mipresscz/
 
 ---
 
-## Fáze 6 — Test parity
-**Odhad: 4–6 dní**
+## Fáze 6 — Test parity ✅
+**Dokončeno: 9. března 2026**
 
-- [ ] Zachovat Pest jako primární test framework (žádný mix PHPUnit stylu).
-- [ ] Přidat kontraktní testy pro core modely (relationships, scopes, factories).
-- [ ] Přidat testy pro LocaleService a routing matrix.
-- [ ] Přidat policy matrix testy (kdo může co s jakým obsahem).
-- [ ] Přidat integration testy app vrstvy (panel boot, dynamic resources, middleware).
-- [ ] Dosáhnout alespoň parity s dnešním stavem (83+ Pest definic), ideálně výrazně přes 150.
+- [x] Zachovat Pest jako primární test framework (žádný mix PHPUnit stylu).
+- [x] Přidat kontraktní testy pro core modely (relationships, scopes, factories).
+- [x] Přidat testy pro LocaleService a routing matrix.
+- [x] Přidat policy matrix testy (kdo může co s jakým obsahem).
+- [x] Přidat integration testy app vrstvy (panel boot, dynamic resources, middleware).
+- [x] Dosáhnout alespoň parity s dnešním stavem (83+ Pest definic), ideálně výrazně přes 150. → **185 definic**
 
 **Výstup:** bezpečný refactor potvrzený testy, žádné nevykryté regrese.
 
 ---
 
-## Fáze 7 — Release a governance
-**Odhad: 2–3 dny**
+## Fáze 7 — Release a governance ✅
+**Dokončeno: 9. března 2026**
 
-- [ ] Semver verzování v `packages/mipresscz/core/composer.json`.
-- [ ] `CHANGELOG.md` pro core.
-- [ ] CI: lint (Pint), testy, install smoke test.
-- [ ] Dokumentace:
+- [x] Semver verzování v `packages/mipresscz/core/composer.json` (verze `0.6.0`).
+- [x] `CHANGELOG.md` pro core (`packages/mipresscz/core/CHANGELOG.md`).
+- [x] CI: `.github/workflows/ci.yml` — lint (Pint), testy (MySQL), install smoke test.
+- [x] Dokumentace:
   - `docs/architecture-core.md` — hranice core/app, jak core rozšiřovat
   - `docs/upgrade-guide.md` — versioning a breaking changes
   - `docs/contributing-core.md` — workflow pro přispívání do core

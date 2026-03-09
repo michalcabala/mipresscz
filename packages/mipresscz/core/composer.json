@@ -2,6 +2,7 @@
     "name": "mipresscz/core",
     "description": "miPressCZ CMS Core — Collections, Blueprints, Entries content management",
     "type": "library",
+    "version": "0.6.0",
     "license": "MIT",
     "require": {
         "php": "^8.2",
