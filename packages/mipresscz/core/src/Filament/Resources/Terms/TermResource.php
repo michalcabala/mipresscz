@@ -1,0 +1,74 @@
+<?php
+
+namespace MiPressCz\Core\Filament\Resources\Terms;
+
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Tables\Table;
+use MiPressCz\Core\Filament\Resources\Terms\Pages\CreateTerm;
+use MiPressCz\Core\Filament\Resources\Terms\Pages\EditTerm;
+use MiPressCz\Core\Filament\Resources\Terms\Pages\ListTerms;
+use MiPressCz\Core\Filament\Resources\Terms\Schemas\TermForm;
+use MiPressCz\Core\Filament\Resources\Terms\Tables\TermsTable;
+use MiPressCz\Core\Models\Term;
+
+class TermResource extends Resource
+{
+    protected static ?string $model = Term::class;
+
+    protected static string|BackedEnum|null $navigationIcon = 'fal-tag';
+
+    protected static ?string $recordTitleAttribute = 'title';
+
+    protected static ?int $navigationSort = 1;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('content.terms.navigation_group');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('content.terms.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('content.terms.plural_label');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('content.terms.navigation_label');
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return TermForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return TermsTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListTerms::route('/'),
+            'create' => CreateTerm::route('/create'),
+            'edit' => EditTerm::route('/{record}/edit'),
+        ];
+    }
+}

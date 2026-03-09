@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Mason\BrickCollection;
 use App\Models\Entry;
 use App\Models\Locale;
 use App\Observers\EntryObserver;
@@ -12,6 +13,7 @@ use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use MiPressCz\Core\Filament\Resources\Entries\Schemas\EntryForm;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        EntryForm::$brickClasses = BrickCollection::all();
+
         Gate::before(function ($user, $ability) {
             return $user->isSuperAdmin() ? true : null;
         });

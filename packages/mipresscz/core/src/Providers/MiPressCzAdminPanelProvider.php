@@ -184,7 +184,9 @@ class MiPressCzAdminPanelProvider extends PanelProvider
     protected function configureDiscovery(Panel $panel): Panel
     {
         return $panel
+            ->discoverResources(in: __DIR__.'/../Filament/Resources', for: 'MiPressCz\Core\Filament\Resources')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->discoverPages(in: __DIR__.'/../Filament/Pages', for: 'MiPressCz\Core\Filament\Pages')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,

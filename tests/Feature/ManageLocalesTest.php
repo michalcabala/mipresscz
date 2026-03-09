@@ -1,7 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
-use App\Filament\Pages\ManageLocales;
+use MiPressCz\Core\Filament\Pages\ManageLocales;
 use App\Models\Locale;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
