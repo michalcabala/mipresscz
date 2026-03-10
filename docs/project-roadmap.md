@@ -236,9 +236,41 @@ Cíl: uzavřít autorizační mezery, zvýšit testové pokrytí admin panelu a 
 - [ ] `npm run build` + ověření Vite manifestu
 - [ ] Tagovat `v0.7.0`
 
-**Aktuální stav:** 226 testů (41 nových), všechny zelené. Zbývají pokročilé testy (7.2) a merge (7.4).
+### 7.5 — Admin UI & Entry formulář ✅
+**Dokončeno: 11. března 2026**
 
-**Výstup:** bezpečný, čistý codebase připravený pro vývoj frontend šablony.
+Cíl: Entry formulář musí vizuálně fungovat — správné rozvržení, dynamická pole dle blueprintu.
+
+#### Layout fix
+- [x] Diagnostika: `Flex` a `Grid` jako wrapper nefungují správně ve Filament 5
+- [x] Správný pattern: `Group::make()->columnSpan(['lg' => 2/1])` + `$schema->columns(3)`
+- [x] Namespace oprava: `Filament\Schemas\Components\Group` (ne `Filament\Forms\Components\Group`)
+- [x] Odstraněn `getMaxContentWidth(): Width::Full` z `EditEntry` a `CreateEntry`
+
+#### Blueprint dynamic fields fix
+- [x] Diagnostika: `$get('blueprint_id')` nespolehlivé cross-Group closures ve Filament 5
+- [x] Řešení: typovaná injekce `?Entry $record` v `schema(fn (?Entry $record): array => ...)`
+- [x] `resolveDefaultBlueprintId()` — statická cache pro CreateRecord kontext (bez `$record`)
+- [x] Podpora nového field type `entries` — `Select::multiple()` s Entry options z linked collections
+- [x] Mason vždy viditelný — odstraněna podmínka `->visible(fn() => count($brickClasses) > 0)`
+
+#### EntryForm architektura (výsledný stav)
+```
+$schema->columns(3)
+├── Group(lg:2) — hlavní obsah
+│   ├── Section: title, slug, Mason
+│   └── Section: extra_fields (dynamic main blueprint fields)
+├── Group(lg:1) — sidebar
+│   ├── Section: featured_image, author, published_at, parent_id, is_pinned
+│   └── Section: metadata (dynamic sidebar blueprint fields)
+└── Hidden: collection_id, blueprint_id, locale, status, order
+```
+
+**Výstup:** Entry formulář plně funkční, dynamická blueprintová pole se správně načítají ze záznamu.
+
+**Aktuální stav:** 242 testů (57 nových oproti Fázi 6), všechny zelené. Zbývají pokročilé testy (7.2) a merge (7.4).
+
+**Výstup:** bezpečný, čistý codebase připravený pro vývoj frontend šablony; Entry formulář plně funkční.
 
 ---
 
