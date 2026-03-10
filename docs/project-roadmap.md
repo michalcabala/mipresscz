@@ -199,36 +199,44 @@ mipresscz/
 
 ---
 
-## Fáze 7 — Stabilizace a hardening 🔜
-**Plán: březnová iterace 2026**
+## Fáze 7 — Stabilizace a hardening ⏳
+**Zahájeno: 10. března 2026**
 
 Cíl: uzavřít autorizační mezery, zvýšit testové pokrytí admin panelu a vyčistit redundance.
 
-### 7.1 — Autorizace a bezpečnost
+### 7.1 — Autorizace a bezpečnost ✅
 
-- [ ] Vytvořit `TermPolicy` — uzavření autorizační mezery (Terms nemají policy)
-- [ ] Registrovat TermPolicy v `MiPressCzCoreServiceProvider`
-- [ ] Test matrix pro TermPolicy (kdo může co s termy)
+- [x] Vytvořit `TermPolicy` — uzavření autorizační mezery (Terms nemají policy)
+- [x] Registrovat TermPolicy v `MiPressCzCoreServiceProvider`
+- [x] Test matrix pro TermPolicy (kdo může co s termy) — 16 testů
 
-### 7.2 — Testové pokrytí admin panelu
+### 7.2 — Testové pokrytí admin panelu (částečně ✅)
 
-- [ ] Filament form testy — EntryResource CRUD (create, edit, validate)
+- [x] Filament resource testy — CollectionResource (9), TaxonomyResource (10), GlobalSetResource (9), BlueprintResource (8)
+- [x] Dynamic resource creation test — ověření `getCollectionResources()` — EntryResourceConfigTest (5)
+- [ ] Filament form testy — EntryResource CRUD (create, edit, validate) — složitější kvůli Mason + dynamic resources
 - [ ] Filament table testy — filtry, řazení, bulk akce
-- [ ] Dynamic resource creation test — ověření `getCollectionResources()`
 - [ ] Mason brick snapshot testy — HTML výstup 13 bricks
 - [ ] Curator media testy — featured image, galerie workflow
 
-### 7.3 — Čištění redundancí
+### 7.2b — Bug fixy nalezené při testování ✅
 
-- [ ] Audit language switcher balíčků — rozhodnout mezi `bezhansalleh/filament-language-switch` a `craft-forge/filament-language-switcher`, odstranit nepoužívaný
-- [ ] Přeložit Breezy (2FA) strings do češtiny
-- [ ] Přepsat README.md — nahradit default Laravel placeholder odkazem na `docs/`
+- [x] `?string $state` nullable oprava v 7 form schématech (CollectionForm, TaxonomyForm, TermForm, BlueprintForm, GlobalSetForm, EntryForm, BlueprintsRelationManager)
+- [x] `mutateFormDataBeforeCreate()` — chybějící `name = handle` v 4 Create stránkách (CreateCollection, CreateBlueprint, CreateGlobalSet, BlueprintsRelationManager)
+
+### 7.3 — Čištění redundancí ✅
+
+- [x] Audit language switcher balíčků — `craft-forge/filament-language-switcher` odstraněn, ponechán `bezhansalleh/filament-language-switch`
+- [x] Přeložit Breezy (2FA) strings do češtiny — `lang/vendor/filament-breezy/cs/default.php`
+- [x] Přepsat README.md — nahradit default Laravel placeholder odkazem na `docs/`
 
 ### 7.4 — Příprava na merge
 
 - [ ] Merge `refactor/core-extraction` → `main`
 - [ ] `npm run build` + ověření Vite manifestu
 - [ ] Tagovat `v0.7.0`
+
+**Aktuální stav:** 226 testů (41 nových), všechny zelené. Zbývají pokročilé testy (7.2) a merge (7.4).
 
 **Výstup:** bezpečný, čistý codebase připravený pro vývoj frontend šablony.
 
@@ -307,9 +315,9 @@ Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 
 ### Otevřené technical debt položky
 
-- 🟠 `TermPolicy` chybí — přidat `packages/mipresscz/core/src/Policies/TermPolicy.php` a registrovat v core SP
+- ✅ ~~`TermPolicy` chybí~~ — vyřešeno 10. března 2026
+- ✅ ~~Breezy překlady~~ — vyřešeno 10. března 2026
 - 🟢 Uncached Filament assets — `php artisan icons:cache && php artisan filament:cache-components`
-- 🟢 Breezy překlady — `php artisan vendor:publish --tag=filament-breezy-translations`
 
 ---
 
@@ -331,7 +339,7 @@ Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 - [x] `AdminPanelProvider` v app je tenká dědická vrstva
 - [x] Core obsahuje všechny CMS-common součásti
 - [x] Installer funguje na čisté instalaci
-- [x] Kritické testy pro content + locale + routing + policy jsou zelené (185/185)
+- [x] Kritické testy pro content + locale + routing + policy jsou zelené (226/226)
 - [x] `docs/architecture-core.md` jasně dokumentuje hranici core/app
 
 **Stav: Definition of Done splněno. ✅**

@@ -10,9 +10,11 @@ class LocaleService
 {
     public const CACHE_KEY = 'mipress.locales';
 
+    private ?Collection $resolved = null;
+
     public function getAll(): Collection
     {
-        return Cache::rememberForever(self::CACHE_KEY, function () {
+        return $this->resolved ??= Cache::rememberForever(self::CACHE_KEY, function () {
             return Locale::query()->orderBy('order')->get();
         });
     }
@@ -99,5 +101,6 @@ class LocaleService
     public function clearCache(): void
     {
         Cache::forget(self::CACHE_KEY);
+        $this->resolved = null;
     }
 }
