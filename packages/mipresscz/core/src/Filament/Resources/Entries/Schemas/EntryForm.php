@@ -17,6 +17,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use MiPressCz\Core\Enums\EntryStatus;
 use MiPressCz\Core\Models\Blueprint;
+use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
 
 class EntryForm
@@ -50,16 +51,24 @@ class EntryForm
                                     ->maxLength(255)
                                     ->prefix('/'),
 
-                                // Mason block editor — only when bricks are registered
+                                // Mason is always the content editor
                                 Mason::make('content')
                                     ->label(__('content.entry_fields.content'))
                                     ->bricks(static::$brickClasses)
-                                    ->columnSpanFull()
-                                    ->visible(fn (): bool => count(static::$brickClasses) > 0),
+                                    ->columnSpanFull(),
                             ]),
 
                         // Dynamic main fields from blueprint
-                        ...static::dynamicMainFields(),
+                        Section::make(__('content.entry_fields.extra_fields'))
+                            ->schema(fn (?Entry $record): array => static::buildMainFieldsForBlueprint(
+                                $record?->blueprint_id ?? static::resolveDefaultBlueprintId()
+                            ))
+                            ->visible(fn (?Entry $record): bool => count(
+                                static::buildMainFieldsForBlueprint(
+                                    $record?->blueprint_id ?? static::resolveDefaultBlueprintId()
+                                )
+                            ) > 0)
+                            ->collapsible(),
                     ])
                     ->columnSpan(['lg' => 2]),
 
@@ -104,7 +113,16 @@ class EntryForm
                             ]),
 
                         // Dynamic sidebar fields from blueprint
-                        ...static::dynamicSidebarFields(),
+                        Section::make(__('content.entry_fields.metadata'))
+                            ->schema(fn (?Entry $record): array => static::buildSidebarFieldsForBlueprint(
+                                $record?->blueprint_id ?? static::resolveDefaultBlueprintId()
+                            ))
+                            ->visible(fn (?Entry $record): bool => count(
+                                static::buildSidebarFieldsForBlueprint(
+                                    $record?->blueprint_id ?? static::resolveDefaultBlueprintId()
+                                )
+                            ) > 0)
+                            ->collapsible(),
                     ])
                     ->columnSpan(['lg' => 1]),
 
@@ -118,6 +136,31 @@ class EntryForm
                     ->default(0),
             ])
             ->columns(3);
+    }
+
+    /**
+     * Determine the default blueprint ID for CreateRecord context (no $record yet).
+     */
+    protected static function resolveDefaultBlueprintId(): ?string
+    {
+        static $cache = [];
+        $handle = \MiPressCz\Core\Filament\Resources\Entries\EntryResource::getCollectionHandle();
+
+        if (! $handle) {
+            return null;
+        }
+
+        if (array_key_exists($handle, $cache)) {
+            return $cache[$handle];
+        }
+
+        $collection = Collection::query()
+            ->where('handle', $handle)
+            ->with('blueprints')
+            ->first();
+
+        return $cache[$handle] = $collection?->defaultBlueprint()?->id
+            ?? $collection?->blueprints->first()?->id;
     }
 
     /**
@@ -149,6 +192,22 @@ class EntryForm
                 'select' => Select::make($name)->label($label)->options($field['config']['options'] ?? []),
                 'toggle' => Toggle::make($name)->label($label),
                 'number' => TextInput::make($name)->label($label)->numeric(),
+                'entries' => Select::make($name)
+                    ->label($label)
+                    ->multiple()
+                    ->options(function () use ($field): array {
+                        $collections = $field['config']['collections'] ?? [];
+                        if (empty($collections)) {
+                            return [];
+                        }
+
+                        return Entry::query()
+                            ->whereHas('collection', fn ($q) => $q->whereIn('handle', $collections))
+                            ->whereNull('origin_id')
+                            ->limit(200)
+                            ->pluck('title', 'id')
+                            ->all();
+                    }),
                 default => TextInput::make($name)->label($label)->maxLength(255),
             };
 
@@ -160,32 +219,6 @@ class EntryForm
         }
 
         return $components;
-    }
-
-    /**
-     * @return array<int, \Filament\Schemas\Components\Component>
-     */
-    protected static function dynamicMainFields(): array
-    {
-        return [
-            Section::make(__('content.entry_fields.extra_fields'))
-                ->schema(fn (Get $get): array => static::buildMainFieldsForBlueprint($get('blueprint_id')))
-                ->visible(fn (Get $get): bool => (bool) $get('blueprint_id'))
-                ->collapsible(),
-        ];
-    }
-
-    /**
-     * @return array<int, \Filament\Schemas\Components\Component>
-     */
-    protected static function dynamicSidebarFields(): array
-    {
-        return [
-            Section::make(__('content.entry_fields.metadata'))
-                ->schema(fn (Get $get): array => static::buildSidebarFieldsForBlueprint($get('blueprint_id')))
-                ->visible(fn (Get $get): bool => (bool) $get('blueprint_id'))
-                ->collapsible(),
-        ];
     }
 
     /**
@@ -213,8 +246,8 @@ class EntryForm
             return [];
         }
 
-        // Skip rich content types — they are replaced by Mason
-        // Skip featured_image — it's a fixed field in the sidebar
+        // Mason replaces rich content types — skip them to avoid duplication
+        // Also skip featured_image — it's a fixed field in the sidebar
         $contentTypes = ['rich_editor', 'blocks', 'mason'];
         $alwaysFixed = ['featured_image'];
 
@@ -238,7 +271,7 @@ class EntryForm
             return [];
         }
 
-        // Skip featured_image — it's a fixed field in the sidebar
+        // featured_image is always shown above — skip it from blueprint sidebar fields
         $fields = collect($blueprint->getFieldsBySection('sidebar'))
             ->reject(fn (array $f) => in_array($f['handle'] ?? '', ['featured_image']))
             ->values()
