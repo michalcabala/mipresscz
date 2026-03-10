@@ -4,7 +4,6 @@ namespace MiPressCz\Core\Filament\Resources\Entries\Pages;
 
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
-use Filament\Support\Enums\Width;
 use MiPressCz\Core\Enums\EntryStatus;
 use MiPressCz\Core\Filament\Resources\Entries\EntryResource;
 use MiPressCz\Core\Models\Collection;
@@ -12,11 +11,6 @@ use MiPressCz\Core\Models\Collection;
 class CreateEntry extends CreateRecord
 {
     protected static string $resource = EntryResource::class;
-
-    public function getMaxContentWidth(): Width
-    {
-        return Width::Full;
-    }
 
     protected function getHeaderActions(): array
     {

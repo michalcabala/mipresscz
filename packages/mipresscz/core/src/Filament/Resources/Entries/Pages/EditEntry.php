@@ -6,7 +6,6 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
-use Filament\Support\Enums\Width;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use MiPressCz\Core\Enums\EntryStatus;
@@ -17,11 +16,6 @@ use MiPressCz\Core\Models\Locale;
 class EditEntry extends EditRecord
 {
     protected static string $resource = EntryResource::class;
-
-    public function getMaxContentWidth(): Width
-    {
-        return Width::Full;
-    }
 
     protected function resolveRecord(int|string $key): Entry
     {

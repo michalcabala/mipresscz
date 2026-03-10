@@ -5,13 +5,13 @@ namespace MiPressCz\Core\Filament\Resources\Entries\Schemas;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Awcodes\Mason\Mason;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -28,11 +28,10 @@ class EntryForm
     {
         return $schema
             ->components([
-                Grid::make(['default' => 1, 'lg' => 4])
+                // ── Main content area (2/3 width) ──
+                Group::make()
                     ->schema([
-                        // ── Main content area (3/4 width) ──
                         Section::make()
-                            ->columnSpan(['default' => 1, 'lg' => 3])
                             ->schema([
                                 TextInput::make('title')
                                     ->label(__('content.entry_fields.title'))
@@ -57,14 +56,17 @@ class EntryForm
                                     ->bricks(static::$brickClasses)
                                     ->columnSpanFull()
                                     ->visible(fn (): bool => count(static::$brickClasses) > 0),
-
-                                // Dynamic main fields from blueprint
-                                ...static::dynamicMainFields(),
                             ]),
 
-                        // ── Sidebar (1/4 width) ──
+                        // Dynamic main fields from blueprint
+                        ...static::dynamicMainFields(),
+                    ])
+                    ->columnSpan(['lg' => 2]),
+
+                // ── Sidebar (1/3 width) ──
+                Group::make()
+                    ->schema([
                         Section::make()
-                            ->columnSpan(['default' => 1, 'lg' => 1])
                             ->schema([
                                 // Featured image
                                 CuratorPicker::make('featured_image_id')
@@ -99,21 +101,23 @@ class EntryForm
 
                                 Toggle::make('is_pinned')
                                     ->label(__('content.entry_fields.is_pinned')),
-
-                                // Dynamic sidebar fields from blueprint
-                                ...static::dynamicSidebarFields(),
-
-                                // Hidden fields — auto-populated in Create/Edit pages
-                                Hidden::make('collection_id'),
-                                Hidden::make('blueprint_id'),
-                                Hidden::make('locale'),
-                                Hidden::make('status')
-                                    ->default(EntryStatus::Draft->value),
-                                Hidden::make('order')
-                                    ->default(0),
                             ]),
-                    ]),
-            ]);
+
+                        // Dynamic sidebar fields from blueprint
+                        ...static::dynamicSidebarFields(),
+                    ])
+                    ->columnSpan(['lg' => 1]),
+
+                // Hidden fields — auto-populated in Create/Edit pages
+                Hidden::make('collection_id'),
+                Hidden::make('blueprint_id'),
+                Hidden::make('locale'),
+                Hidden::make('status')
+                    ->default(EntryStatus::Draft->value),
+                Hidden::make('order')
+                    ->default(0),
+            ])
+            ->columns(3);
     }
 
     /**
