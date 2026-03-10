@@ -14,6 +14,13 @@ class BlueprintsRelationManager extends RelationManager
 {
     protected static string $relationship = 'blueprints';
 
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['name'] = $data['handle'];
+
+        return $data;
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -23,7 +30,7 @@ class BlueprintsRelationManager extends RelationManager
                     ->required()
                     ->maxLength(255)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(function (string $state, callable $set, string $operation) {
+                    ->afterStateUpdated(function (?string $state, callable $set, string $operation) {
                         if ($operation === 'create') {
                             $set('handle', \Illuminate\Support\Str::slug($state, '_'));
                         }

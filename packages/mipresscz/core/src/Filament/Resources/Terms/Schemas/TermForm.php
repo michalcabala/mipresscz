@@ -33,7 +33,7 @@ class TermForm
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(function (string $state, callable $set, string $operation) {
+                            ->afterStateUpdated(function (?string $state, callable $set, string $operation) {
                                 if ($operation === 'create') {
                                     $set('slug', \Illuminate\Support\Str::slug($state));
                                 }

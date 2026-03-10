@@ -19,7 +19,7 @@ class TaxonomyForm
                     ->required()
                     ->maxLength(255)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(function (string $state, callable $set, string $operation) {
+                    ->afterStateUpdated(function (?string $state, callable $set, string $operation) {
                         if ($operation === 'create') {
                             $set('handle', \Illuminate\Support\Str::slug($state, '_'));
                         }
