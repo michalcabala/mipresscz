@@ -80,6 +80,7 @@ return [
     'entry_fields' => [
         'title' => 'Název',
         'slug' => 'Slug',
+        'slug_helper' => 'Automaticky generováno z názvu',
         'uri' => 'URI',
         'status' => 'Stav',
         'collection' => 'Kolekce',
@@ -98,6 +99,10 @@ return [
         'excerpt' => 'Perex',
         'is_pinned' => 'Připnuto',
         'updated_at' => 'Upraveno',
+        'publishing' => 'Publikování',
+        'structure' => 'Zařazení',
+        'hierarchy' => 'Hierarchie',
+        'advanced' => 'Pokročilé',
     ],
 
     // ── Media (Curator) ──

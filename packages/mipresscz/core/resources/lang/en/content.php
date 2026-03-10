@@ -80,6 +80,7 @@ return [
     'entry_fields' => [
         'title' => 'Title',
         'slug' => 'Slug',
+        'slug_helper' => 'Auto-generated from title',
         'uri' => 'URI',
         'status' => 'Status',
         'collection' => 'Collection',
@@ -98,6 +99,10 @@ return [
         'excerpt' => 'Excerpt',
         'is_pinned' => 'Pinned',
         'updated_at' => 'Updated',
+        'publishing' => 'Publishing',
+        'structure' => 'Organization',
+        'hierarchy' => 'Hierarchy',
+        'advanced' => 'Advanced',
     ],
 
     // ── Media (Curator) ──

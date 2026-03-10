@@ -32,106 +32,136 @@ class EntryForm
         return $schema
             ->components([
                 Grid::make(3)->schema([
-                    Section::make(__('content.entry_fields.content'))
+                    // ── Left column: content ──
+                    Grid::make(1)
                         ->columnSpan(2)
                         ->schema([
-                            TextInput::make('title')
-                                ->label(__('content.entry_fields.title'))
-                                ->required()
-                                ->maxLength(255)
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(function (?string $state, callable $set, string $operation) {
-                                    if ($operation === 'create') {
-                                        $set('slug', \Illuminate\Support\Str::slug($state));
-                                    }
-                                }),
-                            TextInput::make('slug')
-                                ->label(__('content.entry_fields.slug'))
-                                ->required()
-                                ->maxLength(255),
+                            Section::make(__('content.entry_fields.content'))
+                                ->schema([
+                                    TextInput::make('title')
+                                        ->label(__('content.entry_fields.title'))
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function (?string $state, callable $set, string $operation) {
+                                            if ($operation === 'create') {
+                                                $set('slug', \Illuminate\Support\Str::slug($state));
+                                            }
+                                        }),
+                                    TextInput::make('slug')
+                                        ->label(__('content.entry_fields.slug'))
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->prefix('/')
+                                        ->helperText(__('content.entry_fields.slug_helper')),
+                                ]),
 
-                            Mason::make('content')
-                                ->label(__('content.entry_fields.content'))
-                                ->bricks(static::$brickClasses)
-                                ->columnSpanFull(),
+                            // Mason block editor — only shown when bricks are registered
+                            Section::make(__('content.entry_fields.content'))
+                                ->schema([
+                                    Mason::make('content')
+                                        ->label('')
+                                        ->bricks(static::$brickClasses)
+                                        ->columnSpanFull(),
+                                ])
+                                ->visible(fn (): bool => count(static::$brickClasses) > 0),
 
+                            // Dynamic main fields from blueprint
                             ...static::dynamicMainFields(),
                         ]),
-                    Section::make(__('content.entry_fields.status'))
+
+                    // ── Right column: sidebar ──
+                    Grid::make(1)
                         ->columnSpan(1)
                         ->schema([
-                            CuratorPicker::make('featured_image_id')
-                                ->label(__('content.entry_fields.featured_image'))
-                                ->relationship('featuredImage', 'id')
-                                ->constrained(true)
-                                ->lazyLoad(true)
-                                ->columnSpanFull(),
-                            Select::make('collection_id')
-                                ->label(__('content.entry_fields.collection'))
-                                ->options(fn () => Collection::query()->where('is_active', true)->orderBy('title')->pluck('title', 'id'))
-                                ->searchable()
-                                ->required()
-                                ->live()
-                                ->default(fn () => $collectionHandle
-                                    ? Collection::query()->where('handle', $collectionHandle)->value('id')
-                                    : null)
-                                ->disabled(fn () => (bool) $collectionHandle)
-                                ->dehydrated()
-                                ->afterStateUpdated(fn (callable $set) => $set('blueprint_id', null)),
-                            Select::make('blueprint_id')
-                                ->label(__('content.entry_fields.blueprint'))
-                                ->options(function (Get $get) use ($collectionHandle) {
-                                    $collectionId = $get('collection_id');
+                            // Publishing
+                            Section::make(__('content.entry_fields.publishing'))
+                                ->schema([
+                                    Select::make('status')
+                                        ->label(__('content.entry_fields.status'))
+                                        ->options(EntryStatus::class)
+                                        ->default(EntryStatus::Draft)
+                                        ->required(),
+                                    DateTimePicker::make('published_at')
+                                        ->label(__('content.entry_fields.published_at')),
+                                    Select::make('author_id')
+                                        ->label(__('content.entry_fields.author'))
+                                        ->relationship('author', 'name')
+                                        ->default(fn () => auth()->id()),
+                                ]),
 
-                                    if (! $collectionId && $collectionHandle) {
-                                        $collectionId = Collection::query()->where('handle', $collectionHandle)->value('id');
-                                    }
+                            // Collection & Blueprint — hidden when collection-scoped with single blueprint
+                            Section::make(__('content.entry_fields.structure'))
+                                ->schema([
+                                    Select::make('collection_id')
+                                        ->label(__('content.entry_fields.collection'))
+                                        ->options(fn () => Collection::query()->where('is_active', true)->orderBy('title')->pluck('title', 'id'))
+                                        ->searchable()
+                                        ->required()
+                                        ->live()
+                                        ->default(fn () => $collectionHandle
+                                            ? Collection::query()->where('handle', $collectionHandle)->value('id')
+                                            : null)
+                                        ->disabled(fn () => (bool) $collectionHandle)
+                                        ->dehydrated()
+                                        ->afterStateUpdated(fn (callable $set) => $set('blueprint_id', null)),
+                                    Select::make('blueprint_id')
+                                        ->label(__('content.entry_fields.blueprint'))
+                                        ->options(function (Get $get) use ($collectionHandle) {
+                                            $collectionId = $get('collection_id');
 
-                                    if (! $collectionId) {
-                                        return [];
-                                    }
+                                            if (! $collectionId && $collectionHandle) {
+                                                $collectionId = Collection::query()->where('handle', $collectionHandle)->value('id');
+                                            }
 
-                                    return Blueprint::query()
-                                        ->where('collection_id', $collectionId)
-                                        ->where('is_active', true)
-                                        ->pluck('title', 'id');
-                                })
-                                ->required()
-                                ->live(),
-                            Select::make('status')
-                                ->label(__('content.entry_fields.status'))
-                                ->options(EntryStatus::class)
-                                ->default(EntryStatus::Draft)
-                                ->required(),
-                            Select::make('locale')
-                                ->label(__('content.entry_fields.locale'))
-                                ->options(fn (): array => locales()->toSelectOptions())
-                                ->default(fn (): string => locales()->getDefaultCode())
-                                ->required(),
-                            DateTimePicker::make('published_at')
-                                ->label(__('content.entry_fields.published_at')),
-                            Select::make('author_id')
-                                ->label(__('content.entry_fields.author'))
-                                ->relationship('author', 'name')
-                                ->default(fn () => auth()->id()),
-                            Select::make('parent_id')
-                                ->label(__('content.entry_fields.parent'))
-                                ->options(function (Get $get, ?Entry $record) {
-                                    $collectionId = $get('collection_id');
-                                    if (! $collectionId) {
-                                        return [];
-                                    }
-                                    $collection = Collection::find($collectionId);
-                                    if (! $collection?->is_tree) {
-                                        return [];
-                                    }
+                                            if (! $collectionId) {
+                                                return [];
+                                            }
 
-                                    return Entry::query()
-                                        ->where('collection_id', $collectionId)
-                                        ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
-                                        ->pluck('title', 'id');
-                                })
-                                ->visible(function (Get $get) {
+                                            return Blueprint::query()
+                                                ->where('collection_id', $collectionId)
+                                                ->where('is_active', true)
+                                                ->pluck('title', 'id');
+                                        })
+                                        ->required()
+                                        ->live(),
+                                    Select::make('locale')
+                                        ->label(__('content.entry_fields.locale'))
+                                        ->options(fn (): array => locales()->toSelectOptions())
+                                        ->default(fn (): string => locales()->getDefaultCode())
+                                        ->required(),
+                                ]),
+
+                            // Featured image
+                            Section::make(__('content.entry_fields.featured_image'))
+                                ->schema([
+                                    CuratorPicker::make('featured_image_id')
+                                        ->label('')
+                                        ->relationship('featuredImage', 'id')
+                                        ->constrained(true)
+                                        ->lazyLoad(true)
+                                        ->columnSpanFull(),
+                                ])
+                                ->collapsible(),
+
+                            // Tree hierarchy — only for tree collections
+                            Section::make(__('content.entry_fields.hierarchy'))
+                                ->schema([
+                                    Select::make('parent_id')
+                                        ->label(__('content.entry_fields.parent'))
+                                        ->options(function (Get $get, ?Entry $record) {
+                                            $collectionId = $get('collection_id');
+                                            if (! $collectionId) {
+                                                return [];
+                                            }
+
+                                            return Entry::query()
+                                                ->where('collection_id', $collectionId)
+                                                ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
+                                                ->pluck('title', 'id');
+                                        }),
+                                ])
+                                ->visible(function (Get $get): bool {
                                     $collectionId = $get('collection_id');
                                     if (! $collectionId) {
                                         return false;
@@ -139,13 +169,21 @@ class EntryForm
 
                                     return Collection::find($collectionId)?->is_tree ?? false;
                                 }),
-                            Toggle::make('is_pinned')
-                                ->label(__('content.entry_fields.is_pinned')),
-                            TextInput::make('order')
-                                ->label(__('content.entry_fields.order'))
-                                ->numeric()
-                                ->default(0),
 
+                            // Advanced options
+                            Section::make(__('content.entry_fields.advanced'))
+                                ->schema([
+                                    Toggle::make('is_pinned')
+                                        ->label(__('content.entry_fields.is_pinned')),
+                                    TextInput::make('order')
+                                        ->label(__('content.entry_fields.order'))
+                                        ->numeric()
+                                        ->default(0),
+                                ])
+                                ->collapsible()
+                                ->collapsed(),
+
+                            // Dynamic sidebar fields from blueprint
                             ...static::dynamicSidebarFields(),
                         ]),
                 ]),
