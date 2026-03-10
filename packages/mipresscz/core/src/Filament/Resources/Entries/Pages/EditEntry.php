@@ -6,8 +6,10 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Enums\Width;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
+use MiPressCz\Core\Enums\EntryStatus;
 use MiPressCz\Core\Filament\Resources\Entries\EntryResource;
 use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Models\Locale;
@@ -16,18 +18,68 @@ class EditEntry extends EditRecord
 {
     protected static string $resource = EntryResource::class;
 
+    public function getMaxContentWidth(): Width
+    {
+        return Width::Full;
+    }
+
     protected function resolveRecord(int|string $key): Entry
     {
-        return Entry::with(['translations', 'origin.translations', 'blueprint'])
+        return Entry::with(['translations', 'origin.translations', 'blueprint', 'collection'])
             ->findOrFail($key);
     }
 
     protected function getHeaderActions(): array
     {
         return [
+            $this->getSaveAction(),
+            $this->getPublishAction(),
             ...$this->getLocaleActions(),
-            DeleteAction::make(),
+            DeleteAction::make()->color('danger')->icon('heroicon-o-trash'),
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
+    }
+
+    protected function getSaveAction(): Action
+    {
+        return Action::make('save')
+            ->label(__('content.actions.save'))
+            ->color('gray')
+            ->action(fn () => $this->save())
+            ->keyBindings(['mod+s']);
+    }
+
+    protected function getPublishAction(): Action
+    {
+        /** @var Entry $record */
+        $record = $this->getRecord();
+        $isPublished = $record->status === EntryStatus::Published;
+
+        if ($isPublished) {
+            return Action::make('unpublish')
+                ->label(__('content.actions.unpublish'))
+                ->color('warning')
+                ->icon('heroicon-o-arrow-uturn-left')
+                ->requiresConfirmation()
+                ->action(function (): void {
+                    $this->data['status'] = EntryStatus::Draft->value;
+                    $this->data['published_at'] = null;
+                    $this->save();
+                });
+        }
+
+        return Action::make('publish')
+            ->label(__('content.actions.publish'))
+            ->icon('heroicon-o-check-circle')
+            ->action(function (): void {
+                $this->data['status'] = EntryStatus::Published->value;
+                $this->data['published_at'] ??= now()->toDateTimeString();
+                $this->save();
+            });
     }
 
     /**

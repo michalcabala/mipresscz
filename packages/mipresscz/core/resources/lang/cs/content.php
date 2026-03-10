@@ -208,6 +208,8 @@ return [
         'edit_entry' => 'Upravit záznam',
         'delete_entry' => 'Smazat záznam',
         'restore_entry' => 'Obnovit záznam',
+        'save' => 'Uložit',
+        'save_draft' => 'Uložit koncept',
         'publish' => 'Publikovat',
         'unpublish' => 'Odpublikovat',
         'duplicate' => 'Duplikovat',

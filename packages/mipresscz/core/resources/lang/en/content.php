@@ -208,6 +208,8 @@ return [
         'edit_entry' => 'Edit entry',
         'delete_entry' => 'Delete entry',
         'restore_entry' => 'Restore entry',
+        'save' => 'Save',
+        'save_draft' => 'Save as draft',
         'publish' => 'Publish',
         'unpublish' => 'Unpublish',
         'duplicate' => 'Duplicate',
