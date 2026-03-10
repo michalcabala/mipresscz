@@ -11,7 +11,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -28,89 +28,91 @@ class EntryForm
     {
         return $schema
             ->components([
-                Flex::make([
-                    // ── Main content area (grows) ──
-                    Section::make()
-                        ->schema([
-                            TextInput::make('title')
-                                ->label(__('content.entry_fields.title'))
-                                ->required()
-                                ->maxLength(255)
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(function (?string $state, callable $set, string $operation) {
-                                    if ($operation === 'create') {
-                                        $set('slug', \Illuminate\Support\Str::slug($state));
-                                    }
-                                })
-                                ->autofocus(),
-                            TextInput::make('slug')
-                                ->label(__('content.entry_fields.slug'))
-                                ->required()
-                                ->maxLength(255)
-                                ->prefix('/'),
+                Grid::make(['default' => 1, 'lg' => 4])
+                    ->schema([
+                        // ── Main content area (3/4 width) ──
+                        Section::make()
+                            ->columnSpan(['default' => 1, 'lg' => 3])
+                            ->schema([
+                                TextInput::make('title')
+                                    ->label(__('content.entry_fields.title'))
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function (?string $state, callable $set, string $operation) {
+                                        if ($operation === 'create') {
+                                            $set('slug', \Illuminate\Support\Str::slug($state));
+                                        }
+                                    })
+                                    ->autofocus(),
+                                TextInput::make('slug')
+                                    ->label(__('content.entry_fields.slug'))
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->prefix('/'),
 
-                            // Mason block editor — only when bricks are registered
-                            Mason::make('content')
-                                ->label(__('content.entry_fields.content'))
-                                ->bricks(static::$brickClasses)
-                                ->columnSpanFull()
-                                ->visible(fn (): bool => count(static::$brickClasses) > 0),
+                                // Mason block editor — only when bricks are registered
+                                Mason::make('content')
+                                    ->label(__('content.entry_fields.content'))
+                                    ->bricks(static::$brickClasses)
+                                    ->columnSpanFull()
+                                    ->visible(fn (): bool => count(static::$brickClasses) > 0),
 
-                            // Dynamic main fields from blueprint
-                            ...static::dynamicMainFields(),
-                        ]),
+                                // Dynamic main fields from blueprint
+                                ...static::dynamicMainFields(),
+                            ]),
 
-                    // ── Sidebar (fixed width) ──
-                    Section::make()
-                        ->grow(false)
-                        ->schema([
-                            // Featured image
-                            CuratorPicker::make('featured_image_id')
-                                ->label(__('content.entry_fields.featured_image'))
-                                ->relationship('featuredImage', 'id')
-                                ->constrained(true)
-                                ->lazyLoad(true),
+                        // ── Sidebar (1/4 width) ──
+                        Section::make()
+                            ->columnSpan(['default' => 1, 'lg' => 1])
+                            ->schema([
+                                // Featured image
+                                CuratorPicker::make('featured_image_id')
+                                    ->label(__('content.entry_fields.featured_image'))
+                                    ->relationship('featuredImage', 'id')
+                                    ->constrained(true)
+                                    ->lazyLoad(true),
 
-                            Select::make('author_id')
-                                ->label(__('content.entry_fields.author'))
-                                ->relationship('author', 'name')
-                                ->default(fn () => auth()->id()),
+                                Select::make('author_id')
+                                    ->label(__('content.entry_fields.author'))
+                                    ->relationship('author', 'name')
+                                    ->default(fn () => auth()->id()),
 
-                            DateTimePicker::make('published_at')
-                                ->label(__('content.entry_fields.published_at')),
+                                DateTimePicker::make('published_at')
+                                    ->label(__('content.entry_fields.published_at')),
 
-                            // Tree hierarchy — only for tree collections
-                            Select::make('parent_id')
-                                ->label(__('content.entry_fields.parent'))
-                                ->options(function (Get $get, ?Entry $record) {
-                                    $collectionId = $get('collection_id');
-                                    if (! $collectionId) {
-                                        return [];
-                                    }
+                                // Tree hierarchy — only for tree collections
+                                Select::make('parent_id')
+                                    ->label(__('content.entry_fields.parent'))
+                                    ->options(function (Get $get, ?Entry $record) {
+                                        $collectionId = $get('collection_id');
+                                        if (! $collectionId) {
+                                            return [];
+                                        }
 
-                                    return Entry::query()
-                                        ->where('collection_id', $collectionId)
-                                        ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
-                                        ->pluck('title', 'id');
-                                })
-                                ->visible(fn (?Entry $record): bool => $record?->collection?->is_tree ?? false),
+                                        return Entry::query()
+                                            ->where('collection_id', $collectionId)
+                                            ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
+                                            ->pluck('title', 'id');
+                                    })
+                                    ->visible(fn (?Entry $record): bool => $record?->collection?->is_tree ?? false),
 
-                            Toggle::make('is_pinned')
-                                ->label(__('content.entry_fields.is_pinned')),
+                                Toggle::make('is_pinned')
+                                    ->label(__('content.entry_fields.is_pinned')),
 
-                            // Dynamic sidebar fields from blueprint
-                            ...static::dynamicSidebarFields(),
+                                // Dynamic sidebar fields from blueprint
+                                ...static::dynamicSidebarFields(),
 
-                            // Hidden fields — auto-populated in Create/Edit pages
-                            Hidden::make('collection_id'),
-                            Hidden::make('blueprint_id'),
-                            Hidden::make('locale'),
-                            Hidden::make('status')
-                                ->default(EntryStatus::Draft->value),
-                            Hidden::make('order')
-                                ->default(0),
-                        ]),
-                ])->from('md'),
+                                // Hidden fields — auto-populated in Create/Edit pages
+                                Hidden::make('collection_id'),
+                                Hidden::make('blueprint_id'),
+                                Hidden::make('locale'),
+                                Hidden::make('status')
+                                    ->default(EntryStatus::Draft->value),
+                                Hidden::make('order')
+                                    ->default(0),
+                            ]),
+                    ]),
             ]);
     }
 
