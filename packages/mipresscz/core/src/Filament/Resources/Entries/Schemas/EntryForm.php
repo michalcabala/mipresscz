@@ -17,7 +17,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use MiPressCz\Core\Enums\EntryStatus;
 use MiPressCz\Core\Models\Blueprint;
-use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
 
 class EntryForm
@@ -94,14 +93,7 @@ class EntryForm
                                         ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
                                         ->pluck('title', 'id');
                                 })
-                                ->visible(function (Get $get): bool {
-                                    $collectionId = $get('collection_id');
-                                    if (! $collectionId) {
-                                        return false;
-                                    }
-
-                                    return Collection::find($collectionId)?->is_tree ?? false;
-                                }),
+                                ->visible(fn (?Entry $record): bool => $record?->collection?->is_tree ?? false),
 
                             Toggle::make('is_pinned')
                                 ->label(__('content.entry_fields.is_pinned')),
@@ -172,7 +164,7 @@ class EntryForm
         return [
             Section::make(__('content.entry_fields.extra_fields'))
                 ->schema(fn (Get $get): array => static::buildMainFieldsForBlueprint($get('blueprint_id')))
-                ->visible(fn (Get $get): bool => count(static::buildMainFieldsForBlueprint($get('blueprint_id'))) > 0)
+                ->visible(fn (Get $get): bool => (bool) $get('blueprint_id'))
                 ->collapsible(),
         ];
     }
@@ -185,7 +177,7 @@ class EntryForm
         return [
             Section::make(__('content.entry_fields.metadata'))
                 ->schema(fn (Get $get): array => static::buildSidebarFieldsForBlueprint($get('blueprint_id')))
-                ->visible(fn (Get $get): bool => count(static::buildSidebarFieldsForBlueprint($get('blueprint_id'))) > 0)
+                ->visible(fn (Get $get): bool => (bool) $get('blueprint_id'))
                 ->collapsible(),
         ];
     }
@@ -193,14 +185,23 @@ class EntryForm
     /**
      * @return array<int, \Filament\Schemas\Components\Component>
      */
-    protected static function buildMainFieldsForBlueprint(?string $blueprintId): array
+    protected static function resolveBlueprint(?string $blueprintId): ?Blueprint
     {
+        static $cache = [];
+
         if (! $blueprintId) {
-            return [];
+            return null;
         }
 
-        /** @var Blueprint $blueprint */
-        $blueprint = Blueprint::find($blueprintId);
+        return $cache[$blueprintId] ??= Blueprint::find($blueprintId);
+    }
+
+    /**
+     * @return array<int, \Filament\Schemas\Components\Component>
+     */
+    protected static function buildMainFieldsForBlueprint(?string $blueprintId): array
+    {
+        $blueprint = static::resolveBlueprint($blueprintId);
 
         if (! $blueprint) {
             return [];
@@ -225,12 +226,7 @@ class EntryForm
      */
     protected static function buildSidebarFieldsForBlueprint(?string $blueprintId): array
     {
-        if (! $blueprintId) {
-            return [];
-        }
-
-        /** @var Blueprint $blueprint */
-        $blueprint = Blueprint::find($blueprintId);
+        $blueprint = static::resolveBlueprint($blueprintId);
 
         if (! $blueprint) {
             return [];
