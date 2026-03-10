@@ -1,6 +1,6 @@
 # miPress CMS — Project Roadmap
 
-Datum: 9. března 2026
+Datum: 10. března 2026
 
 ## Strategický cíl
 
@@ -196,6 +196,71 @@ mipresscz/
 - [x] Dosáhnout alespoň parity s dnešním stavem (83+ Pest definic), ideálně výrazně přes 150. → **185 definic**
 
 **Výstup:** bezpečný refactor potvrzený testy, žádné nevykryté regrese.
+
+---
+
+## Fáze 7 — Stabilizace a hardening 🔜
+**Plán: březnová iterace 2026**
+
+Cíl: uzavřít autorizační mezery, zvýšit testové pokrytí admin panelu a vyčistit redundance.
+
+### 7.1 — Autorizace a bezpečnost
+
+- [ ] Vytvořit `TermPolicy` — uzavření autorizační mezery (Terms nemají policy)
+- [ ] Registrovat TermPolicy v `MiPressCzCoreServiceProvider`
+- [ ] Test matrix pro TermPolicy (kdo může co s termy)
+
+### 7.2 — Testové pokrytí admin panelu
+
+- [ ] Filament form testy — EntryResource CRUD (create, edit, validate)
+- [ ] Filament table testy — filtry, řazení, bulk akce
+- [ ] Dynamic resource creation test — ověření `getCollectionResources()`
+- [ ] Mason brick snapshot testy — HTML výstup 13 bricks
+- [ ] Curator media testy — featured image, galerie workflow
+
+### 7.3 — Čištění redundancí
+
+- [ ] Audit language switcher balíčků — rozhodnout mezi `bezhansalleh/filament-language-switch` a `craft-forge/filament-language-switcher`, odstranit nepoužívaný
+- [ ] Přeložit Breezy (2FA) strings do češtiny
+- [ ] Přepsat README.md — nahradit default Laravel placeholder odkazem na `docs/`
+
+### 7.4 — Příprava na merge
+
+- [ ] Merge `refactor/core-extraction` → `main`
+- [ ] `npm run build` + ověření Vite manifestu
+- [ ] Tagovat `v0.7.0`
+
+**Výstup:** bezpečný, čistý codebase připravený pro vývoj frontend šablony.
+
+---
+
+## Fáze 8 — SEO & Discovery (plánováno)
+
+- [ ] Meta tagy v Entry UI — title, description, og:image
+- [ ] Hreflang tagy — automaticky z locale vazeb
+- [ ] Sitemap generátor — XML sitemap z published entries
+- [ ] RSS/Atom feed — pro články
+- [ ] Canonical URL — prevence duplicitního obsahu
+
+---
+
+## Fáze 9 — Funkční rozšíření (plánováno)
+
+- [ ] Fulltext vyhledávání — Laravel Scout + database driver
+- [ ] Admin dashboard widgety — počty entries, poslední aktivita
+- [ ] Menu builder — drag & drop navigační struktura
+- [ ] Entry preview — náhled před publikací
+- [ ] Media tagging/folders — organizace Curator médií
+
+---
+
+## Fáze 10 — Produkční připravenost (plánováno)
+
+- [ ] Caching strategie — page cache, entry cache invalidace
+- [ ] Error pages — 404, 500, maintenance mode
+- [ ] Security hardening — CSP headers, rate limiting
+- [ ] CI/CD pipeline — GitHub Actions pro testy + Pint
+- [ ] Uživatelská dokumentace — admin UX guide
 
 ---
 

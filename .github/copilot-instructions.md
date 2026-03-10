@@ -12,7 +12,6 @@ miPress is a modular CMS built on Laravel 12 + Filament 5, designed as a profess
 ## Installed Packages
 - spatie/laravel-permission — roles and permissions
 - bezhansalleh/filament-language-switch — language switching (cs/en)
-- craft-forge/filament-language-switcher — installed alongside the locale workflow; verify actual usage before changing locale UI
 - jeffgreco13/filament-breezy — user profile, 2FA
 - caresome/filament-auth-designer — auth page design
 - awcodes/mason — block-based drag & drop page builder field for Filament

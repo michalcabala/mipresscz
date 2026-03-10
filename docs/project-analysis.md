@@ -1,6 +1,6 @@
 # miPress CMS — Project Analysis
 
-Datum: 9. března 2026
+Datum: 10. března 2026
 
 ## Účel dokumentu
 
@@ -197,6 +197,102 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 - admin theme je už připravená pro oba pluginy,
 - seedery ukazují realistický Mason obsah,
 - entries mají připravené media vztahy přes Curator model.
+
+### Rizika a mezery
+
+- Mason brick rendering nemá žádné automatizované testy (13 bricks bez snapshotu).
+- Curator media workflow (upload, featured image, galerie) nemá testy.
+- Brickové třídy nemají společný interface/contract — budoucí bricks mohou být nekonzistentní.
+
+---
+
+## Testové pokrytí
+
+### Aktuální stav (10. března 2026)
+
+**185 testů, 371 assertions — všechny procházejí.**
+
+### Co je dobře pokryto
+
+- Content model relationships (Collection ↔ Blueprint ↔ Entry)
+- Entry routing scénáře (locale prefix, single/multi-language, redirecty)
+- Policy autorizace (všechny role vs hlavní resources)
+- LocaleService + observers + cache invalidace
+- Factory generování + seeding
+- Installer command reprodukovatelnost
+- Permissions seeding + user role sync
+
+### Mezery v pokrytí
+
+| Oblast | Počet testů | Riziko |
+|--------|-------------|--------|
+| Filament form CRUD (create, edit, validate) | 0 | Vysoké — admin UX může potichu zhavarovat |
+| Filament table interakce (filtry, řazení, bulk) | 0 | Střední — regresní chyby neodhaleny |
+| Dynamic resource creation (`getCollectionResources`) | 0 | Střední — klíčová admin logika |
+| Mason brick HTML rendering | 0 | Nízké — vizuální regrese |
+| Curator media workflow | 0 | Nízké — upload/display flow |
+| Livewire komponenty (LanguageSwitcher) | 0 | Nízké — interakční chyby |
+
+---
+
+## Technický dluh
+
+### Kritický
+
+1. **TermPolicy chybí** — 5 z 6 content modelů má policy, Term ne. Riziko AuthorizationException při Filament operacích s termy.
+2. **Admin UX nulově otestovaný** — žádné Filament form/table/interaction testy. Změny v UI mohou potichu rozbít funkčnost.
+3. **Branch `refactor/core-extraction` nemergnuta** — 18 commitů čeká na merge do `main`.
+
+### Střední
+
+4. **Dva language switcher balíčky** — `bezhansalleh/filament-language-switch` + `craft-forge/filament-language-switcher` instalovány současně. Nejasné, který je aktivní.
+5. **Breezy překlady chybí** — 2FA UI strings nepřeloženy do češtiny.
+6. **README.md je default Laravel placeholder** — neodpovídá realitě projektu.
+7. **Blocks tabulka v DB deprecated** — migrace ji stále vytváří, ale Mason je náhradou.
+
+### Nízký
+
+8. **Entry model mohutní** — ~90+ metod; URL/locale logika by mohla být extrahována do service.
+9. **Policies mají duplicitní logiku** — DRY potenciál napříč rolemi.
+10. **`public/build/` může být stale** — Vite manifest nemusí odpovídat aktuálním assets.
+
+---
+
+## Matice funkční kompletnosti
+
+| Funkce | Stav | Poznámka |
+|--------|------|----------|
+| Obsahový model (Collections → Entries) | ✅ Kompletní | Flexibilní, vícejazyčný, revize |
+| Admin panel (Filament) | ✅ Kompletní | 6 resource skupin, dynamické entry resources |
+| Role & oprávnění | ✅ Kompletní | 4 role, 14 permissions, 5 policies (Term chybí) |
+| Locale systém | ✅ Kompletní | Multi/single-language routing, DB-driven |
+| Block builder (Mason) | ✅ Kompletní | 13 bricks, drag-drop, JSON storage |
+| Media (Curator) | ✅ Kompletní | Featured image, galerie, RichEditor plugin |
+| Uživatelé | ✅ Kompletní | Auth, role, 2FA, profil |
+| Revize | ✅ Kompletní | Auto-versioning, max 50/entry, diff |
+| Installer | ✅ Kompletní | `php artisan mipresscz:install` |
+| Test suite | ✅ Silná | 185 testů; mezery v admin UX a media |
+| Frontend rendering | ⚠️ Základ | Fallback šablona, žádný produkční layout |
+| SEO (meta, hreflang, sitemap) | ⚠️ Částečné | URI routing funguje, chybí meta/sitemap UI |
+| Fulltext vyhledávání | ❌ Chybí | Žádný search backend |
+| Menu builder | ❌ Chybí | — |
+| Dashboard widgety | ❌ Chybí | Prázdný admin dashboard |
+
+---
+
+## Celkové hodnocení: 7.5 / 10
+
+| Dimenze | Skóre |
+|---------|-------|
+| Architektura | 9/10 |
+| Content systém | 9/10 |
+| Admin panel | 8/10 |
+| Testové pokrytí | 8/10 |
+| Frontend | 5/10 |
+| Dokumentace | 9/10 |
+| Produkční připravenost | 6/10 |
+
+Projekt má výborný základ — čistá architektura, modulární core package, kompletní content model, solidní test suite. Hlavní investice směřují do stabilizace (TermPolicy, admin testy, čištění redundancí) a následně do frontend šablony a SEO.
 
 ### Rizika
 

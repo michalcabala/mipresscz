@@ -29,7 +29,7 @@ mipresscz/
 │       ├── Models/            # Collection, Blueprint, Entry, Taxonomy, Term,
 │       │                      #   Revision, GlobalSet, Locale
 │       ├── Observers/         # EntryObserver
-│       ├── Policies/          # content policies
+│       ├── Policies/          # content policies (incl. TermPolicy)
 │       ├── Providers/         # MiPressCzAdminPanelProvider
 │       └── Services/          # LocaleService
 │
