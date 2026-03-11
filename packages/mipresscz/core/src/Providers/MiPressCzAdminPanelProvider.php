@@ -28,6 +28,8 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
+use MiPressCz\Core\Filament\Widgets\EntryStatsWidget;
+use MiPressCz\Core\Filament\Widgets\LatestEntriesWidget;
 
 /**
  * Pre-configured Filament admin panel for miPressCZ.
@@ -196,6 +198,8 @@ class MiPressCzAdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
+                EntryStatsWidget::class,
+                LatestEntriesWidget::class,
             ]);
     }
 

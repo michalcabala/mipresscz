@@ -111,6 +111,15 @@ return [
         'meta_og_image' => 'OG image (social media)',
     ],
 
+    // ── Dashboard stats ──
+    'stats' => [
+        'total_entries' => 'Total entries',
+        'published' => 'Published',
+        'drafts' => 'Drafts',
+        'scheduled' => 'Scheduled',
+        'latest_entries' => 'Latest activity',
+    ],
+
     // ── Media (Curator) ──
     'media' => [
         'label' => 'Medium',

@@ -111,6 +111,15 @@ return [
         'meta_og_image' => 'OG obrázek (sociální sítě)',
     ],
 
+    // ── Dashboard stats ──
+    'stats' => [
+        'total_entries' => 'Celkem záznamů',
+        'published' => 'Publikováno',
+        'drafts' => 'Koncepty',
+        'scheduled' => 'Naplánováno',
+        'latest_entries' => 'Poslední aktivita',
+    ],
+
     // ── Media (Curator) ──
     'media' => [
         'label' => 'Médium',

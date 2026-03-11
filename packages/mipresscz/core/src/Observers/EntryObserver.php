@@ -2,13 +2,42 @@
 
 namespace MiPressCz\Core\Observers;
 
+use MiPressCz\Core\Events\EntrySaved;
+use MiPressCz\Core\Events\EntrySaving;
 use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Models\Revision;
 
 class EntryObserver
 {
+    /**
+     * Fired before create or update.
+     * Returning false from a listener that calls $event->cancel() will abort the save.
+     */
+    public function saving(Entry $entry): ?bool
+    {
+        $event = new EntrySaving($entry);
+        event($event);
+
+        if ($event->isCancelled()) {
+            return false;
+        }
+
+        return null;
+    }
+
+    /**
+     * Fired after create or update.
+     */
+    public function saved(Entry $entry): void
+    {
+        // wasRecentlyCreated is only reliable immediately after insert;
+        // dispatch EntrySaved from created()/updated() hooks instead.
+    }
+
     public function updated(Entry $entry): void
     {
+        EntrySaved::dispatch($entry, false);
+
         if (! $entry->collection?->revisions_enabled) {
             return;
         }
@@ -33,6 +62,8 @@ class EntryObserver
 
     public function created(Entry $entry): void
     {
+        EntrySaved::dispatch($entry, true);
+
         if (! $entry->collection?->revisions_enabled) {
             return;
         }
