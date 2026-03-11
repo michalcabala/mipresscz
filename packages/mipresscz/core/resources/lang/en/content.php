@@ -98,6 +98,7 @@ return [
         'featured_image' => 'Featured image',
         'excerpt' => 'Excerpt',
         'is_pinned' => 'Pinned',
+        'is_homepage' => 'Homepage',
         'updated_at' => 'Updated',
         'publishing' => 'Publishing',
         'structure' => 'Organization',
@@ -219,6 +220,8 @@ return [
 
     // ── Actions & Messages ──
     'actions' => [
+        'set_homepage' => 'Set as homepage',
+        'is_homepage' => 'Homepage',
         'create_entry' => 'Create entry',
         'edit_entry' => 'Edit entry',
         'delete_entry' => 'Delete entry',
@@ -242,6 +245,8 @@ return [
         'entry_updated' => 'Entry updated.',
         'entry_deleted' => 'Entry deleted.',
         'entry_restored' => 'Entry restored.',
+        'homepage_set' => 'Homepage has been set.',
+        'cannot_delete_homepage' => 'The homepage entry cannot be deleted.',
         'entry_published' => 'Entry published.',
         'revision_restored' => 'Revision restored.',
         'translation_created' => 'Translation created.',

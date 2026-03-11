@@ -5,7 +5,9 @@ namespace MiPressCz\Core\Filament\Resources\Entries\Pages;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use MiPressCz\Core\Enums\EntryStatus;
@@ -29,7 +31,19 @@ class EditEntry extends EditRecord
             $this->getSaveAction(),
             $this->getPublishAction(),
             ...$this->getLocaleActions(),
-            DeleteAction::make()->color('danger')->icon('heroicon-o-trash'),
+            $this->getHomepageAction(),
+            DeleteAction::make()
+                ->color('danger')
+                ->icon(Heroicon::OutlinedTrash)
+                ->before(function (Entry $record, DeleteAction $action): void {
+                    if ($record->is_homepage) {
+                        Notification::make()
+                            ->title(__('content.messages.cannot_delete_homepage'))
+                            ->danger()
+                            ->send();
+                        $action->cancel();
+                    }
+                }),
         ];
     }
 
@@ -45,6 +59,37 @@ class EditEntry extends EditRecord
             ->color('gray')
             ->action(fn () => $this->save())
             ->keyBindings(['mod+s']);
+    }
+
+    protected function getHomepageAction(): Action
+    {
+        /** @var Entry $record */
+        $record = $this->getRecord();
+
+        if ($record->is_homepage) {
+            return Action::make('is_homepage_badge')
+                ->label(__('content.actions.is_homepage'))
+                ->icon(Heroicon::Home)
+                ->color('success')
+                ->disabled();
+        }
+
+        return Action::make('set_homepage')
+            ->label(__('content.actions.set_homepage'))
+            ->icon(Heroicon::OutlinedHome)
+            ->color('gray')
+            ->requiresConfirmation()
+            ->action(function (): void {
+                /** @var Entry $record */
+                $record = $this->getRecord();
+                Entry::query()->where('is_homepage', true)->update(['is_homepage' => false]);
+                $record->update(['is_homepage' => true]);
+                $this->refreshFormData(['is_homepage']);
+                Notification::make()
+                    ->title(__('content.messages.homepage_set'))
+                    ->success()
+                    ->send();
+            });
     }
 
     protected function getPublishAction(): Action

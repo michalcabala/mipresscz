@@ -12,8 +12,13 @@ return [
         'email_verified_at' => 'Email verified at',
         'password' => 'Password',
         'role' => 'Role',
+        'deleted_at' => 'Deleted at',
         'created_at' => 'Created at',
         'updated_at' => 'Updated at',
+    ],
+
+    'messages' => [
+        'cannot_delete_self' => 'You cannot delete your own account.',
     ],
 
     'pages' => [

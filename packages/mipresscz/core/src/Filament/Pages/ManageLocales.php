@@ -137,15 +137,7 @@ class ManageLocales extends Page implements HasTable
                     ->successNotificationTitle(__('locales.updated')),
 
                 DeleteAction::make()
-                    ->before(function (Locale $record, DeleteAction $action): void {
-                        if ($record->is_default) {
-                            Notification::make()
-                                ->title(__('locales.cannot_delete_default'))
-                                ->danger()
-                                ->send();
-                            $action->cancel();
-                        }
-                    })
+                    ->hidden(fn (Locale $record): bool => $record->is_default)
                     ->after(fn () => locales()->clearCache()),
             ]);
     }

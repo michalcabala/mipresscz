@@ -4,8 +4,12 @@ namespace MiPressCz\Core\Filament\Resources\Entries\Tables;
 
 use Awcodes\Curator\Components\Tables\CuratorColumn;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -26,6 +30,14 @@ class EntriesTable
                     ->label(__('content.entry_fields.featured_image'))
                     ->size(48)
                     ->toggleable(),
+                IconColumn::make('is_homepage')
+                    ->label(__('content.entry_fields.is_homepage'))
+                    ->icon(Heroicon::Home)
+                    ->color('success')
+                    ->boolean()
+                    ->trueIcon(Heroicon::Home)
+                    ->falseIcon('')
+                    ->width(36),
                 TextColumn::make('title')
                     ->label(__('content.entry_fields.title'))
                     ->searchable()
@@ -97,6 +109,32 @@ class EntriesTable
             ])
             ->recordActions([
                 EditAction::make(),
+
+                \Filament\Actions\Action::make('set_homepage')
+                    ->label(__('content.actions.set_homepage'))
+                    ->icon(Heroicon::Home)
+                    ->color('success')
+                    ->hidden(fn (Entry $record): bool => $record->is_homepage)
+                    ->requiresConfirmation()
+                    ->action(function (Entry $record): void {
+                        Entry::query()->where('is_homepage', true)->update(['is_homepage' => false]);
+                        $record->update(['is_homepage' => true]);
+                        Notification::make()
+                            ->title(__('content.messages.homepage_set'))
+                            ->success()
+                            ->send();
+                    }),
+
+                DeleteAction::make()
+                    ->before(function (Entry $record, DeleteAction $action): void {
+                        if ($record->is_homepage) {
+                            Notification::make()
+                                ->title(__('content.messages.cannot_delete_homepage'))
+                                ->danger()
+                                ->send();
+                            $action->cancel();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

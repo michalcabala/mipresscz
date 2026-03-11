@@ -37,6 +37,7 @@ class Entry extends Model
         'order',
         'author_id',
         'is_pinned',
+        'is_homepage',
         'settings',
         'featured_image_id',
         'meta_title',
@@ -54,6 +55,7 @@ class Entry extends Model
             'published_at' => 'datetime',
             'expired_at' => 'datetime',
             'is_pinned' => 'boolean',
+            'is_homepage' => 'boolean',
         ];
     }
 

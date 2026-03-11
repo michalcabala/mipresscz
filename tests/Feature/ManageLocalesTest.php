@@ -46,12 +46,14 @@ it('can create a new locale', function () {
     $this->assertDatabaseHas(Locale::class, ['code' => 'de']);
 });
 
-it('cannot delete the default locale', function () {
+it('hides delete action for the default locale', function () {
     $this->actingAs(manageLocalesSuperAdmin());
     $defaultLocale = Locale::factory()->create(['code' => 'cs', 'is_default' => true, 'order' => 1]);
+    $otherLocale = Locale::factory()->create(['code' => 'en', 'is_default' => false, 'order' => 2]);
     Livewire::test(ManageLocales::class)
-        ->callTableAction('delete', $defaultLocale)
-        ->assertNotified();
+        ->call('loadTable')
+        ->assertTableActionHidden('delete', $defaultLocale)
+        ->assertTableActionVisible('delete', $otherLocale);
     $this->assertDatabaseHas(Locale::class, ['code' => 'cs']);
 });
 

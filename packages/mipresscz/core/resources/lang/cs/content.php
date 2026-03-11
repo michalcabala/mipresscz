@@ -98,6 +98,7 @@ return [
         'featured_image' => 'Hlavní obrázek',
         'excerpt' => 'Perex',
         'is_pinned' => 'Připnuto',
+        'is_homepage' => 'Domovská stránka',
         'updated_at' => 'Upraveno',
         'publishing' => 'Publikování',
         'structure' => 'Zařazení',
@@ -219,6 +220,8 @@ return [
 
     // ── Actions & Messages ──
     'actions' => [
+        'set_homepage' => 'Nastavit jako domovskou stránku',
+        'is_homepage' => 'Domovská stránka',
         'create_entry' => 'Vytvořit záznam',
         'edit_entry' => 'Upravit záznam',
         'delete_entry' => 'Smazat záznam',
@@ -242,6 +245,8 @@ return [
         'entry_updated' => 'Záznam byl aktualizován.',
         'entry_deleted' => 'Záznam byl smazán.',
         'entry_restored' => 'Záznam byl obnoven.',
+        'homepage_set' => 'Domovská stránka byla nastavena.',
+        'cannot_delete_homepage' => 'Nelze smazat záznam nastavený jako domovská stránka.',
         'entry_published' => 'Záznam byl publikován.',
         'revision_restored' => 'Revize byla obnovena.',
         'translation_created' => 'Překlad byl vytvořen.',
