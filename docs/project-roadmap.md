@@ -232,9 +232,9 @@ Cíl: uzavřít autorizační mezery, zvýšit testové pokrytí admin panelu a 
 
 ### 7.4 — Příprava na merge
 
-- [ ] Merge `refactor/core-extraction` → `main`
-- [ ] `npm run build` + ověření Vite manifestu
-- [ ] Tagovat `v0.7.0`
+- [x] Merge `refactor/core-extraction` → `main` *(11. března 2026)*
+- [x] `npm run build` + ověření Vite manifestu
+- [x] Tagovat `v0.7.0`
 
 ### 7.5 — Admin UI & Entry formulář ✅
 **Dokončeno: 11. března 2026**
@@ -268,7 +268,7 @@ $schema->columns(3)
 
 **Výstup:** Entry formulář plně funkční, dynamická blueprintová pole se správně načítají ze záznamu.
 
-**Aktuální stav:** 242 testů (57 nových oproti Fázi 6), všechny zelené. Zbývají pokročilé testy (7.2) a merge (7.4).
+**Aktuální stav:** 243 testů (57 nových oproti Fázi 6), všechny zelené. Zbývají pokročilé testy (7.2) a merge (7.4).
 
 **Výstup:** bezpečný, čistý codebase připravený pro vývoj frontend šablony; Entry formulář plně funkční.
 
@@ -348,6 +348,13 @@ Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 - [x] 185 testů zelených
 - [x] Release governance (semver, changelog, CI, docs)
 
+### ✅ Hotovo — Fáze 7 stabilizace + merge (11. března 2026)
+
+- [x] `refactor/core-extraction` → `main` merge, tag `v0.7.0`
+- [x] 243 testů zelených (oprava LocaleServiceTest izolace + TermFactory unique slug)
+- [x] `npm run build` — Vite build čistý, 4 assety OK
+
+
 ### P2 — Střednědobě
 - API vrstva do core (headless/REST)
 - `mipresscz:new-site` command
@@ -422,7 +429,7 @@ Request-scoped in-memory cache (ne globální `Cache`). Vhodná pro Entry/origin
 - [x] `AdminPanelProvider` v app je tenká dědická vrstva
 - [x] Core obsahuje všechny CMS-common součásti
 - [x] Installer funguje na čisté instalaci
-- [x] Kritické testy pro content + locale + routing + policy jsou zelené (226/226)
+- [x] Kritické testy pro content + locale + routing + policy jsou zelené (243/243)
 - [x] `docs/architecture-core.md` jasně dokumentuje hranici core/app
 
 **Stav: Definition of Done splněno. ✅**
