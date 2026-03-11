@@ -15,6 +15,7 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Validation\Rule;
 use MiPressCz\Core\Enums\EntryStatus;
 use MiPressCz\Core\Models\Blueprint;
 use MiPressCz\Core\Models\Collection;
@@ -49,7 +50,13 @@ class EntryForm
                                     ->label(__('content.entry_fields.slug'))
                                     ->required()
                                     ->maxLength(255)
-                                    ->prefix('/'),
+                                    ->prefix('/')
+                                    ->rules([
+                                        fn (Get $get, ?Entry $record): \Illuminate\Validation\Rules\Unique => Rule::unique('entries', 'slug')
+                                            ->where('collection_id', $get('collection_id'))
+                                            ->where('locale', $get('locale') ?: locales()->getDefaultCode())
+                                            ->ignore($record?->getKey()),
+                                    ]),
 
                                 // Mason is always the content editor
                                 Mason::make('content')
