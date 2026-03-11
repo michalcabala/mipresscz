@@ -39,6 +39,9 @@ class Entry extends Model
         'is_pinned',
         'settings',
         'featured_image_id',
+        'meta_title',
+        'meta_description',
+        'meta_og_image_id',
     ];
 
     protected function casts(): array
@@ -83,6 +86,11 @@ class Entry extends Model
     public function featuredImage(): BelongsTo
     {
         return $this->belongsTo(Media::class, 'featured_image_id');
+    }
+
+    public function metaOgImage(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'meta_og_image_id');
     }
 
     public function blueprint(): BelongsTo

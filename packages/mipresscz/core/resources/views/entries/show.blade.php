@@ -3,7 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $entry->title }}</title>
+
+    @php
+        $seoTitle = $entry->meta_title ?: $entry->title;
+        $seoDescription = $entry->meta_description ?: null;
+        $ogImage = $entry->metaOgImage ?? $entry->featuredImage ?? null;
+        $ogImageUrl = $ogImage?->url ?? null;
+    @endphp
+
+    <title>{{ $seoTitle }}</title>
+
+    @if($seoDescription)
+        <meta name="description" content="{{ $seoDescription }}">
+    @endif
+
+    {{-- Open Graph --}}
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="{{ $seoTitle }}">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
+    @if($seoDescription)
+        <meta property="og:description" content="{{ $seoDescription }}">
+    @endif
+    @if($ogImageUrl)
+        <meta property="og:image" content="{{ $ogImageUrl }}">
+    @endif
+
+    {{-- Canonical URL --}}
+    <link rel="canonical" href="{{ $canonicalUrl }}">
+
+    {{-- Hreflang alternate links --}}
+    @if($hreflangLinks->count() > 1)
+        @foreach($hreflangLinks as $link)
+            <link rel="alternate" hreflang="{{ $link['locale'] }}" href="{{ $link['url'] }}">
+        @endforeach
+        <link rel="alternate" hreflang="x-default" href="{{ $hreflangLinks->first()['url'] }}">
+    @endif
 </head>
 <body>
     <article>

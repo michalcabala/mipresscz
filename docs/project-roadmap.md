@@ -275,13 +275,13 @@ $schema->columns(3)
 
 ---
 
-## Fáze 8 — SEO & Discovery (plánováno)
+## Fáze 8 — SEO & Discovery ✅ (dokončeno — 307 testů)
 
-- [ ] Meta tagy v Entry UI — title, description, og:image
-- [ ] Hreflang tagy — automaticky z locale vazeb
-- [ ] Sitemap generátor — XML sitemap z published entries
-- [ ] RSS/Atom feed — pro články
-- [ ] Canonical URL — prevence duplicitního obsahu
+- [x] Meta tagy v Entry UI — `meta_title`, `meta_description`, `meta_og_image_id` (migrace + EntryForm sidebar SEO sekce)
+- [x] Hreflang tagy — automaticky z locale vazeb (`translations` / `origin.translations`)
+- [x] Sitemap generátor — `GET /sitemap.xml` z published entries (`SitemapController`)
+- [x] RSS/Atom feed — `GET /feed.xml` pro aktuální locale (`FeedController`)
+- [x] Canonical URL — `<link rel="canonical">` v `show.blade.php` + `$canonicalUrl` z `EntryController`
 
 ---
 

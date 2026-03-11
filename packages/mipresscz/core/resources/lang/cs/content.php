@@ -103,6 +103,12 @@ return [
         'structure' => 'Zařazení',
         'hierarchy' => 'Hierarchie',
         'advanced' => 'Pokročilé',
+        'seo' => 'SEO',
+        'meta_title' => 'SEO titulek',
+        'meta_title_hint' => 'Ponechte prázdné pro automatické použití názvu stránky.',
+        'meta_description' => 'SEO popis',
+        'meta_description_hint' => 'Krátký popis stránky pro vyhledávače (doporučeno 120–160 znaků).',
+        'meta_og_image' => 'OG obrázek (sociální sítě)',
     ],
 
     // ── Media (Curator) ──

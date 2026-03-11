@@ -103,6 +103,12 @@ return [
         'structure' => 'Organization',
         'hierarchy' => 'Hierarchy',
         'advanced' => 'Advanced',
+        'seo' => 'SEO',
+        'meta_title' => 'SEO title',
+        'meta_title_hint' => 'Leave blank to use the page title automatically.',
+        'meta_description' => 'SEO description',
+        'meta_description_hint' => 'Short description for search engines (recommended 120–160 characters).',
+        'meta_og_image' => 'OG image (social media)',
     ],
 
     // ── Media (Curator) ──

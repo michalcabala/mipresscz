@@ -119,6 +119,29 @@ class EntryForm
                                     ->label(__('content.entry_fields.is_pinned')),
                             ]),
 
+                        // SEO section
+                        Section::make(__('content.entry_fields.seo'))
+                            ->schema([
+                                TextInput::make('meta_title')
+                                    ->label(__('content.entry_fields.meta_title'))
+                                    ->helperText(__('content.entry_fields.meta_title_hint'))
+                                    ->maxLength(255),
+
+                                Textarea::make('meta_description')
+                                    ->label(__('content.entry_fields.meta_description'))
+                                    ->helperText(__('content.entry_fields.meta_description_hint'))
+                                    ->rows(3)
+                                    ->maxLength(320),
+
+                                CuratorPicker::make('meta_og_image_id')
+                                    ->label(__('content.entry_fields.meta_og_image'))
+                                    ->relationship('metaOgImage', 'id')
+                                    ->constrained(true)
+                                    ->lazyLoad(true),
+                            ])
+                            ->collapsible()
+                            ->collapsed(),
+
                         // Dynamic sidebar fields from blueprint
                         Section::make(__('content.entry_fields.metadata'))
                             ->schema(fn (?Entry $record): array => static::buildSidebarFieldsForBlueprint(
