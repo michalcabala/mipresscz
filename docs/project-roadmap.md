@@ -1,6 +1,6 @@
 # miPress CMS — Project Roadmap
 
-Datum: 10. března 2026
+Datum: 11. března 2026
 
 ## Strategický cíl
 
@@ -285,27 +285,30 @@ $schema->columns(3)
 
 ---
 
-## Fáze 9 — Funkční rozšíření (plánováno)
+## Fáze 9 — Funkční rozšíření (probíhá)
 
-- [ ] Fulltext vyhledávání — Laravel Scout + database driver
 - [x] Admin dashboard widgety — počty entries, poslední aktivita (323 tests)
-- [ ] Menu builder — drag & drop navigační struktura
-- [ ] Entry preview — náhled před publikací
-- [ ] Media tagging/folders — organizace Curator médií
-- [ ] **[Statamic]** `HasOrigin` trait — centralizovaný i18n fallback pro Entry lokalizaci
-- [ ] **[Statamic]** Blink request-level cache — N+1 prevence pro origin/locale lookups
 - [x] **[Statamic]** Lifecycle event páry `EntrySaving`/`EntrySaved` — cancelovatelné pre-eventy (323 tests)
+- [x] Výchozí jazyk nelze smazat — `DeleteAction` skrytý pro `is_default` locale
+- [x] Nastavení domovské stránky — akce `set_homepage`, ochrana homepage entry před smazáním
+- [x] Soft deletes pro uživatele — obnovení, fyzické smazání, ochrana vlastního účtu (338 tests)
+- [ ] Menu builder — drag & drop navigační struktura *(P1)*
+- [ ] Entry preview — náhled před publikací *(P2)*
+- [ ] Fulltext vyhledávání — Laravel Scout + database driver *(P3)*
+- [ ] Media tagging/folders — organizace Curator médií *(P4)*
+- [ ] **[Statamic]** `HasOrigin` trait — centralizovaný i18n fallback pro Entry lokalizaci *(P5)*
+- [ ] **[Statamic]** Blink request-level cache — N+1 prevence pro origin/locale lookups *(P6)*
 
 ---
 
 ## Fáze 10 — Produkční připravenost (plánováno)
 
-- [ ] Caching strategie — page cache, entry cache invalidace
-- [ ] Error pages — 404, 500, maintenance mode
-- [ ] Security hardening — CSP headers, rate limiting
-- [ ] CI/CD pipeline — GitHub Actions pro testy + Pint
-- [ ] Uživatelská dokumentace — admin UX guide
-- [ ] **[Statamic]** `ContainsComputedData` — virtuální pole (word_count, reading_time, derived slug)
+- [ ] Error pages — 404, 500, maintenance mode *(P1)*
+- [ ] Security hardening — CSP headers, rate limiting *(P2)*
+- [ ] CI/CD pipeline — GitHub Actions pro testy + Pint *(P3)*
+- [ ] Caching strategie — page cache, entry cache invalidace *(P4)*
+- [ ] Uživatelská dokumentace — admin UX guide *(P5)*
+- [ ] **[Statamic]** `ContainsComputedData` — virtuální pole (word_count, reading_time, derived slug) *(P6)*
 
 ---
 
@@ -355,14 +358,25 @@ Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 - [x] 243 testů zelených (oprava LocaleServiceTest izolace + TermFactory unique slug)
 - [x] `npm run build` — Vite build čistý, 4 assety OK
 
+### ✅ Hotovo — Fáze 8 + Fáze 9 první sada (11. března 2026)
+
+- [x] Fáze 8: sitemap, RSS/Atom feed, hreflang, meta tagy, canonical URL — 307 testů
+- [x] Fáze 9: admin dashboard widgety, lifecycle event páry `EntrySaving`/`EntrySaved` — 323 testů
+- [x] Fáze 9: výchozí jazyk nelze smazat, nastavení domovské stránky, soft deletes pro uživatele — 338 testů
+
+### P1 — Nejbližší (Fáze 9 dokončení)
+- Menu builder — drag & drop navigační struktura
+- Entry preview — náhled před publikací
+- Fulltext vyhledávání — Laravel Scout + database driver
+- Media tagging/folders — organizace Curator médií
+- **[Statamic]** `HasOrigin` trait + Blink cache
 
 ### P2 — Střednědobě
 - API vrstva do core (headless/REST)
 - `mipresscz:new-site` command
 - Publish tags a dokumentace pro integrátory
-- **[Statamic]** `HasOrigin` trait + Blink cache (Fáze 9)
-- **[Statamic]** Lifecycle event páry pro Entry (Fáze 9)
 - **[Statamic]** `ContainsComputedData` pro vypočítaná pole (Fáze 10)
+- ~~**[Statamic]** Lifecycle event páry pro Entry~~ ✅ dokončeno (323 tests)
 
 ### P3 — Dlouhodobě
 - `withoutX()` selective toggle pattern (po vzoru `tallcms`)
@@ -398,7 +412,7 @@ Statamic CMS byl přidán do workspace jako referenční codebase (`c:/laragon/w
 | Inspirace | Priorita | Cílová fáze |
 |-----------|----------|-------------|
 | `HasOrigin` — automatický i18n fallback na hodnoty z origin entry | ★★★★★ | Fáze 9 |
-| Lifecycle event páry `*Saving` / `*Saved` (cancelovatelný pre-event) | ★★★★☆ | Fáze 9 |
+| Lifecycle event páry `*Saving` / `*Saved` (cancelovatelný pre-event) | ★★★★☆ | ✅ Hotovo |
 | Working Copy — pracovní kopie odděleně od publikované verze | ★★★★☆ | Fáze 11 |
 | `ContainsComputedData` — virtuální/vypočítaná pole na modelu | ★★★☆☆ | Fáze 10 |
 | Blink request-level cache — prevence N+1 pro origin lookups | ★★★☆☆ | Fáze 9 |
