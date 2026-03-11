@@ -288,13 +288,13 @@ $schema->columns(3)
 ## Fáze 9 — Funkční rozšíření (plánováno)
 
 - [ ] Fulltext vyhledávání — Laravel Scout + database driver
-- [ ] Admin dashboard widgety — počty entries, poslední aktivita
+- [x] Admin dashboard widgety — počty entries, poslední aktivita (323 tests)
 - [ ] Menu builder — drag & drop navigační struktura
 - [ ] Entry preview — náhled před publikací
 - [ ] Media tagging/folders — organizace Curator médií
 - [ ] **[Statamic]** `HasOrigin` trait — centralizovaný i18n fallback pro Entry lokalizaci
 - [ ] **[Statamic]** Blink request-level cache — N+1 prevence pro origin/locale lookups
-- [ ] **[Statamic]** Lifecycle event páry `EntrySaving`/`EntrySaved` — cancelovatelné pre-eventy
+- [x] **[Statamic]** Lifecycle event páry `EntrySaving`/`EntrySaved` — cancelovatelné pre-eventy (323 tests)
 
 ---
 
