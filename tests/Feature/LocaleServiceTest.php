@@ -1,11 +1,8 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use MiPressCz\Core\Models\Locale;
 use MiPressCz\Core\Services\LocaleService;
-
-uses(Tests\TestCase::class, RefreshDatabase::class);
 
 beforeEach(function () {
     locales()->clearCache();

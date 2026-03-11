@@ -19,7 +19,7 @@ class TermFactory extends Factory
      */
     public function definition(): array
     {
-        $title = fake()->word();
+        $title = fake()->unique()->words(2, true);
 
         return [
             'taxonomy_id' => Taxonomy::factory(),
