@@ -291,6 +291,9 @@ $schema->columns(3)
 - [ ] Menu builder — drag & drop navigační struktura
 - [ ] Entry preview — náhled před publikací
 - [ ] Media tagging/folders — organizace Curator médií
+- [ ] **[Statamic]** `HasOrigin` trait — centralizovaný i18n fallback pro Entry lokalizaci
+- [ ] **[Statamic]** Blink request-level cache — N+1 prevence pro origin/locale lookups
+- [ ] **[Statamic]** Lifecycle event páry `EntrySaving`/`EntrySaved` — cancelovatelné pre-eventy
 
 ---
 
@@ -301,6 +304,16 @@ $schema->columns(3)
 - [ ] Security hardening — CSP headers, rate limiting
 - [ ] CI/CD pipeline — GitHub Actions pro testy + Pint
 - [ ] Uživatelská dokumentace — admin UX guide
+- [ ] **[Statamic]** `ContainsComputedData` — virtuální pole (word_count, reading_time, derived slug)
+
+---
+
+## Fáze 11 — Editorial workflow (plánováno)
+
+- [ ] Working Copy — pracovní kopie entry odděleně od publikované verze
+- [ ] `publishWorkingCopy()` / `deleteWorkingCopy()` API na Entry modelu
+- [ ] CP UI pro schvalování a zamítnutí pracovní kopie (Editor → Admin workflow)
+- [ ] Integrovat s rolemi: Contributor může pouze uložit do working copy, ne publikovat přímo
 
 ---
 
@@ -339,11 +352,16 @@ Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 - API vrstva do core (headless/REST)
 - `mipresscz:new-site` command
 - Publish tags a dokumentace pro integrátory
+- **[Statamic]** `HasOrigin` trait + Blink cache (Fáze 9)
+- **[Statamic]** Lifecycle event páry pro Entry (Fáze 9)
+- **[Statamic]** `ContainsComputedData` pro vypočítaná pole (Fáze 10)
 
 ### P3 — Dlouhodobě
 - `withoutX()` selective toggle pattern (po vzoru `tallcms`)
 - Optional plugin manager-like registry
 - Optional class alias compat layer pro budoucí distribuci
+- **[Statamic]** Working Copy editační workflow (Fáze 11)
+- **[Statamic]** `Hookable` Pipeline pro addon/plugin rozšiřitelnost
 
 ### Otevřené technical debt položky
 
@@ -362,6 +380,39 @@ Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 | Modular toggle pro features | Marketplace infrastruktura |
 | Release docs + changelog | Pro-feature ekosystém |
 | `withoutX()` pattern (Fáze P3) | — |
+
+---
+
+## Co převzít ze `Statamic` — inspirace kódem
+
+Statamic CMS byl přidán do workspace jako referenční codebase (`c:/laragon/www/statamic`). Analýza proběhla 11. března 2026.
+
+| Inspirace | Priorita | Cílová fáze |
+|-----------|----------|-------------|
+| `HasOrigin` — automatický i18n fallback na hodnoty z origin entry | ★★★★★ | Fáze 9 |
+| Lifecycle event páry `*Saving` / `*Saved` (cancelovatelný pre-event) | ★★★★☆ | Fáze 9 |
+| Working Copy — pracovní kopie odděleně od publikované verze | ★★★★☆ | Fáze 11 |
+| `ContainsComputedData` — virtuální/vypočítaná pole na modelu | ★★★☆☆ | Fáze 10 |
+| Blink request-level cache — prevence N+1 pro origin lookups | ★★★☆☆ | Fáze 9 |
+| `Hookable` Pipeline — rozšiřitelné hooky pro addon systém | ★★☆☆☆ | Fáze P3 |
+| `FluentlyGetsAndSets` — fluent getter/setter pattern na modelech | ★★☆☆☆ | Fáze P3 |
+
+### Detaily
+
+**`HasOrigin` fallback (nejvyšší priorita)**
+Statamic trait `HasOrigin` řeší překlady elegantně: lokalizovaný entry má `origin`, a při chybějícím poli automaticky fallbackuje na hodnotu z originálu bez manuálního kódu. miPress má `origin_id`, ale fallback logiku implementuje ručně na různých místech. Centralizace do traitu tento problém odstraní.
+
+**Lifecycle events v párech**
+Statamic má pro každý model dvojici eventů: `EntrySaving` (cancelovatelný — lze vrátit `false` a přerušit uložení) a `EntrySaved` (post-event). miPress používá observery, ale nemá cancelovatelné pre-eventy. Přidání by umožnilo workflow podmínky a validace mimo model.
+
+**Working Copy**
+Statamic odděluje `workingCopy()` (rozpracovaná verze, nespuštěná na live) od `revisions()` (archivní historie). miPress ukládá revize při každé změně, ale nemá koncept „pracovní kopie". Toto doplní editorial workflow pro role Editor/Contributor.
+
+**`ContainsComputedData`**
+Registrovatelné computed callbacks, které se chovají jako pravá data pole — funguje v šablonách, API, augmentaci shodně s reálnými DB poli. Vhodné pro pole jako `word_count`, `reading_time`, odvozené URL segmenty.
+
+**Blink request cache**
+Request-scoped in-memory cache (ne globální `Cache`). Vhodná pro Entry/origin lookups — zabrání N+1 dotazům v jednom requestu bez nebezpečí stale dat mezi requesty.
 
 ---
 
