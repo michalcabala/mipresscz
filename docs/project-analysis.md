@@ -1,6 +1,6 @@
 # miPress CMS — Project Analysis
 
-Datum: 8. března 2026
+Datum: 10. března 2026
 
 ## Účel dokumentu
 
@@ -78,6 +78,8 @@ Klíčové technické rysy:
 - enum-based stavy a konfigurace.
 
 ### Hlavní modely a odpovědnosti
+
+Všechny content modely žijí výhradně v `packages/mipresscz/core/src/Models/`. `app/Models/` obsahuje pouze `User.php`.
 
 - `Collection`: typ obsahu, routing pravidla, řazení, stav a vazby na blueprinty a taxonomie.
 - `Blueprint`: struktura polí a rozdělení do sekcí, včetně translatable/non-translatable logiky.
@@ -196,6 +198,102 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 - seedery ukazují realistický Mason obsah,
 - entries mají připravené media vztahy přes Curator model.
 
+### Rizika a mezery
+
+- Mason brick rendering nemá žádné automatizované testy (13 bricks bez snapshotu).
+- Curator media workflow (upload, featured image, galerie) nemá testy.
+- Brickové třídy nemají společný interface/contract — budoucí bricks mohou být nekonzistentní.
+
+---
+
+## Testové pokrytí
+
+### Aktuální stav (10. března 2026)
+
+**185 testů, 371 assertions — všechny procházejí.**
+
+### Co je dobře pokryto
+
+- Content model relationships (Collection ↔ Blueprint ↔ Entry)
+- Entry routing scénáře (locale prefix, single/multi-language, redirecty)
+- Policy autorizace (všechny role vs hlavní resources)
+- LocaleService + observers + cache invalidace
+- Factory generování + seeding
+- Installer command reprodukovatelnost
+- Permissions seeding + user role sync
+
+### Mezery v pokrytí
+
+| Oblast | Počet testů | Riziko |
+|--------|-------------|--------|
+| Filament form CRUD (create, edit, validate) | 0 | Vysoké — admin UX může potichu zhavarovat |
+| Filament table interakce (filtry, řazení, bulk) | 0 | Střední — regresní chyby neodhaleny |
+| Dynamic resource creation (`getCollectionResources`) | 0 | Střední — klíčová admin logika |
+| Mason brick HTML rendering | 0 | Nízké — vizuální regrese |
+| Curator media workflow | 0 | Nízké — upload/display flow |
+| Livewire komponenty (LanguageSwitcher) | 0 | Nízké — interakční chyby |
+
+---
+
+## Technický dluh
+
+### Kritický
+
+1. **TermPolicy chybí** — 5 z 6 content modelů má policy, Term ne. Riziko AuthorizationException při Filament operacích s termy.
+2. **Admin UX nulově otestovaný** — žádné Filament form/table/interaction testy. Změny v UI mohou potichu rozbít funkčnost.
+3. **Branch `refactor/core-extraction` nemergnuta** — 18 commitů čeká na merge do `main`.
+
+### Střední
+
+4. **Dva language switcher balíčky** — `bezhansalleh/filament-language-switch` + `craft-forge/filament-language-switcher` instalovány současně. Nejasné, který je aktivní.
+5. **Breezy překlady chybí** — 2FA UI strings nepřeloženy do češtiny.
+6. **README.md je default Laravel placeholder** — neodpovídá realitě projektu.
+7. **Blocks tabulka v DB deprecated** — migrace ji stále vytváří, ale Mason je náhradou.
+
+### Nízký
+
+8. **Entry model mohutní** — ~90+ metod; URL/locale logika by mohla být extrahována do service.
+9. **Policies mají duplicitní logiku** — DRY potenciál napříč rolemi.
+10. **`public/build/` může být stale** — Vite manifest nemusí odpovídat aktuálním assets.
+
+---
+
+## Matice funkční kompletnosti
+
+| Funkce | Stav | Poznámka |
+|--------|------|----------|
+| Obsahový model (Collections → Entries) | ✅ Kompletní | Flexibilní, vícejazyčný, revize |
+| Admin panel (Filament) | ✅ Kompletní | 6 resource skupin, dynamické entry resources |
+| Role & oprávnění | ✅ Kompletní | 4 role, 14 permissions, 5 policies (Term chybí) |
+| Locale systém | ✅ Kompletní | Multi/single-language routing, DB-driven |
+| Block builder (Mason) | ✅ Kompletní | 13 bricks, drag-drop, JSON storage |
+| Media (Curator) | ✅ Kompletní | Featured image, galerie, RichEditor plugin |
+| Uživatelé | ✅ Kompletní | Auth, role, 2FA, profil |
+| Revize | ✅ Kompletní | Auto-versioning, max 50/entry, diff |
+| Installer | ✅ Kompletní | `php artisan mipresscz:install` |
+| Test suite | ✅ Silná | 185 testů; mezery v admin UX a media |
+| Frontend rendering | ⚠️ Základ | Fallback šablona, žádný produkční layout |
+| SEO (meta, hreflang, sitemap) | ⚠️ Částečné | URI routing funguje, chybí meta/sitemap UI |
+| Fulltext vyhledávání | ❌ Chybí | Žádný search backend |
+| Menu builder | ❌ Chybí | — |
+| Dashboard widgety | ❌ Chybí | Prázdný admin dashboard |
+
+---
+
+## Celkové hodnocení: 7.5 / 10
+
+| Dimenze | Skóre |
+|---------|-------|
+| Architektura | 9/10 |
+| Content systém | 9/10 |
+| Admin panel | 8/10 |
+| Testové pokrytí | 8/10 |
+| Frontend | 5/10 |
+| Dokumentace | 9/10 |
+| Produkční připravenost | 6/10 |
+
+Projekt má výborný základ — čistá architektura, modulární core package, kompletní content model, solidní test suite. Hlavní investice směřují do stabilizace (TermPolicy, admin testy, čištění redundancí) a následně do frontend šablony a SEO.
+
 ### Rizika
 
 - změny brick struktur mohou mít zpětně nekompatibilní dopad na data,
@@ -253,7 +351,8 @@ Projekt používá Pest 4 a MySQL test databázi `mipresscz_testing`.
 
 - `tests/Pest.php` aplikuje `RefreshDatabase` pro Feature testy,
 - testy pokrývají content system, entry routing, locale workflow, locale observer, locale service a roles/permissions,
-- testovací nastavení odpovídá reálnějšímu MySQL chování, ne SQLite-only variantě.
+- testovací nastavení odpovídá reálnějšímu MySQL chování, ne SQLite-only variantě,
+- aktuálně **185 testů, 371 assertions** — všechny zelené.
 
 ### Rizika
 
@@ -323,3 +422,73 @@ Repo už jednou narazilo na dokumentační drift. To je explicitní provozní po
 ## Závěr
 
 miPress je ve stavu solidního vlastního CMS základu se zdravou doménovou architekturou a dobře zvoleným admin stackem. Největší technické riziko neleží v jednotlivých souborech, ale v místech, kde se propojuje více vrstev najednou: locale workflow, dynamické admin resources a budoucí růst frontendu. Pokud se udrží disciplína v testech, dokumentaci a panel customizacích, je kódová základna dobře rozšiřitelná.
+
+---
+
+## Hloubková revize a stav oprav (v0.6.0 → refactor/core-extraction, 9. března 2026)
+
+Tato sekce dokumentuje konkrétní bugy a nedostatky nalezené v revizi po Fázi 7 a jejich aktuální stav.
+
+### Stav nálezů
+
+| Priorita | Nález | Stav |
+|---|---|---|
+| 🔴 | Překlady `content.*` nefungují v Admin UI | ✅ OPRAVENO (a598cd0) |
+| 🟠 | Hardcoded nepřeložené stringy | ✅ OPRAVENO (a598cd0) |
+| 🟠 | Osiřelá funkce Blocks | ✅ OPRAVENO (a1e2efb) |
+| 🟠 | Model `Term` bez Policy | ❌ OTEVŘENO |
+| 🟡 | Duplicitní registrace policies | ✅ OPRAVENO (0cafd13) |
+| 🟡 | Stub soubory v `app/Enums/` | ✅ OPRAVENO (a598cd0) |
+| 🟡 | IDE false positive chyby | ✅ OPRAVENO (77834ed, f1d960f) |
+| 🟢 | Uncached Filament assets | ❌ OTEVŘENO (produkce) |
+| 🟢 | Breezy překlady | ❌ OTEVŘENO |
+
+### ✅ Opravené nálezy
+
+**🔴 Translation loader race condition** (opraveno v a598cd0)
+`addPath()` přesunuto do `register()` přes `callAfterResolving()`. Všechny `content.*` překlady nyní fungují bez ohledu na pořadí bootování providerů.
+
+**🟠 Hardcoded stringy** (opraveno v a598cd0)
+`is_pinned`, Curator `label`/`pluralLabel`, Breezy `myProfile` — vše nahrazeno `__()` voláním. Přidány klíče do `content.php` a nový soubor `panel.php` (cs + en).
+
+**🟠 Blokový builder / blocks** (opraveno v a1e2efb)
+Bloky nahrazeny Mason pluginem. Přidána migrace `drop_blocks_table`, vyčištěny permissions a překlady.
+
+**🟡 Duplicitní policy registrace** (opraveno v 0cafd13)
+`Gate::policy()` volání přesunuta výhradně do `MiPressCzCoreServiceProvider`. `AppServiceProvider` odstraněn od všech content policy registrací.
+
+**🟡 Stub soubory** (opraveno v a598cd0)
+`app/Enums/{DateBehavior,DefaultStatus,EntryStatus}.php` smazány. Enums žijí v core.
+
+**🟡 IDE false positives** (opraveno v 77834ed, f1d960f)
+`@var Blueprint $blueprint` type hinty v `EntryForm`, helper funkce v `ManageLocalesTest`.
+
+### ❌ Stále otevřené nálezy
+
+**🟠 VYSOKÉ — `Term` bez Policy**
+Model `Term` nemá registrovanou policy. Přidat `TermPolicy` do `packages/mipresscz/core/src/Policies/TermPolicy.php` a registrovat ji v `MiPressCzCoreServiceProvider`.
+
+**🟢 NÍZKÉ — Uncached Filament assets**
+`php artisan about` ukazuje `blade_icons: NOT CACHED` a `panel_components: NOT CACHED`. Pro produkci přidat do deployment pipeline:
+```bash
+php artisan icons:cache
+php artisan filament:cache-components
+```
+
+**🟢 NÍZKÉ — Breezy překlady**
+Breezy Sessions page není lokalizovaná do češtiny. `php artisan vendor:publish --tag=filament-breezy-translations`
+
+---
+
+### 🏗️ Architektonická konsolidace modelů (commit 0cafd13, 9. března 2026)
+
+Výsledek refactoru z branch `refactor/core-extraction`:
+
+- `app/Models/` nyní obsahuje **pouze `User.php`** — 8 wrapper modelů smazáno
+- `database/factories/` obsahuje **pouze `UserFactory.php`** — 7 duplikátních továren smazáno
+- Všechny content modely žijí výhradně v `packages/mipresscz/core/src/Models/`
+- Všechny core factories žijí v `packages/mipresscz/core/database/factories/`
+- `MiPressCzCoreServiceProvider` registruje: observers, policies, `Factory::guessFactoryNamesUsing()`
+- `AppServiceProvider` zredukován na: `Gate::before()`, Table config defaults, LanguageSwitch config
+- Všechny test soubory aktualizovány na `MiPressCz\Core\Models\*` namespace
+- **185 testů zelených**

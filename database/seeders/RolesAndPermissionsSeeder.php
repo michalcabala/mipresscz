@@ -23,6 +23,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'view.global_sets', 'manage.global_sets',
         ];
 
+        // Remove permissions that are no longer part of the system
+        // (e.g. blocks were replaced by the Mason plugin).
+        Permission::whereNotIn('name', $permissions)->where('guard_name', 'web')->delete();
+
         foreach ($permissions as $permission) {
             Permission::findOrCreate($permission, 'web');
         }

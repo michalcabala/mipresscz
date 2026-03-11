@@ -27,7 +27,6 @@ miPress je modulární CMS postavený na Laravel 12 a Filament 5. Projekt je nav
 - `awcodes/mason`
 - `awcodes/filament-curator`
 - `bezhansalleh/filament-language-switch`
-- `craft-forge/filament-language-switcher`
 - `jeffgreco13/filament-breezy`
 - `caresome/filament-auth-designer`
 
@@ -85,6 +84,12 @@ Produkční build:
 npm run build
 ```
 
+### Nebo jedním příkazem
+
+```bash
+php artisan mipresscz:install --seed --no-interaction
+```
+
 ## Nejčastější příkazy
 
 ```bash
@@ -102,9 +107,16 @@ Jednotlivé typy změn:
 - po změně views: `php artisan view:clear`
 - po větší změně: `php artisan optimize:clear`
 
-## Architektura obsahu
+## Architektura
 
-### Hlavní entity
+Projekt je rozdělen na **core package** (`packages/mipresscz/core/`) a **tenkou app vrstvu** (`app/`).
+
+- Core obsahuje veškerou CMS byznys logiku: modely, resources, services, policies, seeders
+- App obsahuje pouze: `User` model, `UserRole` enum, `AdminPanelProvider` wrapper, Mason bricks
+
+Podrobnosti: [docs/architecture-core.md](docs/architecture-core.md)
+
+### Hlavní entity (v `packages/mipresscz/core/src/Models/`)
 
 - `Collection`: typ obsahu a routing pravidla
 - `Blueprint`: JSON definice polí pro kolekci
@@ -145,9 +157,7 @@ Prakticky to znamená:
 
 ### Locale správa
 
-Správa jazyků není klasická Resource, ale samostatná Filament Page:
-
-- `app/Filament/Pages/ManageLocales.php`
+Správa jazyků není klasická Resource, ale samostatná Filament Page v core.
 
 ## Lokalizace a routing
 
@@ -158,9 +168,9 @@ Frontend používá dva paralelní route režimy:
 
 Locale logika je řízená z databáze přes:
 
-- `app/Models/Locale.php`
-- `app/Services/LocaleService.php`
-- `app/Http/Middleware/SetFrontendLocale.php`
+- `MiPressCz\Core\Models\Locale`
+- `MiPressCz\Core\Services\LocaleService`
+- `MiPressCz\Core\Http\Middleware\SetFrontendLocale`
 
 Aktuální chování:
 
@@ -203,12 +213,15 @@ Projekt používá Pest 4.
 
 ## Dokumentace
 
-Další interní dokumentace:
+Autoritativní projektová dokumentace:
 
-- [docs/project-analysis.md](docs/project-analysis.md)
-- [docs/project-roadmap.md](docs/project-roadmap.md)
+- [docs/architecture-core.md](docs/architecture-core.md) — architektura core vs. app
+- [docs/project-analysis.md](docs/project-analysis.md) — analýza, technický dluh, matice kompletnosti
+- [docs/project-roadmap.md](docs/project-roadmap.md) — fáze vývoje a plán
+- [docs/contributing-core.md](docs/contributing-core.md) — workflow pro přispívání
+- [docs/upgrade-guide.md](docs/upgrade-guide.md) — postup aktualizace mezi verzemi
 
-Při rozporu mezi README a kódem ber jako zdroj pravdy aktuální implementaci v aplikaci.
+Při rozporu mezi README a kódem ber jako zdroj pravdy dokumentaci v `docs/` a aktuální implementaci.
 
 ## Vývojové konvence
 
@@ -221,6 +234,6 @@ Při rozporu mezi README a kódem ber jako zdroj pravdy aktuální implementaci 
 
 ## Poznámky pro onboarding
 
-- `README.md` byl dříve defaultní Laravel scaffold; pokud někde narazíš na starší popis projektu, ověř si realitu v kódu.
+- CMS jádro žije v `packages/mipresscz/core/` — `app/Models/` obsahuje pouze `User.php`
 - Zásahy do locale a routingu bývají průřezové a typicky vyžadují změny ve službě, middleware, URL generování, admin správě a testech.
 - Zásahy do admin navigace a topbaru je potřeba dělat s respektem k existujícím render hookům a panel customizacím v `AdminPanelProvider`.

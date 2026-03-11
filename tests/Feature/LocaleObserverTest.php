@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Locale;
-use App\Services\LocaleService;
 use Illuminate\Support\Facades\Cache;
+use MiPressCz\Core\Models\Locale;
+use MiPressCz\Core\Services\LocaleService;
 
 beforeEach(function () {
     locales()->clearCache();

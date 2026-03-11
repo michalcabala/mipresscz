@@ -1,16 +1,16 @@
 <?php
 
-use App\Enums\DateBehavior;
-use App\Enums\DefaultStatus;
-use App\Enums\EntryStatus;
-use App\Models\Blueprint;
-use App\Models\Collection;
-use App\Models\Entry;
-use App\Models\GlobalSet;
-use App\Models\Revision;
-use App\Models\Taxonomy;
-use App\Models\Term;
 use App\Models\User;
+use MiPressCz\Core\Enums\DateBehavior;
+use MiPressCz\Core\Enums\DefaultStatus;
+use MiPressCz\Core\Enums\EntryStatus;
+use MiPressCz\Core\Models\Blueprint;
+use MiPressCz\Core\Models\Collection;
+use MiPressCz\Core\Models\Entry;
+use MiPressCz\Core\Models\GlobalSet;
+use MiPressCz\Core\Models\Revision;
+use MiPressCz\Core\Models\Taxonomy;
+use MiPressCz\Core\Models\Term;
 
 // ── Collection ──
 

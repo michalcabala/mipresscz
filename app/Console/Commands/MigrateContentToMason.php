@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Entry;
 use Illuminate\Console\Command;
+use MiPressCz\Core\Models\Entry;
 
 class MigrateContentToMason extends Command
 {

@@ -1,9 +1,9 @@
 <?php
 
-use App\Enums\EntryStatus;
-use App\Models\Blueprint;
-use App\Models\Collection;
-use App\Models\Entry;
+use MiPressCz\Core\Enums\EntryStatus;
+use MiPressCz\Core\Models\Blueprint;
+use MiPressCz\Core\Models\Collection;
+use MiPressCz\Core\Models\Entry;
 
 it('returns entry for matching uri', function () {
     $collection = Collection::factory()->create([

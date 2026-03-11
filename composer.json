@@ -5,6 +5,12 @@
     "description": "The skeleton application for the Laravel framework.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/mipresscz/core"
+        }
+    ],
     "require": {
         "php": "^8.2",
         "awcodes/filament-curator": "^5.0",
@@ -12,11 +18,11 @@
         "bezhansalleh/filament-language-switch": "^4.1",
         "caresome/filament-auth-designer": "^3.0",
         "codewithdennis/filament-select-tree": "4.x",
-        "craft-forge/filament-language-switcher": "^1.2",
         "filament/filament": "^5.0",
         "jeffgreco13/filament-breezy": "^3.1",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
+        "mipresscz/core": "@dev",
         "openplain/filament-tree-view": "^0.5.4",
         "spatie/laravel-permission": "^7.2"
     },
