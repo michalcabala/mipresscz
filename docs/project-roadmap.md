@@ -210,14 +210,15 @@ Cíl: uzavřít autorizační mezery, zvýšit testové pokrytí admin panelu a 
 - [x] Registrovat TermPolicy v `MiPressCzCoreServiceProvider`
 - [x] Test matrix pro TermPolicy (kdo může co s termy) — 16 testů
 
-### 7.2 — Testové pokrytí admin panelu (částečně ✅)
+### 7.2 — Testové pokrytí admin panelu ✅
 
 - [x] Filament resource testy — CollectionResource (9), TaxonomyResource (10), GlobalSetResource (9), BlueprintResource (8)
 - [x] Dynamic resource creation test — ověření `getCollectionResources()` — EntryResourceConfigTest (5)
-- [ ] Filament form testy — EntryResource CRUD (create, edit, validate) — složitější kvůli Mason + dynamic resources
-- [ ] Filament table testy — filtry, řazení, bulk akce
-- [ ] Mason brick snapshot testy — HTML výstup 13 bricks
-- [ ] Curator media testy — featured image, galerie workflow
+- [x] EntryResource CRUD testy — create, edit, validate, publish/unpublish, delete, bulk delete (17)
+- [x] Filament table testy — filtry status/locale, řazení, vyhledávání (součást EntryResourceTest)
+- [x] Mason brick testy — HTML výstup 12 bricks + BrickCollection (16)
+- [x] Curator media testy — featured image relationship, form integration, table column (6)
+- [x] Opravena slug `unique` validace v EntryForm (Rule::unique s Get closure pro collection_id + locale)
 
 ### 7.2b — Bug fixy nalezené při testování ✅
 
@@ -268,7 +269,7 @@ $schema->columns(3)
 
 **Výstup:** Entry formulář plně funkční, dynamická blueprintová pole se správně načítají ze záznamu.
 
-**Aktuální stav:** 243 testů (57 nových oproti Fázi 6), všechny zelené. Zbývají pokročilé testy (7.2) a merge (7.4).
+**Aktuální stav:** 291 testů (48 nových od Fáze 7.4), všechny zelené. Fáze 7.2 kompletní.
 
 **Výstup:** bezpečný, čistý codebase připravený pro vývoj frontend šablony; Entry formulář plně funkční.
 
