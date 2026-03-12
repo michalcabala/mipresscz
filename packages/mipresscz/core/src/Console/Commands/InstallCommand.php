@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use MiPressCz\Core\Database\Seeders\ContentSeeder;
+use MiPressCz\Core\Database\Seeders\DefaultCollectionsSeeder;
 use MiPressCz\Core\Database\Seeders\GlobalsSeeder;
 use MiPressCz\Core\Database\Seeders\LocaleSeeder;
 use MiPressCz\Core\Models\Locale;
@@ -35,6 +36,7 @@ class InstallCommand extends Command
         $this->runMigrations();
         $this->seedRolesAndPermissions();
         $this->seedLocales();
+        $this->seedDefaultCollections();
         $this->createAdminUser();
 
         if ($this->option('seed')) {
@@ -73,6 +75,13 @@ class InstallCommand extends Command
     {
         $this->components->task('Seeding default locales', function () {
             app(LocaleSeeder::class)->run();
+        });
+    }
+
+    private function seedDefaultCollections(): void
+    {
+        $this->components->task('Seeding default collections', function () {
+            app(DefaultCollectionsSeeder::class)->run();
         });
     }
 

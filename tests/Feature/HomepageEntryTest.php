@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Models\User;
 use Livewire\Livewire;
+use MiPressCz\Core\Filament\Pages\ManageSiteSettings;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\EditEntry;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\ListEntries;
 use MiPressCz\Core\Models\Blueprint;
@@ -51,7 +52,7 @@ it('defaults is_homepage to false on new entries', function () {
     expect($entry->fresh()->is_homepage)->toBeFalse();
 });
 
-it('can set an entry as homepage via table action', function () {
+it('can set homepage via ManageSiteSettings page', function () {
     $entry = Entry::factory()->create([
         'collection_id' => $this->collection->id,
         'blueprint_id' => $this->blueprint->id,
@@ -59,15 +60,15 @@ it('can set an entry as homepage via table action', function () {
         'is_homepage' => false,
     ]);
 
-    Livewire::test(ListEntries::class)
-        ->call('loadTable')
-        ->callTableAction('set_homepage', $entry)
+    Livewire::test(ManageSiteSettings::class)
+        ->fillForm(['homepage_entry_id' => $entry->id])
+        ->call('save')
         ->assertNotified();
 
     expect($entry->fresh()->is_homepage)->toBeTrue();
 });
 
-it('resets previous homepage when setting a new one', function () {
+it('resets previous homepage when setting a new one via ManageSiteSettings', function () {
     $first = Entry::factory()->create([
         'collection_id' => $this->collection->id,
         'blueprint_id' => $this->blueprint->id,
@@ -81,33 +82,40 @@ it('resets previous homepage when setting a new one', function () {
         'is_homepage' => false,
     ]);
 
-    Livewire::test(ListEntries::class)
-        ->call('loadTable')
-        ->callTableAction('set_homepage', $second)
+    Livewire::test(ManageSiteSettings::class)
+        ->fillForm(['homepage_entry_id' => $second->id])
+        ->call('save')
         ->assertNotified();
 
     expect($first->fresh()->is_homepage)->toBeFalse();
     expect($second->fresh()->is_homepage)->toBeTrue();
 });
 
-it('hides set_homepage table action for the current homepage entry', function () {
+it('shows current homepage in ManageSiteSettings form on mount', function () {
     $homepage = Entry::factory()->create([
         'collection_id' => $this->collection->id,
         'blueprint_id' => $this->blueprint->id,
         'locale' => 'cs',
         'is_homepage' => true,
     ]);
-    $other = Entry::factory()->create([
+
+    Livewire::test(ManageSiteSettings::class)
+        ->assertFormSet(['homepage_entry_id' => $homepage->id]);
+});
+
+it('can clear homepage via ManageSiteSettings by setting null', function () {
+    $homepage = Entry::factory()->create([
         'collection_id' => $this->collection->id,
         'blueprint_id' => $this->blueprint->id,
         'locale' => 'cs',
-        'is_homepage' => false,
+        'is_homepage' => true,
     ]);
 
-    Livewire::test(ListEntries::class)
-        ->call('loadTable')
-        ->assertTableActionHidden('set_homepage', $homepage)
-        ->assertTableActionVisible('set_homepage', $other);
+    Livewire::test(ManageSiteSettings::class)
+        ->fillForm(['homepage_entry_id' => null])
+        ->call('save');
+
+    expect($homepage->fresh()->is_homepage)->toBeFalse();
 });
 
 it('cannot delete the homepage entry from the list table', function () {
@@ -157,17 +165,23 @@ it('cannot delete the homepage entry from the edit page', function () {
     $this->assertDatabaseHas(Entry::class, ['id' => $homepage->id]);
 });
 
-it('can set entry as homepage from the edit page', function () {
-    $entry = Entry::factory()->create([
+it('ManageSiteSettings only lists entries from the pages collection', function () {
+    $otherCollection = \MiPressCz\Core\Models\Collection::factory()->create(['handle' => 'articles']);
+    $otherBlueprint = \MiPressCz\Core\Models\Blueprint::factory()->create(['collection_id' => $otherCollection->id]);
+
+    $pageEntry = Entry::factory()->create([
         'collection_id' => $this->collection->id,
         'blueprint_id' => $this->blueprint->id,
         'locale' => 'cs',
-        'is_homepage' => false,
+    ]);
+    $articleEntry = Entry::factory()->create([
+        'collection_id' => $otherCollection->id,
+        'blueprint_id' => $otherBlueprint->id,
+        'locale' => 'cs',
     ]);
 
-    Livewire::test(EditEntry::class, ['record' => $entry->id])
-        ->callAction('set_homepage')
-        ->assertNotified();
+    $options = (new ManageSiteSettings)->getPagesOptions();
 
-    expect($entry->fresh()->is_homepage)->toBeTrue();
+    expect($options)->toHaveKey($pageEntry->id)
+        ->and($options)->not->toHaveKey($articleEntry->id);
 });

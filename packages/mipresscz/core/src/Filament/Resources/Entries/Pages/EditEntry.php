@@ -31,7 +31,6 @@ class EditEntry extends EditRecord
             $this->getSaveAction(),
             $this->getPublishAction(),
             ...$this->getLocaleActions(),
-            $this->getHomepageAction(),
             DeleteAction::make()
                 ->color('danger')
                 ->icon(Heroicon::OutlinedTrash)
@@ -59,37 +58,6 @@ class EditEntry extends EditRecord
             ->color('gray')
             ->action(fn () => $this->save())
             ->keyBindings(['mod+s']);
-    }
-
-    protected function getHomepageAction(): Action
-    {
-        /** @var Entry $record */
-        $record = $this->getRecord();
-
-        if ($record->is_homepage) {
-            return Action::make('is_homepage_badge')
-                ->label(__('content.actions.is_homepage'))
-                ->icon(Heroicon::Home)
-                ->color('success')
-                ->disabled();
-        }
-
-        return Action::make('set_homepage')
-            ->label(__('content.actions.set_homepage'))
-            ->icon(Heroicon::OutlinedHome)
-            ->color('gray')
-            ->requiresConfirmation()
-            ->action(function (): void {
-                /** @var Entry $record */
-                $record = $this->getRecord();
-                Entry::query()->where('is_homepage', true)->update(['is_homepage' => false]);
-                $record->update(['is_homepage' => true]);
-                $this->refreshFormData(['is_homepage']);
-                Notification::make()
-                    ->title(__('content.messages.homepage_set'))
-                    ->success()
-                    ->send();
-            });
     }
 
     protected function getPublishAction(): Action

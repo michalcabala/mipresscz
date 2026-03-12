@@ -110,21 +110,6 @@ class EntriesTable
             ->recordActions([
                 EditAction::make(),
 
-                \Filament\Actions\Action::make('set_homepage')
-                    ->label(__('content.actions.set_homepage'))
-                    ->icon(Heroicon::Home)
-                    ->color('success')
-                    ->hidden(fn (Entry $record): bool => $record->is_homepage)
-                    ->requiresConfirmation()
-                    ->action(function (Entry $record): void {
-                        Entry::query()->where('is_homepage', true)->update(['is_homepage' => false]);
-                        $record->update(['is_homepage' => true]);
-                        Notification::make()
-                            ->title(__('content.messages.homepage_set'))
-                            ->success()
-                            ->send();
-                    }),
-
                 DeleteAction::make()
                     ->before(function (Entry $record, DeleteAction $action): void {
                         if ($record->is_homepage) {
