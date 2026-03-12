@@ -290,10 +290,12 @@ $schema->columns(3)
 - [x] Admin dashboard widgety — počty entries, poslední aktivita (323 tests)
 - [x] **[Statamic]** Lifecycle event páry `EntrySaving`/`EntrySaved` — cancelovatelné pre-eventy (323 tests)
 - [x] Výchozí jazyk nelze smazat — `DeleteAction` skrytý pro `is_default` locale
-- [x] Nastavení domovské stránky — akce `set_homepage`, ochrana homepage entry před smazáním
+- [x] Nastavení domovské stránky — `ManageSiteSettings` stránka (přesunuto z akce `set_homepage`; ochrana homepage entry před smazáním zachována)
 - [x] Soft deletes pro uživatele — obnovení, fyzické smazání, ochrana vlastního účtu (338 tests)
 - [x] Menu builder — drag & drop navigační struktura *(P1)* (369 tests)
 - [x] **Multijazyčné kolekce, blueprinty, taxonomie** — Terms per-locale záznamy (locale + origin_id self-FK, unikátní slug per locale), `HasLocalizedTitle` trait pro Collection + Taxonomy (`translations` JSON), dynamické Tabs per locale v CollectionForm + TaxonomyForm *(P1)* (362 tests)
+- [x] **Admin UI pro multijazyčné editování** — CollectionForm + TaxonomyForm: Tabs nahrazeny Select language switcherem + podmíněným `Group` per locale; EntryForm sidebar: locale `Placeholder` jako read-only indikátor
+- [x] **Nastavení domovské stránky přesunuto do `ManageSiteSettings`** — akce `set_homepage` odstraněna z `EditEntry` + `EntriesTable`, nová stránka v nav skupině Nastavení; `DefaultCollectionsSeeder` — kolekce Stránky implicitně součástí jádra (install bez `--seed`); homepage lze vybrat pouze ze stránek (363 tests)
 - [ ] Entry preview — náhled před publikací *(P2)*
 - [ ] Fulltext vyhledávání — Laravel Scout + database driver *(P3)*
 - [ ] Media tagging/folders — organizace Curator médií *(P4)*
@@ -376,9 +378,27 @@ Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 - [x] Idempotentní migrace přepsána na `Schema::getForeignKeys()` / `Schema::getIndexes()` (spolehlivá i v test env)
 - [x] 362 testů zelených (16 nových: MultilingualTermTest + LocalizedTitleTest)
 
+### ✅ Hotovo — Admin UI + nastavení webu (12. března 2026)
+
+**Admin UI pro multijazyčné editování** *(commit `2c1d0d9`)*
+- [x] CollectionForm + TaxonomyForm: per-locale `Tabs` nahrazeny `Select` jazykový přepínač + podmíněný `Group` per locale (přehledné, nezabírá místo při jednom jazyce)
+- [x] EntryForm sidebar: `Placeholder` zobrazující aktuální locale jako read-only indikátor (label z `locales()->findByCode()`)
+- [x] Lang: klíč `'language'` doplněn do `collection_fields` a `taxonomy_fields` (cs + en)
+
+**Nastavení domovské stránky — ManageSiteSettings** *(commit `ba3690c`)*
+- [x] Nová Filament stránka `ManageSiteSettings` v nav skupině `Nastavení` (sort 20, ikona `heroicon-o-cog-6-tooth`)
+- [x] `Select::make('homepage_entry_id')` — options pouze z kolekce `pages` (`whereNull('origin_id')`, seřazeno dle titulu)
+- [x] `save()` — nejprve vynuluje všechny `is_homepage`, pak nastaví vybraný entry; notifikace po uložení
+- [x] `DefaultCollectionsSeeder` — idempotentní (`updateOrCreate`) vytvoření kolekce `pages` + blueprint `standard`; spouštěn z `InstallCommand` jako `seedDefaultCollections()` krok
+- [x] Odstraněna akce `set_homepage` z `EditEntry` header i z `EntriesTable` recordActions (visible indicator `is_homepage` IconColumn ponechán)
+- [x] `HomepageEntryTest` přepsán pro `ManageSiteSettings` (9 testů, 26 assertions)
+- [x] **363 testů zelených**
+
 ### P1 — Nejbližší (Fáze 9 dokončení)
 - ~~Menu builder — drag & drop navigační struktura~~ ✅ dokončeno
 - ~~Multijazyčné kolekce/taxonomie~~ ✅ dokončeno (12. března 2026)
+- ~~Admin UI pro multijazyčné editování (Select switcher)~~ ✅ dokončeno (12. března 2026)
+- ~~ManageSiteSettings + DefaultCollectionsSeeder~~ ✅ dokončeno (12. března 2026)
 - Entry preview — náhled před publikací
 - Fulltext vyhledávání — Laravel Scout + database driver
 - Media tagging/folders — organizace Curator médií
