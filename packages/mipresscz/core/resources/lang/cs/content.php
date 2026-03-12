@@ -247,6 +247,10 @@ return [
         'navigation_label' => 'Menu',
         'navigation_group' => 'Navigace',
         'manage_items' => 'Spravovat položky',
+        'locations' => [
+            'primary' => 'Hlavní navigace',
+            'footer' => 'Patička',
+        ],
     ],
 
     'menu_fields' => [

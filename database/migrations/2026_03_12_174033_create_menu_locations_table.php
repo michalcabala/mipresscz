@@ -8,18 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('menus', function (Blueprint $table) {
-            $table->ulid('id')->primary();
-            $table->string('title');
+        $prefix = config('filament-menu-manager.table_prefix', 'fmm_');
+
+        Schema::create($prefix.'menu_locations', function (Blueprint $table) {
+            $table->id();
             $table->string('handle')->unique();
-            $table->string('location')->nullable()->index();
-            $table->text('description')->nullable();
+            $table->string('name');
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('menus');
+        $prefix = config('filament-menu-manager.table_prefix', 'fmm_');
+        Schema::dropIfExists($prefix.'menu_locations');
     }
 };

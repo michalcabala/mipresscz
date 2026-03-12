@@ -292,7 +292,7 @@ $schema->columns(3)
 - [x] Výchozí jazyk nelze smazat — `DeleteAction` skrytý pro `is_default` locale
 - [x] Nastavení domovské stránky — akce `set_homepage`, ochrana homepage entry před smazáním
 - [x] Soft deletes pro uživatele — obnovení, fyzické smazání, ochrana vlastního účtu (338 tests)
-- [ ] Menu builder — drag & drop navigační struktura *(P1)*
+- [x] Menu builder — drag & drop navigační struktura *(P1)* (369 tests)
 - [ ] Entry preview — náhled před publikací *(P2)*
 - [ ] Fulltext vyhledávání — Laravel Scout + database driver *(P3)*
 - [ ] Media tagging/folders — organizace Curator médií *(P4)*

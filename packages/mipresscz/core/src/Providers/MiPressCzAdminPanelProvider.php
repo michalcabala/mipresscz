@@ -30,6 +30,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
 use MiPressCz\Core\Filament\Widgets\EntryStatsWidget;
 use MiPressCz\Core\Filament\Widgets\LatestEntriesWidget;
+use NoteBrainsLab\FilamentMenuManager\FilamentMenuManagerPlugin;
 
 /**
  * Pre-configured Filament admin panel for miPressCZ.
@@ -130,6 +131,12 @@ class MiPressCzAdminPanelProvider extends PanelProvider
     protected function configurePlugins(Panel $panel): Panel
     {
         return $panel->plugins([
+            FilamentMenuManagerPlugin::make()
+                ->locations($this->getMenuLocations())
+                ->modelSources($this->getMenuModelSources())
+                ->navigationGroup(__('content.menus.navigation_group'))
+                ->navigationLabel(__('content.menus.plural_label'))
+                ->navigationSort(3),
             CuratorPlugin::make()
                 ->label(__('content.media.label'))
                 ->pluralLabel(__('content.media.plural_label'))
@@ -225,6 +232,33 @@ class MiPressCzAdminPanelProvider extends PanelProvider
      * @return array<int, NavigationItem>
      */
     protected function getTaxonomyNavigationItems(): array
+    {
+        return [];
+    }
+
+    /**
+     * Menu locations exposed to filament-menu-manager.
+     *
+     * Override in the application to define the available menu locations.
+     *
+     * @return array<string, string>
+     */
+    protected function getMenuLocations(): array
+    {
+        return [
+            'primary' => __('content.menus.locations.primary'),
+            'footer' => __('content.menus.locations.footer'),
+        ];
+    }
+
+    /**
+     * Eloquent model classes whose records can be added as menu items.
+     *
+     * Override in the application to register additional model sources.
+     *
+     * @return array<int, class-string>
+     */
+    protected function getMenuModelSources(): array
     {
         return [];
     }

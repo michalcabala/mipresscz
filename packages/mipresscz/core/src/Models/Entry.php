@@ -15,10 +15,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Support\Str;
 use MiPressCz\Core\Enums\EntryStatus;
+use NoteBrainsLab\FilamentMenuManager\Concerns\HasMenuItems;
 
 class Entry extends Model
 {
-    use HasFactory, HasUlids, SoftDeletes;
+    use HasFactory, HasMenuItems, HasUlids, SoftDeletes;
 
     protected $fillable = [
         'collection_id',
@@ -290,6 +291,21 @@ class Entry extends Model
     }
 
     // ── URL & SEO ──
+
+    public function getMenuLabel(): string
+    {
+        return $this->title ?? '';
+    }
+
+    public function getMenuUrl(): string
+    {
+        return $this->getFullUrl() ?? '';
+    }
+
+    public function getMenuIcon(): ?string
+    {
+        return 'heroicon-o-document-text';
+    }
 
     public function getFullUrl(): ?string
     {

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schema;
 use MiPressCz\Core\Filament\Resources\Entries\EntryResource;
 use MiPressCz\Core\Filament\Resources\Terms\TermResource;
 use MiPressCz\Core\Models\Collection;
+use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Models\Taxonomy;
 use MiPressCz\Core\Providers\MiPressCzAdminPanelProvider;
 
@@ -33,6 +34,16 @@ class AdminPanelProvider extends MiPressCzAdminPanelProvider
                 ->navigationSort($index + 1)
             )
             ->all();
+    }
+
+    /**
+     * @return array<int, class-string>
+     */
+    protected function getMenuModelSources(): array
+    {
+        return [
+            Entry::class,
+        ];
     }
 
     /**

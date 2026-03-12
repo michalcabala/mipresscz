@@ -247,6 +247,10 @@ return [
         'navigation_label' => 'Menus',
         'navigation_group' => 'Navigation',
         'manage_items' => 'Manage items',
+        'locations' => [
+            'primary' => 'Primary navigation',
+            'footer' => 'Footer',
+        ],
     ],
 
     'menu_fields' => [
