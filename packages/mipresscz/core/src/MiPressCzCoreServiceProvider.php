@@ -11,6 +11,7 @@ use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Models\GlobalSet;
 use MiPressCz\Core\Models\Locale;
+use MiPressCz\Core\Models\Menu;
 use MiPressCz\Core\Models\Taxonomy;
 use MiPressCz\Core\Models\Term;
 use MiPressCz\Core\Observers\EntryObserver;
@@ -19,6 +20,7 @@ use MiPressCz\Core\Policies\BlueprintPolicy;
 use MiPressCz\Core\Policies\CollectionPolicy;
 use MiPressCz\Core\Policies\EntryPolicy;
 use MiPressCz\Core\Policies\GlobalSetPolicy;
+use MiPressCz\Core\Policies\MenuPolicy;
 use MiPressCz\Core\Policies\TaxonomyPolicy;
 use MiPressCz\Core\Policies\TermPolicy;
 use MiPressCz\Core\Services\LocaleService;
@@ -56,6 +58,7 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         Gate::policy(Collection::class, CollectionPolicy::class);
         Gate::policy(Entry::class, EntryPolicy::class);
         Gate::policy(GlobalSet::class, GlobalSetPolicy::class);
+        Gate::policy(Menu::class, MenuPolicy::class);
         Gate::policy(Taxonomy::class, TaxonomyPolicy::class);
         Gate::policy(Term::class, TermPolicy::class);
 

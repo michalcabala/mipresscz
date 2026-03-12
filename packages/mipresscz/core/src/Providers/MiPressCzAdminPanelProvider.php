@@ -102,6 +102,8 @@ class MiPressCzAdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label(fn (): string => __('content.collections.navigation_group')),
                 NavigationGroup::make()
+                    ->label(fn (): string => __('content.menus.navigation_group')),
+                NavigationGroup::make()
                     ->label(fn (): string => __('locales.navigation_group'))
                     ->collapsed(),
             ])

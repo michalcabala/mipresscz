@@ -240,6 +240,47 @@ return [
         'view_revisions' => 'Zobrazit revize',
     ],
 
+    // ── Menus ──
+    'menus' => [
+        'label' => 'Menu',
+        'plural_label' => 'Menu',
+        'navigation_label' => 'Menu',
+        'navigation_group' => 'Navigace',
+        'manage_items' => 'Spravovat položky',
+    ],
+
+    'menu_fields' => [
+        'title' => 'Název',
+        'handle' => 'Handle',
+        'location' => 'Umístění',
+        'description' => 'Popis',
+    ],
+
+    'menu_locations' => [
+        'primary' => 'Hlavní navigace',
+        'footer' => 'Zápatí',
+        'sidebar' => 'Postranní panel',
+    ],
+
+    'menu_item_fields' => [
+        'type' => 'Typ',
+        'title' => 'Popisek',
+        'url' => 'URL',
+        'entry' => 'Záznam',
+        'target' => 'Otevřít v',
+        'is_active' => 'Aktivní',
+    ],
+
+    'menu_item_types' => [
+        'custom_link' => 'Vlastní odkaz',
+        'entry' => 'Záznam',
+    ],
+
+    'menu_item_targets' => [
+        '_self' => 'Stejná záložka',
+        '_blank' => 'Nová záložka',
+    ],
+
     'messages' => [
         'entry_created' => 'Záznam byl vytvořen.',
         'entry_updated' => 'Záznam byl aktualizován.',

@@ -240,6 +240,47 @@ return [
         'view_revisions' => 'View revisions',
     ],
 
+    // ── Menus ──
+    'menus' => [
+        'label' => 'Menu',
+        'plural_label' => 'Menus',
+        'navigation_label' => 'Menus',
+        'navigation_group' => 'Navigation',
+        'manage_items' => 'Manage items',
+    ],
+
+    'menu_fields' => [
+        'title' => 'Title',
+        'handle' => 'Handle',
+        'location' => 'Location',
+        'description' => 'Description',
+    ],
+
+    'menu_locations' => [
+        'primary' => 'Primary navigation',
+        'footer' => 'Footer',
+        'sidebar' => 'Sidebar',
+    ],
+
+    'menu_item_fields' => [
+        'type' => 'Type',
+        'title' => 'Label',
+        'url' => 'URL',
+        'entry' => 'Entry',
+        'target' => 'Open in',
+        'is_active' => 'Active',
+    ],
+
+    'menu_item_types' => [
+        'custom_link' => 'Custom link',
+        'entry' => 'Entry',
+    ],
+
+    'menu_item_targets' => [
+        '_self' => 'Same tab',
+        '_blank' => 'New tab',
+    ],
+
     'messages' => [
         'entry_created' => 'Entry created.',
         'entry_updated' => 'Entry updated.',

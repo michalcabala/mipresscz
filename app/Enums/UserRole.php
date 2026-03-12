@@ -47,6 +47,7 @@ enum UserRole: string
                 'view.entries', 'create.entries', 'update.entries', 'delete.entries',
                 'view.taxonomies', 'manage.taxonomies',
                 'view.global_sets', 'manage.global_sets',
+                'view.menus', 'manage.menus',
             ],
             self::Editor => [
                 'view.users',
@@ -54,6 +55,7 @@ enum UserRole: string
                 'view.entries', 'create.entries', 'update.entries', 'delete.entries',
                 'view.taxonomies', 'manage.taxonomies',
                 'view.global_sets',
+                'view.menus', 'manage.menus',
             ],
             self::Contributor => [
                 'view.entries', 'create.entries', 'update.entries',
