@@ -6,9 +6,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use MiPressCz\Core\Enums\DateBehavior;
 use MiPressCz\Core\Enums\DefaultStatus;
@@ -46,11 +46,7 @@ class CollectionForm
                 Section::make(__('content.collection_fields.translations'))
                     ->description(__('content.collection_fields.translations_hint'))
                     ->collapsed()
-                    ->schema([
-                        Tabs::make('translations')
-                            ->contained(false)
-                            ->tabs(static::buildTranslationTabs()),
-                    ]),
+                    ->schema(static::buildTranslationSwitcher()),
                 Section::make(__('content.collection_fields.settings'))
                     ->columns(2)
                     ->schema([
@@ -106,21 +102,31 @@ class CollectionForm
             ]);
     }
 
-    /** @return array<int, Tab> */
-    private static function buildTranslationTabs(): array
+    /** @return array<int, \Filament\Schemas\Components\Component|\Filament\Forms\Components\Field> */
+    private static function buildTranslationSwitcher(): array
     {
-        return locales()->getActive()
-            ->map(fn (Locale $locale): Tab => Tab::make($locale->code)
-                ->label($locale->native_name ?? $locale->name)
-                ->schema([
-                    TextInput::make("translations.{$locale->code}.title")
-                        ->label(__('content.collection_fields.title'))
-                        ->maxLength(255),
-                    Textarea::make("translations.{$locale->code}.description")
-                        ->label(__('content.collection_fields.description')),
-                ])
-            )
+        $locales = locales()->getActive();
+        $default = locales()->getDefaultCode();
+
+        $picker = Select::make('_locale_tab')
+            ->label(__('content.collection_fields.language'))
+            ->options($locales->mapWithKeys(fn (Locale $l): array => [$l->code => $l->native_name ?? $l->name])->all())
+            ->formatStateUsing(fn (?string $state): string => $state ?: $default)
+            ->live()
+            ->dehydrated(false)
+            ->selectablePlaceholder(false);
+
+        $groups = $locales
+            ->map(fn (Locale $locale): Group => Group::make([
+                TextInput::make("translations.{$locale->code}.title")
+                    ->label(__('content.collection_fields.title'))
+                    ->maxLength(255),
+                Textarea::make("translations.{$locale->code}.description")
+                    ->label(__('content.collection_fields.description')),
+            ])->visible(fn (Get $get): bool => ($get('_locale_tab') ?: $default) === $locale->code))
             ->values()
             ->all();
+
+        return [$picker, ...$groups];
     }
 }

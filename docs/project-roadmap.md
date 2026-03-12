@@ -1,6 +1,6 @@
 # miPress CMS — Project Roadmap
 
-Datum: 11. března 2026
+Datum: 12. března 2026
 
 ## Strategický cíl
 
@@ -293,6 +293,7 @@ $schema->columns(3)
 - [x] Nastavení domovské stránky — akce `set_homepage`, ochrana homepage entry před smazáním
 - [x] Soft deletes pro uživatele — obnovení, fyzické smazání, ochrana vlastního účtu (338 tests)
 - [x] Menu builder — drag & drop navigační struktura *(P1)* (369 tests)
+- [x] **Multijazyčné kolekce, blueprinty, taxonomie** — Terms per-locale záznamy (locale + origin_id self-FK, unikátní slug per locale), `HasLocalizedTitle` trait pro Collection + Taxonomy (`translations` JSON), dynamické Tabs per locale v CollectionForm + TaxonomyForm *(P1)* (362 tests)
 - [ ] Entry preview — náhled před publikací *(P2)*
 - [ ] Fulltext vyhledávání — Laravel Scout + database driver *(P3)*
 - [ ] Media tagging/folders — organizace Curator médií *(P4)*
@@ -364,8 +365,20 @@ Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 - [x] Fáze 9: admin dashboard widgety, lifecycle event páry `EntrySaving`/`EntrySaved` — 323 testů
 - [x] Fáze 9: výchozí jazyk nelze smazat, nastavení domovské stránky, soft deletes pro uživatele — 338 testů
 
+### ✅ Hotovo — Fáze 9 multijazyčné kolekce/taxonomie (12. března 2026)
+
+- [x] Terms: per-locale záznamy — `locale` (string, default `cs`), `origin_id` (nullable self-FK s `nullOnDelete`), unique constraint změněn z `(taxonomy_id, slug)` → `(taxonomy_id, locale, slug)`
+- [x] `HasLocalizedTitle` trait — `getLocalizedTitle(?locale)` + `getLocalizedDescription(?locale)` s fallback na `$this->title` / `$this->description`
+- [x] Collection + Taxonomy modely: `translations` JSON sloupec (cast `array`), trait registrován
+- [x] TermForm: `locale` select, `origin_id` select (filtráno dle taxonomy + výchozí locale), slug unique validace per locale, `parent_id` filtrován dle locale
+- [x] TermsTable: locale badge sloupec + SelectFilter
+- [x] CollectionForm + TaxonomyForm: dynamické Tabs per aktivní locale (`locales()->getActive()`)
+- [x] Idempotentní migrace přepsána na `Schema::getForeignKeys()` / `Schema::getIndexes()` (spolehlivá i v test env)
+- [x] 362 testů zelených (16 nových: MultilingualTermTest + LocalizedTitleTest)
+
 ### P1 — Nejbližší (Fáze 9 dokončení)
-- Menu builder — drag & drop navigační struktura
+- ~~Menu builder — drag & drop navigační struktura~~ ✅ dokončeno
+- ~~Multijazyčné kolekce/taxonomie~~ ✅ dokončeno (12. března 2026)
 - Entry preview — náhled před publikací
 - Fulltext vyhledávání — Laravel Scout + database driver
 - Media tagging/folders — organizace Curator médií

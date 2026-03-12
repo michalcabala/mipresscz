@@ -26,6 +26,7 @@ return [
         'taxonomies' => 'Taxonomie',
         'translations' => 'Překlady',
         'translations_hint' => 'Lokalizované názvy pro jednotlivé jazyky (volitelné — pokud není vyplněno, použije se výchozí název).',
+        'language' => 'Jazyk',
     ],
 
     // ── Blueprints ──
@@ -146,6 +147,7 @@ return [
         'collections' => 'Kolekce',
         'translations' => 'Překlady',
         'translations_hint' => 'Lokalizované názvy pro jednotlivé jazyky (volitelné).',
+        'language' => 'Jazyk',
     ],
 
     // ── Terms ──

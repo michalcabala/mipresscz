@@ -6,6 +6,7 @@ use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Awcodes\Mason\Mason;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -84,6 +85,13 @@ class EntryForm
                     ->schema([
                         Section::make()
                             ->schema([
+                                Placeholder::make('_locale_display')
+                                    ->label(__('content.entry_fields.locale'))
+                                    ->content(fn (?Entry $record): string => $record
+                                        ? (locales()->getActive()->firstWhere('code', $record->locale)?->native_name ?? strtoupper($record->locale ?? '-'))
+                                        : (locales()->getActive()->firstWhere('code', locales()->getDefaultCode())?->native_name ?? strtoupper(locales()->getDefaultCode()))
+                                    ),
+
                                 // Featured image
                                 CuratorPicker::make('featured_image_id')
                                     ->label(__('content.entry_fields.featured_image'))

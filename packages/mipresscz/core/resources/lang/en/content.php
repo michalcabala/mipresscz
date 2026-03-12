@@ -26,6 +26,7 @@ return [
         'taxonomies' => 'Taxonomies',
         'translations' => 'Translations',
         'translations_hint' => 'Localized names for individual languages (optional — if empty, the default title will be used).',
+        'language' => 'Language',
     ],
 
     // ── Blueprints ──
@@ -146,6 +147,7 @@ return [
         'collections' => 'Collections',
         'translations' => 'Translations',
         'translations_hint' => 'Localized names for individual languages (optional).',
+        'language' => 'Language',
     ],
 
     // ── Terms ──
