@@ -17,6 +17,8 @@ class Term extends Model
 
     protected $fillable = [
         'taxonomy_id',
+        'locale',
+        'origin_id',
         'parent_id',
         'title',
         'slug',
@@ -39,6 +41,16 @@ class Term extends Model
         return $this->belongsTo(Taxonomy::class);
     }
 
+    public function origin(): BelongsTo
+    {
+        return $this->belongsTo(Term::class, 'origin_id');
+    }
+
+    public function translations(): HasMany
+    {
+        return $this->hasMany(Term::class, 'origin_id');
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Term::class, 'parent_id');
@@ -53,6 +65,11 @@ class Term extends Model
     {
         return $this->morphedByMany(Entry::class, 'termable', 'termables')
             ->withPivot('order');
+    }
+
+    public function scopeForLocale(Builder $query, ?string $locale = null): Builder
+    {
+        return $query->where('locale', $locale ?? app()->getLocale());
     }
 
     public function scopeRoot(Builder $query): Builder

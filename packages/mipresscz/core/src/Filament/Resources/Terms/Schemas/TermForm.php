@@ -9,6 +9,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Validation\Rule;
 use MiPressCz\Core\Models\Taxonomy;
 use MiPressCz\Core\Models\Term;
 
@@ -28,6 +29,31 @@ class TermForm
                             ->required()
                             ->live()
                             ->columnSpanFull(),
+                        Select::make('locale')
+                            ->label(__('content.entry_fields.locale'))
+                            ->options(locales()->toSelectOptions())
+                            ->default(locales()->getDefaultCode())
+                            ->required()
+                            ->live(),
+                        Select::make('origin_id')
+                            ->label(__('content.term_fields.origin'))
+                            ->options(function (Get $get, ?Term $record): array {
+                                $taxonomyId = $get('taxonomy_id');
+
+                                if (! $taxonomyId) {
+                                    return [];
+                                }
+
+                                return Term::query()
+                                    ->where('taxonomy_id', $taxonomyId)
+                                    ->where('locale', locales()->getDefaultCode())
+                                    ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
+                                    ->orderBy('title')
+                                    ->pluck('title', 'id')
+                                    ->all();
+                            })
+                            ->searchable()
+                            ->placeholder('—'),
                         TextInput::make('title')
                             ->label(__('content.term_fields.title'))
                             ->required()
@@ -42,7 +68,13 @@ class TermForm
                             ->label(__('content.term_fields.slug'))
                             ->required()
                             ->maxLength(255)
-                            ->alphaDash(),
+                            ->alphaDash()
+                            ->rules([
+                                fn (Get $get, ?Term $record): \Illuminate\Validation\Rules\Unique => Rule::unique('terms', 'slug')
+                                    ->where('taxonomy_id', $get('taxonomy_id'))
+                                    ->where('locale', $get('locale') ?: locales()->getDefaultCode())
+                                    ->ignore($record?->getKey()),
+                            ]),
                         Select::make('parent_id')
                             ->label(__('content.term_fields.parent'))
                             ->options(function (Get $get, ?Term $record): array {
@@ -54,6 +86,7 @@ class TermForm
 
                                 return Term::query()
                                     ->where('taxonomy_id', $taxonomyId)
+                                    ->where('locale', $get('locale') ?: locales()->getDefaultCode())
                                     ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
                                     ->orderBy('title')
                                     ->pluck('title', 'id')

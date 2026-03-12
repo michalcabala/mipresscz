@@ -24,6 +24,8 @@ return [
         'is_active' => 'Active',
         'settings' => 'Settings',
         'taxonomies' => 'Taxonomies',
+        'translations' => 'Translations',
+        'translations_hint' => 'Localized names for individual languages (optional — if empty, the default title will be used).',
     ],
 
     // ── Blueprints ──
@@ -142,6 +144,8 @@ return [
         'is_active' => 'Active',
         'description' => 'Description',
         'collections' => 'Collections',
+        'translations' => 'Translations',
+        'translations_hint' => 'Localized names for individual languages (optional).',
     ],
 
     // ── Terms ──
@@ -159,6 +163,7 @@ return [
         'order' => 'Order',
         'data' => 'Data',
         'taxonomy' => 'Taxonomy',
+        'origin' => 'Origin term (translation of)',
     ],
 
     // ── Revisions ──

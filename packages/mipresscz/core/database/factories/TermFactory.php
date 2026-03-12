@@ -23,6 +23,7 @@ class TermFactory extends Factory
 
         return [
             'taxonomy_id' => Taxonomy::factory(),
+            'locale' => 'cs',
             'title' => ucfirst($title),
             'slug' => Str::slug($title),
             'order' => 0,

@@ -14,6 +14,10 @@ class TermsTable
     {
         return $table
             ->columns([
+                TextColumn::make('locale')
+                    ->label(__('content.entry_fields.locale'))
+                    ->badge()
+                    ->sortable(),
                 TextColumn::make('title')
                     ->label(__('content.term_fields.title'))
                     ->searchable()
@@ -39,6 +43,9 @@ class TermsTable
                 SelectFilter::make('taxonomy_id')
                     ->label(__('content.term_fields.taxonomy'))
                     ->options(Taxonomy::query()->orderBy('title')->pluck('title', 'id')),
+                SelectFilter::make('locale')
+                    ->label(__('content.entry_fields.locale'))
+                    ->options(fn () => locales()->toSelectOptions()),
             ])
             ->defaultSort('order');
     }

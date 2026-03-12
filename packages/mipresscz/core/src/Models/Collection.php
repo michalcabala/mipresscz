@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use MiPressCz\Core\Enums\DateBehavior;
 use MiPressCz\Core\Enums\DefaultStatus;
+use MiPressCz\Core\Models\Concerns\HasLocalizedTitle;
 
 class Collection extends Model
 {
-    use HasFactory, HasUlids, SoftDeletes;
+    use HasFactory, HasLocalizedTitle, HasUlids, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -30,6 +31,7 @@ class Collection extends Model
         'icon',
         'is_active',
         'settings',
+        'translations',
     ];
 
     protected function casts(): array
@@ -41,6 +43,7 @@ class Collection extends Model
             'date_behavior' => DateBehavior::class,
             'default_status' => DefaultStatus::class,
             'settings' => 'array',
+            'translations' => 'array',
         ];
     }
 

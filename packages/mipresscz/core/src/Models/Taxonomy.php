@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use MiPressCz\Core\Models\Concerns\HasLocalizedTitle;
 
 class Taxonomy extends Model
 {
-    use HasFactory, HasUlids, SoftDeletes;
+    use HasFactory, HasLocalizedTitle, HasUlids, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -21,6 +22,7 @@ class Taxonomy extends Model
         'is_hierarchical',
         'is_active',
         'settings',
+        'translations',
     ];
 
     protected function casts(): array
@@ -29,6 +31,7 @@ class Taxonomy extends Model
             'is_hierarchical' => 'boolean',
             'is_active' => 'boolean',
             'settings' => 'array',
+            'translations' => 'array',
         ];
     }
 

@@ -24,6 +24,8 @@ return [
         'is_active' => 'Aktivní',
         'settings' => 'Nastavení',
         'taxonomies' => 'Taxonomie',
+        'translations' => 'Překlady',
+        'translations_hint' => 'Lokalizované názvy pro jednotlivé jazyky (volitelné — pokud není vyplněno, použije se výchozí název).',
     ],
 
     // ── Blueprints ──
@@ -142,6 +144,8 @@ return [
         'is_active' => 'Aktivní',
         'description' => 'Popis',
         'collections' => 'Kolekce',
+        'translations' => 'Překlady',
+        'translations_hint' => 'Lokalizované názvy pro jednotlivé jazyky (volitelné).',
     ],
 
     // ── Terms ──
@@ -159,6 +163,7 @@ return [
         'order' => 'Pořadí',
         'data' => 'Data',
         'taxonomy' => 'Taxonomie',
+        'origin' => 'Zdrojový termín (překlad z)',
     ],
 
     // ── Revisions ──

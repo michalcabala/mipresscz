@@ -7,9 +7,12 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use MiPressCz\Core\Enums\DateBehavior;
 use MiPressCz\Core\Enums\DefaultStatus;
+use MiPressCz\Core\Models\Locale;
 
 class CollectionForm
 {
@@ -39,6 +42,14 @@ class CollectionForm
                         Textarea::make('description')
                             ->label(__('content.collection_fields.description'))
                             ->columnSpanFull(),
+                    ]),
+                Section::make(__('content.collection_fields.translations'))
+                    ->description(__('content.collection_fields.translations_hint'))
+                    ->collapsed()
+                    ->schema([
+                        Tabs::make('translations')
+                            ->contained(false)
+                            ->tabs(static::buildTranslationTabs()),
                     ]),
                 Section::make(__('content.collection_fields.settings'))
                     ->columns(2)
@@ -93,5 +104,23 @@ class CollectionForm
                             ->searchable(),
                     ]),
             ]);
+    }
+
+    /** @return array<int, Tab> */
+    private static function buildTranslationTabs(): array
+    {
+        return locales()->getActive()
+            ->map(fn (Locale $locale): Tab => Tab::make($locale->code)
+                ->label($locale->native_name ?? $locale->name)
+                ->schema([
+                    TextInput::make("translations.{$locale->code}.title")
+                        ->label(__('content.collection_fields.title'))
+                        ->maxLength(255),
+                    Textarea::make("translations.{$locale->code}.description")
+                        ->label(__('content.collection_fields.description')),
+                ])
+            )
+            ->values()
+            ->all();
     }
 }
