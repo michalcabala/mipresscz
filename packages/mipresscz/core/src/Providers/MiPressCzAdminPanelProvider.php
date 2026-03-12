@@ -103,7 +103,7 @@ class MiPressCzAdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label(fn (): string => __('content.collections.navigation_group')),
                 NavigationGroup::make()
-                    ->label(fn (): string => __('content.menus.navigation_group')),
+                    ->label(fn (): string => __('users.navigation_group')),
                 NavigationGroup::make()
                     ->label(fn (): string => __('locales.navigation_group'))
                     ->collapsed(),
@@ -134,7 +134,7 @@ class MiPressCzAdminPanelProvider extends PanelProvider
             FilamentMenuManagerPlugin::make()
                 ->locations($this->getMenuLocations())
                 ->modelSources($this->getMenuModelSources())
-                ->navigationGroup(__('content.menus.navigation_group'))
+                ->navigationGroup(__('content.collections.navigation_group'))
                 ->navigationLabel(__('content.menus.plural_label'))
                 ->navigationSort(3),
             CuratorPlugin::make()

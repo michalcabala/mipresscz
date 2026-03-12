@@ -33,6 +33,11 @@ class UserResource extends Resource
         return __('users.plural_label');
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('users.navigation_group');
+    }
+
     public static function getNavigationLabel(): string
     {
         return __('users.navigation_label');
