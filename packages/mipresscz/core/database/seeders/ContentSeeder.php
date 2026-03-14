@@ -32,6 +32,105 @@ class ContentSeeder extends Seeder
         ];
     }
 
+    /**
+     * Build Mason content array for the homepage.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private static function homepageContent(): array
+    {
+        return [
+            [
+                'type' => 'masonBrick',
+                'attrs' => [
+                    'id' => 'hero',
+                    'config' => [
+                        'eyebrow' => 'Laravel 12  +  Filament 5  +  Tailwind CSS 4',
+                        'heading' => 'Obsah pod',
+                        'heading_highlight' => 'vaší kontrolou.',
+                        'subheading' => 'miPress je otevřený CMS navržený pro ty, kdo chtějí flexibilitu Laravelu bez kompromisů. Strukturovaný obsah, bloková editace a vícejazyčnost hned po instalaci.',
+                        'button_label' => 'Začít bezplatně',
+                        'button_url' => '/mpcp',
+                        'secondary_label' => 'GitHub',
+                        'secondary_url' => 'https://github.com',
+                        'secondary_icon' => 'github',
+                        'background' => 'gradient',
+                        'alignment' => 'left',
+                        'fullscreen' => true,
+                        'badges' => [
+                            ['label' => 'PHP 8.3'],
+                            ['label' => 'MySQL 8'],
+                            ['label' => 'Node 22'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'type' => 'masonBrick',
+                'attrs' => [
+                    'id' => 'features',
+                    'config' => [
+                        'eyebrow' => 'Možnosti',
+                        'heading' => 'Vše, co váš web potřebuje',
+                        'subheading' => 'Navrženo s důrazem na vývojářský komfort a obsahovou svobodu. Bez zbytečného omezování.',
+                        'columns' => '3',
+                        'items' => [
+                            ['icon' => '🗂️', 'title' => 'Strukturovaný obsah', 'description' => 'Collections, Blueprints a Entries — navrhněte datovou strukturu přesně podle svých potřeb, ne podle omezení CMS.'],
+                            ['icon' => '🧱', 'title' => 'Blokový editor', 'description' => 'Drag & drop stránky z předpřipravených Mason bloků. Hrdinská sekce, galerie, reference — vše bez kódu.'],
+                            ['icon' => '🌍', 'title' => 'Vícejazyčnost', 'description' => 'Plná i18n podpora s locale prefixem, hreflang meta tagy a automatickým přesměrováním.'],
+                            ['icon' => '🖼️', 'title' => 'Správa médií', 'description' => 'Integrovaná mediathéka s náhledy, šablonami ořezu a organizací. Nahrajte jednou, použijte kdekoliv.'],
+                            ['icon' => '🔐', 'title' => 'Role & Oprávnění', 'description' => 'SuperAdmin, Admin, Editor a Contributor — granulární správa přístupu pro celý váš tým.'],
+                            ['icon' => '⚡', 'title' => 'Výkon & SEO', 'description' => 'Vlastní meta tagy, kanonické URL, hreflang a rychlé načítání díky backendu na Laravelu 12.'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'type' => 'masonBrick',
+                'attrs' => [
+                    'id' => 'stats',
+                    'config' => [
+                        'items' => [
+                            ['value' => '100%', 'label' => 'Otevřený zdrojový kód'],
+                            ['value' => 'Laravel 12', 'label' => 'Základ aplikace'],
+                            ['value' => 'Filament 5', 'label' => 'Admin panel'],
+                            ['value' => 'Tailwind 4', 'label' => 'CSS framework'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'type' => 'masonBrick',
+                'attrs' => [
+                    'id' => 'latest-entries',
+                    'config' => [
+                        'eyebrow' => 'Blog',
+                        'heading' => 'Nejnovější příspěvky',
+                        'collection' => 'articles',
+                        'limit' => '3',
+                        'view_all_label' => 'Všechny příspěvky',
+                        'view_all_url' => '/articles',
+                    ],
+                ],
+            ],
+            [
+                'type' => 'masonBrick',
+                'attrs' => [
+                    'id' => 'cta',
+                    'config' => [
+                        'heading' => 'Připraveni začít?',
+                        'subheading' => 'Stáhněte si miPress, nainstalujte a spusťte svůj web ještě dnes. Otevřený zdrojový kód, žádné licenční poplatky.',
+                        'button_label' => 'Otevřít administraci',
+                        'button_url' => '/mpcp',
+                        'secondary_label' => 'GitHub',
+                        'secondary_url' => 'https://github.com',
+                        'variant' => 'blue',
+                    ],
+                ],
+            ],
+        ];
+    }
+
     public function run(): void
     {
         /** @var class-string<\Illuminate\Database\Eloquent\Model> $userModel */
@@ -210,7 +309,7 @@ class ContentSeeder extends Seeder
                 'author_id' => $author->id,
                 'order' => 1,
                 'data' => [],
-                'content' => self::textBrick('<h1>Vítejte na miPress</h1><p>Moderní CMS postavený na Laravel a Filament. Jednoduchý, rychlý a flexibilní.</p>'),
+                'content' => self::homepageContent(),
             ],
         );
 

@@ -17,6 +17,7 @@ return [
     'stats' => 'Statistics',
     'cta' => 'Call to action',
     'cards' => 'Cards',
+    'latest_entries' => 'Latest entries',
 
     'fields' => [
         'content' => 'Content',
@@ -54,7 +55,18 @@ return [
         'label' => 'Label',
         'secondary_label' => 'Secondary button label',
         'secondary_url' => 'Secondary button URL',
+        'secondary_icon' => 'Secondary button icon',
         'variant' => 'Variant',
+        'eyebrow' => 'Eyebrow text',
+        'heading_highlight' => 'Heading highlight text',
+        'heading_highlight_hint' => 'Text shown below heading with a color gradient',
+        'background' => 'Background',
+        'fullscreen' => 'Fullscreen',
+        'badges' => 'Badges',
+        'collection' => 'Collection',
+        'limit' => 'Number of items',
+        'view_all_label' => '"View all" link text',
+        'view_all_url' => '"View all" link URL',
     ],
 
     'alignment' => [
@@ -71,4 +83,13 @@ return [
         'dark' => 'Dark',
         'light' => 'Light',
     ],
+
+    'backgrounds' => [
+        'gradient' => 'Gradient (blue)',
+        'dark' => 'Dark',
+        'image' => 'Image',
+    ],
+
+    'yes' => 'Yes',
+    'no' => 'No',
 ];

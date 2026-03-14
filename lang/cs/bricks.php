@@ -17,6 +17,7 @@ return [
     'stats' => 'Statistiky',
     'cta' => 'Výzva k akci',
     'cards' => 'Karty',
+    'latest_entries' => 'Nejnovější příspěvky',
 
     'fields' => [
         'content' => 'Obsah',
@@ -54,7 +55,18 @@ return [
         'label' => 'Popisek',
         'secondary_label' => 'Text druhého tlačítka',
         'secondary_url' => 'URL druhého tlačítka',
+        'secondary_icon' => 'Ikona druhého tlačítka',
         'variant' => 'Varianta',
+        'eyebrow' => 'Načítek (eyebrow)',
+        'heading_highlight' => 'Zvýrazněný text nadpisu',
+        'heading_highlight_hint' => 'Text zobrazený pod nadpisem s barevným gradientem',
+        'background' => 'Pozadí',
+        'fullscreen' => 'Na celou obrazovku',
+        'badges' => 'Odznaky',
+        'collection' => 'Kolekce',
+        'limit' => 'Počet položek',
+        'view_all_label' => 'Text odkazu "Zobrazit vše"',
+        'view_all_url' => 'URL odkazu "Zobrazit vše"',
     ],
 
     'alignment' => [
@@ -71,4 +83,13 @@ return [
         'dark' => 'Tmavá',
         'light' => 'Světlá',
     ],
+
+    'backgrounds' => [
+        'gradient' => 'Gradient (modrá)',
+        'dark' => 'Tmavá',
+        'image' => 'Obrázek',
+    ],
+
+    'yes' => 'Ano',
+    'no' => 'Ne',
 ];

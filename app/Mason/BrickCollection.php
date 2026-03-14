@@ -17,6 +17,7 @@ class BrickCollection
             Stats::class,
             Cta::class,
             Cards::class,
+            LatestEntries::class,
             Text::class,
             Heading::class,
             Image::class,

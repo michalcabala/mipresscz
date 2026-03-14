@@ -35,6 +35,7 @@ class Features extends Brick
     public static function toHtml(array $config, ?array $data = null): ?string
     {
         return view('mason.features', [
+            'eyebrow' => $config['eyebrow'] ?? null,
             'heading' => $config['heading'] ?? null,
             'subheading' => $config['subheading'] ?? null,
             'items' => $config['items'] ?? [],
@@ -47,6 +48,10 @@ class Features extends Brick
         return $action
             ->slideOver()
             ->schema([
+                TextInput::make('eyebrow')
+                    ->label(__('bricks.fields.eyebrow'))
+                    ->placeholder(__('Možnosti'))
+                    ->columnSpanFull(),
                 TextInput::make('heading')
                     ->label(__('bricks.fields.heading'))
                     ->columnSpanFull(),

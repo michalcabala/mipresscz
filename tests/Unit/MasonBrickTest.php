@@ -12,6 +12,7 @@ use App\Mason\Heading;
 use App\Mason\Hero;
 use App\Mason\Html;
 use App\Mason\Image;
+use App\Mason\LatestEntries;
 use App\Mason\Quote;
 use App\Mason\Stats;
 use App\Mason\Testimonial;
@@ -22,8 +23,8 @@ uses(Tests\TestCase::class);
 
 // ── BrickCollection ────────────────────────────────────────────────────────
 
-it('returns all 16 bricks from BrickCollection', function () {
-    expect(BrickCollection::all())->toHaveCount(16);
+it('returns all 17 bricks from BrickCollection', function () {
+    expect(BrickCollection::all())->toHaveCount(17);
 });
 
 it('BrickCollection contains expected brick classes', function () {
@@ -44,7 +45,8 @@ it('BrickCollection contains expected brick classes', function () {
         ->toContain(Features::class)
         ->toContain(Stats::class)
         ->toContain(Cta::class)
-        ->toContain(Cards::class);
+        ->toContain(Cards::class)
+        ->toContain(LatestEntries::class);
 });
 
 // ── getId ──────────────────────────────────────────────────────────────────
@@ -123,6 +125,49 @@ it('Hero brick renders heading and subheading', function () {
         ->toContain('mason-hero');
 });
 
+it('Hero brick renders eyebrow and heading highlight', function () {
+    $html = Hero::toHtml([
+        'heading' => 'Content under',
+        'heading_highlight' => 'your control.',
+        'eyebrow' => 'Laravel 12 + Filament 5',
+    ]);
+
+    expect($html)
+        ->toContain('Laravel 12 + Filament 5')
+        ->toContain('Content under')
+        ->toContain('your control.');
+});
+
+it('Hero brick renders secondary button', function () {
+    $html = Hero::toHtml([
+        'heading' => 'Hero',
+        'button_label' => 'Primary',
+        'button_url' => '/start',
+        'secondary_label' => 'GitHub',
+        'secondary_url' => 'https://github.com',
+        'secondary_icon' => 'github',
+    ]);
+
+    expect($html)
+        ->toContain('Primary')
+        ->toContain('GitHub')
+        ->toContain('https://github.com');
+});
+
+it('Hero brick renders badges', function () {
+    $html = Hero::toHtml([
+        'heading' => 'Hero',
+        'badges' => [
+            ['label' => 'PHP 8.3'],
+            ['label' => 'MySQL 8'],
+        ],
+    ]);
+
+    expect($html)
+        ->toContain('PHP 8.3')
+        ->toContain('MySQL 8');
+});
+
 it('Hero brick renders button link when label and url are provided', function () {
     $html = Hero::toHtml([
         'heading' => 'Hero',
@@ -180,4 +225,31 @@ it('Html brick renders raw HTML content', function () {
     $html = Html::toHtml(['code' => '<script>alert("test")</script>']);
 
     expect($html)->toBeString();
+});
+
+it('Features brick renders eyebrow when provided', function () {
+    $html = Features::toHtml([
+        'eyebrow' => 'Capabilities',
+        'heading' => 'All you need',
+        'items' => [['icon' => '📦', 'title' => 'Feature one', 'description' => 'Description']],
+    ]);
+
+    expect($html)
+        ->toContain('Capabilities')
+        ->toContain('All you need')
+        ->toContain('Feature one');
+});
+
+it('LatestEntries brick has correct id', function () {
+    expect(LatestEntries::getId())->toBe('latest-entries');
+});
+
+it('LatestEntries brick returns empty string when no entries exist', function () {
+    $html = LatestEntries::toHtml([
+        'heading' => 'Latest posts',
+        'collection' => 'nonexistent-collection',
+        'limit' => '3',
+    ]);
+
+    expect($html)->toBe('');
 });
