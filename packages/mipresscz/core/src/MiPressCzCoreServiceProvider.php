@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use MiPressCz\Core\Console\Commands\InstallCommand;
+use MiPressCz\Core\Console\Commands\TemplateListCommand;
 use MiPressCz\Core\Models\Blueprint;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
@@ -22,12 +23,14 @@ use MiPressCz\Core\Policies\GlobalSetPolicy;
 use MiPressCz\Core\Policies\TaxonomyPolicy;
 use MiPressCz\Core\Policies\TermPolicy;
 use MiPressCz\Core\Services\LocaleService;
+use MiPressCz\Core\Services\TemplateManager;
 
 class MiPressCzCoreServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         $this->app->singleton(LocaleService::class);
+        $this->app->singleton(TemplateManager::class);
 
         // Register core lang files as additional base-namespace paths so that
         // __('content.*') and __('locales.*') resolve from the package when not
@@ -43,6 +46,10 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'mipresscz-core');
+
+        // Register the 'template' Blade namespace pointing to the active template
+        // with automatic fallback to the 'default' template directory.
+        $this->app->make(TemplateManager::class)->registerViewNamespace();
 
         Factory::guessFactoryNamesUsing(function (string $modelName): string {
             if (str_starts_with($modelName, 'MiPressCz\\Core\\Models\\')) {
@@ -72,6 +79,7 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallCommand::class,
+                TemplateListCommand::class,
             ]);
 
             $this->publishes([

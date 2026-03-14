@@ -1,0 +1,8 @@
+{
+    "name": "Default",
+    "slug": "default",
+    "version": "1.0.0",
+    "author": "miPress",
+    "description": "Výchozí šablona miPress — čistý minimalistický design s Tailwind CSS.",
+    "screenshot": "screenshot.png"
+}

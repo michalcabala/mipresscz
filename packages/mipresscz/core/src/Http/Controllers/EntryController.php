@@ -99,7 +99,24 @@ class EntryController
         $collection = $entry->collection->handle;
         $blueprint = $entry->blueprint->handle;
 
-        // Try: entries/{collection}/{blueprint}
+        // Template views take priority — check active template namespace first.
+        if ($entry->is_homepage && view()->exists('template::pages.home')) {
+            return 'template::pages.home';
+        }
+
+        if (view()->exists("template::{$collection}.{$blueprint}")) {
+            return "template::{$collection}.{$blueprint}";
+        }
+
+        if (view()->exists("template::{$collection}.show")) {
+            return "template::{$collection}.show";
+        }
+
+        if (view()->exists('template::pages.page')) {
+            return 'template::pages.page';
+        }
+
+        // App-level views fallback.
         if (view()->exists("entries.{$collection}.{$blueprint}")) {
             return "entries.{$collection}.{$blueprint}";
         }
