@@ -27,6 +27,32 @@
             
             <div class="flex items-center gap-1 shrink-0">
                 
+                <div class="hidden sm:block mr-1">
+                    <?php if (isset($component)) { $__componentOriginalca52de3bb9c3312a4c9c230381dba9e1 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalca52de3bb9c3312a4c9c230381dba9e1 = $attributes; } ?>
+<?php $component = App\View\Components\LanguageSwitcher::resolve(['entry' => $entry ?? null] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('language-switcher'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\LanguageSwitcher::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::processComponentKey($component); ?>
+
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalca52de3bb9c3312a4c9c230381dba9e1)): ?>
+<?php $attributes = $__attributesOriginalca52de3bb9c3312a4c9c230381dba9e1; ?>
+<?php unset($__attributesOriginalca52de3bb9c3312a4c9c230381dba9e1); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalca52de3bb9c3312a4c9c230381dba9e1)): ?>
+<?php $component = $__componentOriginalca52de3bb9c3312a4c9c230381dba9e1; ?>
+<?php unset($__componentOriginalca52de3bb9c3312a4c9c230381dba9e1); ?>
+<?php endif; ?>
+                </div>
+
+                
                 <button
                     onclick="miPressToggleTheme()"
                     type="button"
@@ -93,9 +119,35 @@
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
     </nav>
 
-    <div class="px-6 pb-8 flex items-center gap-4 border-t border-gray-800 pt-6">
-        <a href="<?php echo e(url('/mpcp')); ?>" class="text-sm text-gray-500 hover:text-white transition-colors"><?php echo e(__('Admin')); ?></a>
-        <button onclick="miPressToggleTheme()" class="text-sm text-gray-500 hover:text-white transition-colors"><?php echo e(__('Přepnout motiv')); ?></button>
+    <div class="px-6 pb-8 border-t border-gray-800 pt-6 space-y-4">
+        
+        <?php if (isset($component)) { $__componentOriginalca52de3bb9c3312a4c9c230381dba9e1 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalca52de3bb9c3312a4c9c230381dba9e1 = $attributes; } ?>
+<?php $component = App\View\Components\LanguageSwitcher::resolve(['entry' => $entry ?? null] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('language-switcher'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\LanguageSwitcher::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::processComponentKey($component); ?>
+
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalca52de3bb9c3312a4c9c230381dba9e1)): ?>
+<?php $attributes = $__attributesOriginalca52de3bb9c3312a4c9c230381dba9e1; ?>
+<?php unset($__attributesOriginalca52de3bb9c3312a4c9c230381dba9e1); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalca52de3bb9c3312a4c9c230381dba9e1)): ?>
+<?php $component = $__componentOriginalca52de3bb9c3312a4c9c230381dba9e1; ?>
+<?php unset($__componentOriginalca52de3bb9c3312a4c9c230381dba9e1); ?>
+<?php endif; ?>
+
+        <div class="flex items-center gap-4">
+            <a href="<?php echo e(url('/mpcp')); ?>" class="text-sm text-gray-500 hover:text-white transition-colors"><?php echo e(__('Admin')); ?></a>
+            <button onclick="miPressToggleTheme()" class="ml-auto text-sm text-gray-500 hover:text-white transition-colors"><?php echo e(__('Přepnout motiv')); ?></button>
+        </div>
     </div>
 </div>
 <?php /**PATH C:\laragon\www\mipresscz\resources\views/templates/default/partials/header.blade.php ENDPATH**/ ?>

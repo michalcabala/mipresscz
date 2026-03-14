@@ -34,7 +34,10 @@
         })();
     </script>
 
-    <script>tailwind = { config: { darkMode: 'class' } };</script>
+    {{-- Tailwind v4 CDN: class-based dark mode uses .dark on <html> --}}
+    <style type="text/tailwindcss">
+        @custom-variant dark (&:where(.dark, .dark *));
+    </style>
     <script src="https://cdn.tailwindcss.com"></script>
 
     @yield('head')

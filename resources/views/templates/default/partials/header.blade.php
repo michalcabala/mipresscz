@@ -26,6 +26,11 @@
 
             {{-- Actions --}}
             <div class="flex items-center gap-1 shrink-0">
+                {{-- Language switcher (desktop) --}}
+                <div class="hidden sm:block mr-1">
+                    <x-language-switcher :entry="$entry ?? null" />
+                </div>
+
                 {{-- Theme toggle --}}
                 <button
                     onclick="miPressToggleTheme()"
@@ -93,8 +98,13 @@
         @endforeach
     </nav>
 
-    <div class="px-6 pb-8 flex items-center gap-4 border-t border-gray-800 pt-6">
-        <a href="{{ url('/mpcp') }}" class="text-sm text-gray-500 hover:text-white transition-colors">{{ __('Admin') }}</a>
-        <button onclick="miPressToggleTheme()" class="text-sm text-gray-500 hover:text-white transition-colors">{{ __('Přepnout motiv') }}</button>
+    <div class="px-6 pb-8 border-t border-gray-800 pt-6 space-y-4">
+        {{-- Language switcher (mobile overlay) --}}
+        <x-language-switcher :entry="$entry ?? null" />
+
+        <div class="flex items-center gap-4">
+            <a href="{{ url('/mpcp') }}" class="text-sm text-gray-500 hover:text-white transition-colors">{{ __('Admin') }}</a>
+            <button onclick="miPressToggleTheme()" class="ml-auto text-sm text-gray-500 hover:text-white transition-colors">{{ __('Přepnout motiv') }}</button>
+        </div>
     </div>
 </div>

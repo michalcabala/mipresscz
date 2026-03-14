@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Mason Preview</title>
+        <style>body {
+    margin: 0;
+    padding: 0;
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
+}
+.mason-block {
+    position: relative;
+    min-height: 2rem;
+    cursor: move;
+    transition: outline 0.2s;
+}
+.mason-block:hover {
+    outline: 2px dashed var(--mason-border-color, #0ea5e9);
+    outline-offset: 2px;
+}
+.mason-block.selected {
+    outline: 4px solid var(--mason-border-color, #0ea5e9);
+    outline-offset: -4px;
+}
+.mason-block.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+    pointer-events: none;
+    user-select: none;
+}
+.mason-block.dragging * {
+    pointer-events: none;
+    user-select: none;
+}
+.mason-block-content {
+    pointer-events: none;
+}
+.mason-block.dragging .mason-block-content * {
+    pointer-events: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+}
+.mason-block-controls {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 10;
+    display: none;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    background: var(--mason-controls-background, rgba(0, 0, 0, 0.8));
+    border-radius: 0.25rem;
+}
+.mason-block.selected .mason-block-controls {
+    display: flex;
+}
+.mason-block-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.mason-block-btn:hover:not(:disabled) {
+    background: var(--mason-button-hover-background, rgba(255, 255, 255, 0.2));
+}
+.mason-block-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+.mason-block-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+.mason-drop-zone {
+    min-height: 2rem;
+    border: 2px dashed transparent;
+    transition: border-color 0.2s;
+    margin-top: -1rem;
+    margin-bottom: -1rem;
+    z-index: 10;
+    position: relative;
+}
+.mason-drop-zone.active {
+    border-color: var(--mason-border-color, #0ea5e9);
+    background: var(--mason-drop-zone-background, rgba(14, 165, 233, 0.1));
+
+    &:first-of-type {
+        margin-top: 0;
+        margin-bottom: -2rem;
+    }
+
+    &:last-of-type {
+        margin-top: -2rem;
+        margin-bottom: 0;
+    }
+}
+.mason-unregistered-brick {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: var(--mason-unregistered-brick-background, #fecaca);
+    color: var(--mason-unregistered-brick-text, #450a0a);
+    padding: 1rem;
+
+    > .fi-icon {
+        color: var(--mason-unregistered-brick-icon, #dc2626);
+        height: 1.5rem;
+        width: 1.5rem;
+    }
+}
+
+@media (min-width: 640px) {
+    .mason-block-btn svg {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+</style>
+    </head>
+    <body>
+        <?php echo $__env->make('mason::iframe-preview-content', ['blocks' => $blocks], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    </body>
+</html>
+<?php /**PATH C:\laragon\www\mipresscz\vendor\awcodes\mason\resources\views/iframe-preview.blade.php ENDPATH**/ ?>

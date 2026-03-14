@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', ($entry->meta_title ?? null) ?: ($entry->title ?? config('app.name'))); ?>
 <?php $__env->startSection('description', $entry->meta_description ?? ''); ?>
 
