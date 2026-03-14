@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use MiPressCz\Core\Concerns\HasOrigin;
 
 class Term extends Model
 {
-    use HasFactory, HasUlids, SoftDeletes;
+    use HasFactory, HasOrigin, HasUlids, SoftDeletes;
 
     protected $fillable = [
         'taxonomy_id',
@@ -39,16 +40,6 @@ class Term extends Model
     public function taxonomy(): BelongsTo
     {
         return $this->belongsTo(Taxonomy::class);
-    }
-
-    public function origin(): BelongsTo
-    {
-        return $this->belongsTo(Term::class, 'origin_id');
-    }
-
-    public function translations(): HasMany
-    {
-        return $this->hasMany(Term::class, 'origin_id');
     }
 
     public function parent(): BelongsTo

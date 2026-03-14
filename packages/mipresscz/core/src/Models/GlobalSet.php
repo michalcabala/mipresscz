@@ -5,13 +5,12 @@ namespace MiPressCz\Core\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Cache;
+use MiPressCz\Core\Concerns\HasOrigin;
 
 class GlobalSet extends Model
 {
-    use HasFactory, HasUlids;
+    use HasFactory, HasOrigin, HasUlids;
 
     protected $table = 'global_sets';
 
@@ -38,16 +37,6 @@ class GlobalSet extends Model
         static::saved(function (GlobalSet $globalSet) {
             Cache::forget("global_set.{$globalSet->handle}.{$globalSet->locale}");
         });
-    }
-
-    public function origin(): BelongsTo
-    {
-        return $this->belongsTo(GlobalSet::class, 'origin_id');
-    }
-
-    public function translations(): HasMany
-    {
-        return $this->hasMany(GlobalSet::class, 'origin_id');
     }
 
     public static function findByHandle(string $handle, ?string $locale = null): ?static

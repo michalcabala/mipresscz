@@ -24,11 +24,13 @@ use MiPressCz\Core\Policies\TaxonomyPolicy;
 use MiPressCz\Core\Policies\TermPolicy;
 use MiPressCz\Core\Services\LocaleService;
 use MiPressCz\Core\Services\TemplateManager;
+use MiPressCz\Core\Support\Blink;
 
 class MiPressCzCoreServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(Blink::class);
         $this->app->singleton(LocaleService::class);
         $this->app->singleton(TemplateManager::class);
 

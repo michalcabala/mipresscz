@@ -12,15 +12,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
+use MiPressCz\Core\Concerns\HasOrigin;
 use MiPressCz\Core\Enums\EntryStatus;
 use NoteBrainsLab\FilamentMenuManager\Concerns\HasMenuItems;
 
 class Entry extends Model
 {
-    use HasFactory, HasMenuItems, HasUlids, Searchable, SoftDeletes;
+    use HasFactory, HasMenuItems, HasOrigin, HasUlids, Searchable, SoftDeletes;
 
     protected $fillable = [
         'collection_id',
@@ -121,16 +121,6 @@ class Entry extends Model
         return $this->hasMany(Entry::class, 'parent_id');
     }
 
-    public function origin(): BelongsTo
-    {
-        return $this->belongsTo(Entry::class, 'origin_id');
-    }
-
-    public function translations(): HasMany
-    {
-        return $this->hasMany(Entry::class, 'origin_id');
-    }
-
     public function revisions(): HasMany
     {
         return $this->hasMany(Revision::class);
@@ -197,62 +187,7 @@ class Entry extends Model
         );
     }
 
-    // ── Multijazyčnost ──
-
-    public function isOrigin(): bool
-    {
-        return $this->origin_id === null;
-    }
-
-    public function isTranslation(): bool
-    {
-        return $this->origin_id !== null;
-    }
-
-    public function getOrigin(): ?Entry
-    {
-        return $this->isOrigin() ? $this : $this->origin;
-    }
-
-    public function getTranslation(string $locale): ?Entry
-    {
-        if ($this->locale === $locale) {
-            return $this;
-        }
-
-        $origin = $this->getOrigin();
-
-        if ($origin->locale === $locale) {
-            return $origin;
-        }
-
-        return $origin->translations()->where('locale', $locale)->first();
-    }
-
-    public function getTranslations(): BaseCollection
-    {
-        $origin = $this->getOrigin();
-
-        return $origin->translations->prepend($origin)->keyBy('locale');
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getAvailableLocales(): array
-    {
-        return $this->getTranslations()->keys()->all();
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getMissingLocales(): array
-    {
-        $available = $this->getAvailableLocales();
-
-        return array_values(array_diff(locales()->getActiveCodes(), $available));
-    }
+    // ── Blueprint data helpers ──
 
     /**
      * @return array<string, mixed>
