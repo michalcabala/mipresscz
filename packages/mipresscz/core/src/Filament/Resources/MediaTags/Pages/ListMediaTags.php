@@ -10,6 +10,11 @@ class ListMediaTags extends ListRecords
 {
     protected static string $resource = MediaTagResource::class;
 
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [

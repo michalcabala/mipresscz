@@ -10,6 +10,11 @@ class ListTerms extends ListRecords
 {
     protected static string $resource = TermResource::class;
 
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
     public function mount(): void
     {
         parent::mount();

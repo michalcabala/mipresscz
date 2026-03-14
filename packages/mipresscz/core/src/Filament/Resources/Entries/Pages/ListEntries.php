@@ -10,6 +10,11 @@ class ListEntries extends ListRecords
 {
     protected static string $resource = EntryResource::class;
 
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [

@@ -10,6 +10,11 @@ class ListCollections extends ListRecords
 {
     protected static string $resource = CollectionResource::class;
 
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [

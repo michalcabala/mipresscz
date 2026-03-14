@@ -10,6 +10,11 @@ class ListGlobalSets extends ListRecords
 {
     protected static string $resource = GlobalSetResource::class;
 
+    public function getBreadcrumbs(): array
+    {
+        return [];
+    }
+
     protected function getHeaderActions(): array
     {
         return [
