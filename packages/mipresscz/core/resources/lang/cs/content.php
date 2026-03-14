@@ -130,6 +130,36 @@ return [
         'plural_label' => 'Média',
     ],
 
+    // ── Media Folders ──
+    'media_folders' => [
+        'label' => 'Složka médií',
+        'plural_label' => 'Složky médií',
+        'navigation_label' => 'Složky',
+    ],
+
+    'media_folder_fields' => [
+        'name' => 'Název',
+        'slug' => 'Slug',
+        'parent' => 'Nadřazená složka',
+        'order' => 'Pořadí',
+        'media_count' => 'Počet médií',
+    ],
+
+    // ── Media Tags ──
+    'media_tags' => [
+        'label' => 'Štítek médií',
+        'plural_label' => 'Štítky médií',
+        'navigation_label' => 'Štítky',
+    ],
+
+    'media_tag_fields' => [
+        'name' => 'Název',
+        'slug' => 'Slug',
+        'media_count' => 'Počet médií',
+        'folder' => 'Složka',
+        'tags' => 'Štítky',
+    ],
+
     // ── Taxonomies ──
     'taxonomies' => [
         'label' => 'Taxonomie',

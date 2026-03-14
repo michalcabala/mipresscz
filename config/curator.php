@@ -18,7 +18,7 @@ return [
         ],
     ],
     'glide_token' => env('CURATOR_GLIDE_TOKEN'),
-    'model' => Awcodes\Curator\Models\Media::class,
+    'model' => MiPressCz\Core\Models\Media::class,
     'path_generator' => null,
     'resource' => [
         'label' => 'Media',
@@ -38,10 +38,10 @@ return [
             'index' => Awcodes\Curator\Resources\Media\Pages\ListMedia::class,
         ],
         'schemas' => [
-            'form' => Awcodes\Curator\Resources\Media\Schemas\MediaForm::class,
+            'form' => MiPressCz\Core\Filament\Resources\Media\Schemas\MediaForm::class,
         ],
         'tables' => [
-            'table' => Awcodes\Curator\Resources\Media\Tables\MediaTable::class,
+            'table' => MiPressCz\Core\Filament\Resources\Media\Tables\MediaTable::class,
         ],
     ],
     'url_provider' => Awcodes\Curator\Providers\GlideUrlProvider::class,

@@ -299,8 +299,8 @@ $schema->columns(3)
 - [x] Entry preview — náhled před publikací *(P2)* (406 tests)
 - [x] Fulltext vyhledávání — Laravel Scout + database driver *(P3)* (406 tests)
 - [ ] Media tagging/folders — organizace Curator médií *(P4)*
-- [ ] **[Statamic]** `HasOrigin` trait — centralizovaný i18n fallback pro Entry lokalizaci *(P5)*
-- [ ] **[Statamic]** Blink request-level cache — N+1 prevence pro origin/locale lookups *(P6)*
+- [x] **[Statamic]** `HasOrigin` trait — centralizovaný i18n fallback pro Entry, Term, GlobalSet *(P5)* (423 tests)
+- [x] **[Statamic]** Blink request-level cache — N+1 prevence pro origin/locale lookups *(P6)* (423 tests)
 
 ---
 
@@ -400,10 +400,10 @@ Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 - ~~Multijazyčné kolekce/taxonomie~~ ✅ dokončeno (12. března 2026)
 - ~~Admin UI pro multijazyčné editování (Select switcher)~~ ✅ dokončeno (12. března 2026)
 - ~~ManageSiteSettings + DefaultCollectionsSeeder~~ ✅ dokončeno (12. března 2026)
-- Entry preview — náhled před publikací
-- Fulltext vyhledávání — Laravel Scout + database driver
+- ~~Entry preview — náhled před publikací~~ ✅ dokončeno
+- ~~Fulltext vyhledávání — Laravel Scout + database driver~~ ✅ dokončeno
 - Media tagging/folders — organizace Curator médií
-- **[Statamic]** `HasOrigin` trait + Blink cache
+- ~~**[Statamic]** `HasOrigin` trait + Blink cache~~ ✅ dokončeno (14. března 2026)
 
 ### P2 — Střednědobě
 - API vrstva do core (headless/REST)
@@ -445,11 +445,11 @@ Statamic CMS byl přidán do workspace jako referenční codebase (`c:/laragon/w
 
 | Inspirace | Priorita | Cílová fáze |
 |-----------|----------|-------------|
-| `HasOrigin` — automatický i18n fallback na hodnoty z origin entry | ★★★★★ | Fáze 9 |
+| `HasOrigin` — automatický i18n fallback na hodnoty z origin entry | ★★★★★ | ✅ Hotovo |
 | Lifecycle event páry `*Saving` / `*Saved` (cancelovatelný pre-event) | ★★★★☆ | ✅ Hotovo |
 | Working Copy — pracovní kopie odděleně od publikované verze | ★★★★☆ | Fáze 11 |
 | `ContainsComputedData` — virtuální/vypočítaná pole na modelu | ★★★☆☆ | Fáze 10 |
-| Blink request-level cache — prevence N+1 pro origin lookups | ★★★☆☆ | Fáze 9 |
+| Blink request-level cache — prevence N+1 pro origin lookups | ★★★☆☆ | ✅ Hotovo |
 | `Hookable` Pipeline — rozšiřitelné hooky pro addon systém | ★★☆☆☆ | Fáze P3 |
 | `FluentlyGetsAndSets` — fluent getter/setter pattern na modelech | ★★☆☆☆ | Fáze P3 |
 

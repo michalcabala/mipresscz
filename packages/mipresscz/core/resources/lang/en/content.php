@@ -130,6 +130,36 @@ return [
         'plural_label' => 'Media',
     ],
 
+    // ── Media Folders ──
+    'media_folders' => [
+        'label' => 'Media Folder',
+        'plural_label' => 'Media Folders',
+        'navigation_label' => 'Folders',
+    ],
+
+    'media_folder_fields' => [
+        'name' => 'Name',
+        'slug' => 'Slug',
+        'parent' => 'Parent Folder',
+        'order' => 'Order',
+        'media_count' => 'Media Count',
+    ],
+
+    // ── Media Tags ──
+    'media_tags' => [
+        'label' => 'Media Tag',
+        'plural_label' => 'Media Tags',
+        'navigation_label' => 'Tags',
+    ],
+
+    'media_tag_fields' => [
+        'name' => 'Name',
+        'slug' => 'Slug',
+        'media_count' => 'Media Count',
+        'folder' => 'Folder',
+        'tags' => 'Tags',
+    ],
+
     // ── Taxonomies ──
     'taxonomies' => [
         'label' => 'Taxonomy',
