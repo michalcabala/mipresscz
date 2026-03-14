@@ -7,7 +7,7 @@ use NoteBrainsLab\FilamentMenuManager\Concerns\HasMenuItems;
 use NoteBrainsLab\FilamentMenuManager\Models\Menu;
 use NoteBrainsLab\FilamentMenuManager\Models\MenuItem;
 use NoteBrainsLab\FilamentMenuManager\Models\MenuLocation;
-use NoteBrainsLab\FilamentMenuManager\Pages\MenuManagerPage;
+use MiPressCz\Core\Filament\Pages\MenuManagerPage;
 
 describe('Entry HasMenuItems', function () {
     it('implements HasMenuItems trait', function () {

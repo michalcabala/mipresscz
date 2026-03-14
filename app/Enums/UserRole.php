@@ -48,6 +48,8 @@ enum UserRole: string
                 'view.taxonomies', 'manage.taxonomies',
                 'view.global_sets', 'manage.global_sets',
                 'view.menus', 'manage.menus',
+                'view.media', 'manage.media',
+                'manage.locales', 'manage.settings',
             ],
             self::Editor => [
                 'view.users',
@@ -56,10 +58,12 @@ enum UserRole: string
                 'view.taxonomies', 'manage.taxonomies',
                 'view.global_sets',
                 'view.menus', 'manage.menus',
+                'view.media', 'manage.media',
             ],
             self::Contributor => [
                 'view.entries', 'create.entries', 'update.entries',
                 'view.taxonomies',
+                'view.media',
             ],
         };
     }

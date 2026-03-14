@@ -292,9 +292,9 @@ return [
 
     // ── Menus ──
     'menus' => [
-        'label' => 'Menu',
-        'plural_label' => 'Menu',
-        'navigation_label' => 'Menu',
+        'label' => 'Navigační menu',
+        'plural_label' => 'Navigační menu',
+        'navigation_label' => 'Navigační menu',
         'navigation_group' => 'Navigace',
         'manage_items' => 'Spravovat položky',
         'locations' => [

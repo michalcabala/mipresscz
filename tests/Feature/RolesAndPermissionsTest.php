@@ -288,4 +288,17 @@ it('defines correct permissions per role', function (UserRole $role, string $per
     'contributor cannot view.users' => [UserRole::Contributor, 'view.users', false],
     'contributor cannot view.collections' => [UserRole::Contributor, 'view.collections', false],
     'contributor cannot view.global_sets' => [UserRole::Contributor, 'view.global_sets', false],
+
+    // New media/locale/settings permissions
+    'admin can manage.media' => [UserRole::Admin, 'manage.media', true],
+    'admin can manage.locales' => [UserRole::Admin, 'manage.locales', true],
+    'admin can manage.settings' => [UserRole::Admin, 'manage.settings', true],
+    'editor can manage.media' => [UserRole::Editor, 'manage.media', true],
+    'editor cannot manage.locales' => [UserRole::Editor, 'manage.locales', false],
+    'editor cannot manage.settings' => [UserRole::Editor, 'manage.settings', false],
+    'contributor can view.media' => [UserRole::Contributor, 'view.media', true],
+    'contributor cannot manage.media' => [UserRole::Contributor, 'manage.media', false],
+    'contributor cannot manage.locales' => [UserRole::Contributor, 'manage.locales', false],
+    'contributor cannot manage.settings' => [UserRole::Contributor, 'manage.settings', false],
+    'contributor cannot manage.menus' => [UserRole::Contributor, 'manage.menus', false],
 ]);

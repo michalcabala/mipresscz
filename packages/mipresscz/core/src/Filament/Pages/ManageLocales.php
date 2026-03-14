@@ -27,6 +27,11 @@ class ManageLocales extends Page implements HasTable
 
     protected string $view = 'mipresscz-core::filament.pages.manage-locales';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('manage.locales') ?? false;
+    }
+
     public static function getNavigationGroup(): ?string
     {
         return __('locales.navigation_group');

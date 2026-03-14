@@ -22,6 +22,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'view.taxonomies', 'manage.taxonomies',
             'view.global_sets', 'manage.global_sets',
             'view.menus', 'manage.menus',
+            'view.media', 'manage.media',
+            'manage.locales', 'manage.settings',
         ];
 
         // Remove permissions that are no longer part of the system

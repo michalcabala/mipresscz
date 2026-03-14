@@ -27,9 +27,9 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use MiPressCz\Core\Filament\Plugins\MenuManagerPlugin;
 use MiPressCz\Core\Filament\Widgets\EntryStatsWidget;
 use MiPressCz\Core\Filament\Widgets\LatestEntriesWidget;
-use NoteBrainsLab\FilamentMenuManager\FilamentMenuManagerPlugin;
 
 /**
  * Pre-configured Filament admin panel for miPressCZ.
@@ -130,7 +130,7 @@ class MiPressCzAdminPanelProvider extends PanelProvider
     protected function configurePlugins(Panel $panel): Panel
     {
         return $panel->plugins([
-            FilamentMenuManagerPlugin::make()
+            MenuManagerPlugin::make()
                 ->locations($this->getMenuLocations())
                 ->modelSources($this->getMenuModelSources())
                 ->navigationIcon('fal-compass')
@@ -142,7 +142,8 @@ class MiPressCzAdminPanelProvider extends PanelProvider
                 ->pluralLabel(__('content.media.plural_label'))
                 ->navigationIcon('fal-photo-film-music')
                 ->navigationGroup(__('content.entries.navigation_group'))
-                ->navigationSort(99),
+                ->navigationSort(99)
+                ->registerNavigation(fn (): bool => auth()->user()?->can('manage.media') ?? false),
             AuthDesignerPlugin::make()
                 ->login(
                     fn (AuthPageConfig $config) => $config

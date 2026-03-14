@@ -11,6 +11,11 @@ class ManageTemplates extends Page
 {
     protected string $view = 'mipresscz-core::filament.pages.manage-templates';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('manage.settings') ?? false;
+    }
+
     public static function getNavigationGroup(): ?string
     {
         return __('templates.navigation_group');

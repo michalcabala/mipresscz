@@ -20,6 +20,11 @@ class ManageSiteSettings extends Page implements HasForms
 
     protected string $view = 'mipresscz-core::filament.pages.manage-site-settings';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('manage.settings') ?? false;
+    }
+
     /** @var array<string, mixed> */
     public array $data = [];
 
