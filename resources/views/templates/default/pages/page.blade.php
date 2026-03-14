@@ -4,39 +4,39 @@
 @section('description', $entry->meta_description ?? '')
 
 @section('content')
-<article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
-    @if($entry->featured_image_id ?? null)
-    <div class="mb-8 rounded-xl overflow-hidden">
+{{-- Page hero --}}
+<div class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div class="max-w-3xl">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight mb-4">
+                {{ $entry->title }}
+            </h1>
+            @if($entry->meta_description ?? null)
+            <p class="text-lg text-gray-600 dark:text-gray-400">{{ $entry->meta_description }}</p>
+            @endif
+        </div>
+    </div>
+</div>
+
+@if($entry->featured_image_id ?? null)
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 mb-0">
+    <div class="rounded-2xl overflow-hidden shadow-xl max-h-[480px]">
         <x-curator-glider
             :media="$entry->featured_image_id"
-            class="w-full h-64 object-cover"
-            width="900"
-            height="400"
+            class="w-full h-full object-cover"
+            width="1280"
+            height="480"
         />
     </div>
-    @endif
+</div>
+@endif
 
-    <header class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">
-            {{ $entry->title }}
-        </h1>
+{{-- Content --}}
+@if(!empty($entry->content))
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    {!! mason(content: $entry->content, bricks: $bricks ?? [])->toHtml() !!}
+</div>
+@endif
 
-        @if($entry->published_at ?? null)
-        <p class="mt-3 text-sm text-gray-500">
-            {{ \Illuminate\Support\Carbon::parse($entry->published_at)->isoFormat('D. MMMM YYYY') }}
-            @if($entry->author ?? null)
-                &middot; {{ $entry->author->name }}
-            @endif
-        </p>
-        @endif
-    </header>
-
-    @if(!empty($entry->content))
-    <div class="prose prose-lg max-w-none">
-        {!! mason(content: $entry->content, bricks: $bricks ?? [])->toHtml() !!}
-    </div>
-    @endif
-
-</article>
 @endsection

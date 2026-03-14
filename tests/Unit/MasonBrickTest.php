@@ -2,14 +2,18 @@
 
 use App\Mason\BrickCollection;
 use App\Mason\Button;
+use App\Mason\Cards;
 use App\Mason\Columns;
+use App\Mason\Cta;
 use App\Mason\Divider;
+use App\Mason\Features;
 use App\Mason\Gallery;
 use App\Mason\Heading;
 use App\Mason\Hero;
 use App\Mason\Html;
 use App\Mason\Image;
 use App\Mason\Quote;
+use App\Mason\Stats;
 use App\Mason\Testimonial;
 use App\Mason\Text;
 use App\Mason\Video;
@@ -18,8 +22,8 @@ uses(Tests\TestCase::class);
 
 // ── BrickCollection ────────────────────────────────────────────────────────
 
-it('returns all 12 bricks from BrickCollection', function () {
-    expect(BrickCollection::all())->toHaveCount(12);
+it('returns all 16 bricks from BrickCollection', function () {
+    expect(BrickCollection::all())->toHaveCount(16);
 });
 
 it('BrickCollection contains expected brick classes', function () {
@@ -36,7 +40,11 @@ it('BrickCollection contains expected brick classes', function () {
         ->toContain(Video::class)
         ->toContain(Columns::class)
         ->toContain(Html::class)
-        ->toContain(Testimonial::class);
+        ->toContain(Testimonial::class)
+        ->toContain(Features::class)
+        ->toContain(Stats::class)
+        ->toContain(Cta::class)
+        ->toContain(Cards::class);
 });
 
 // ── getId ──────────────────────────────────────────────────────────────────

@@ -12,18 +12,22 @@ class BrickCollection
     public static function all(): array
     {
         return [
+            Hero::class,
+            Features::class,
+            Stats::class,
+            Cta::class,
+            Cards::class,
             Text::class,
             Heading::class,
             Image::class,
             Gallery::class,
             Quote::class,
-            Video::class,
+            Testimonial::class,
             Columns::class,
-            Hero::class,
+            Video::class,
             Button::class,
             Divider::class,
             Html::class,
-            Testimonial::class,
         ];
     }
 }

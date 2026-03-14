@@ -1,0 +1,20 @@
+﻿
+   FAIL  Tests\Feature\SeoTest
+  Ôťô it stores meta_title on entry                                        4.83s  
+  Ôťô it stores meta_description on entry                                  0.50s  
+  Ôťô it meta_title defaults to null when not set                          0.50s  
+  ÔĘ» it shows entry title in <title> when meta_title is not set                  2.63s  
+  ÔĘ» it shows meta_title in <title> when set                                     2.08s  
+  Ôťô it shows meta description tag when set                               2.15s  
+  Ôťô it does not show meta description tag when not set                   2.02s  
+  ÔĘ» it outputs canonical link tag                                        2.14s  
+  ÔĘ» it does not output hreflang when no translations exist               2.04s  
+  ÔĘ» it outputs hreflang links when translations exist                    2.16s  
+  Ôťô it sitemap returns 200 with xml content type                         0.53s  
+  Ôťô it sitemap contains published entry urls                             0.54s  
+  Ôťô it sitemap does not contain draft entries                            0.55s  
+  Ôťô it rss feed returns 200 with rss content type                        0.83s  
+  Ôťô it rss feed contains published entry titles                          0.56s  
+  Ôťô it rss feed contains rss root element                                0.55s  
+  ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ  
+   FAILED  Tests\Feature\SeoTest > it shows entry title in <title> when meta_titleÔÇŽ    

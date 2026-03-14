@@ -13,6 +13,10 @@ return [
     'divider' => 'Divider',
     'html' => 'HTML',
     'testimonial' => 'Testimonial',
+    'features' => 'Features',
+    'stats' => 'Statistics',
+    'cta' => 'Call to action',
+    'cards' => 'Cards',
 
     'fields' => [
         'content' => 'Content',
@@ -42,6 +46,15 @@ return [
         'button_url' => 'Button URL',
         'button_variant' => 'Button style',
         'open_in_new_tab' => 'Open in new tab',
+        'items' => 'Items',
+        'icon' => 'Icon (emoji or text)',
+        'title' => 'Title',
+        'description' => 'Description',
+        'value' => 'Value',
+        'label' => 'Label',
+        'secondary_label' => 'Secondary button label',
+        'secondary_url' => 'Secondary button URL',
+        'variant' => 'Variant',
     ],
 
     'alignment' => [
@@ -54,5 +67,8 @@ return [
         'primary' => 'Primary',
         'secondary' => 'Secondary',
         'outline' => 'Outline',
+        'blue' => 'Blue',
+        'dark' => 'Dark',
+        'light' => 'Light',
     ],
 ];

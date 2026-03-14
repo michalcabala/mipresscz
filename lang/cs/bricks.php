@@ -13,6 +13,10 @@ return [
     'divider' => 'Oddělovač',
     'html' => 'HTML',
     'testimonial' => 'Reference',
+    'features' => 'Vlastnosti',
+    'stats' => 'Statistiky',
+    'cta' => 'Výzva k akci',
+    'cards' => 'Karty',
 
     'fields' => [
         'content' => 'Obsah',
@@ -42,6 +46,15 @@ return [
         'button_url' => 'URL tlačítka',
         'button_variant' => 'Styl tlačítka',
         'open_in_new_tab' => 'Otevřít na nové záložce',
+        'items' => 'Položky',
+        'icon' => 'Ikona (emoji nebo text)',
+        'title' => 'Název',
+        'description' => 'Popis',
+        'value' => 'Hodnota',
+        'label' => 'Popisek',
+        'secondary_label' => 'Text druhého tlačítka',
+        'secondary_url' => 'URL druhého tlačítka',
+        'variant' => 'Varianta',
     ],
 
     'alignment' => [
@@ -54,5 +67,8 @@ return [
         'primary' => 'Primární',
         'secondary' => 'Sekundární',
         'outline' => 'Obrys',
+        'blue' => 'Modrá',
+        'dark' => 'Tmavá',
+        'light' => 'Světlá',
     ],
 ];
