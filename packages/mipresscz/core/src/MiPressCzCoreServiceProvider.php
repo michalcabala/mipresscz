@@ -25,6 +25,7 @@ use MiPressCz\Core\Policies\GlobalSetPolicy;
 use MiPressCz\Core\Policies\TaxonomyPolicy;
 use MiPressCz\Core\Policies\TermPolicy;
 use MiPressCz\Core\Services\CacheService;
+use MiPressCz\Core\Services\ComputedFieldRegistry;
 use MiPressCz\Core\Services\LocaleService;
 use MiPressCz\Core\Services\TemplateManager;
 use MiPressCz\Core\Support\Blink;
@@ -36,6 +37,7 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
     {
         $this->app->singleton(Blink::class);
         $this->app->singleton(CacheService::class);
+        $this->app->singleton(ComputedFieldRegistry::class);
         $this->app->singleton(LocaleService::class);
         $this->app->singleton(TemplateManager::class);
 
@@ -82,6 +84,8 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         Entry::observe(EntryObserver::class);
         Locale::observe(LocaleObserver::class);
 
+        $this->registerDefaultComputedFields();
+
         Event::subscribe(CacheInvalidationSubscriber::class);
 
         // Core catch-all frontend routes are registered after the application's
@@ -105,5 +109,18 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
                 __DIR__.'/../resources/lang' => lang_path(),
             ], 'mipresscz-translations');
         }
+    }
+
+    /**
+     * Register built-in computed fields (word_count, reading_time) for all collections.
+     */
+    private function registerDefaultComputedFields(): void
+    {
+        $registry = $this->app->make(ComputedFieldRegistry::class);
+
+        $registry->register(ComputedFieldRegistry::WILDCARD, [
+            'word_count' => fn (Entry $entry): int => str_word_count($entry->getPlainTextContent()),
+            'reading_time' => fn (Entry $entry): int => max(1, (int) ceil(str_word_count($entry->getPlainTextContent()) / 200)),
+        ]);
     }
 }

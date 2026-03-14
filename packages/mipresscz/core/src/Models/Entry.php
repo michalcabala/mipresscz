@@ -14,13 +14,14 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
+use MiPressCz\Core\Concerns\ContainsComputedData;
 use MiPressCz\Core\Concerns\HasOrigin;
 use MiPressCz\Core\Enums\EntryStatus;
 use NoteBrainsLab\FilamentMenuManager\Concerns\HasMenuItems;
 
 class Entry extends Model
 {
-    use HasFactory, HasMenuItems, HasOrigin, HasUlids, Searchable, SoftDeletes;
+    use ContainsComputedData, HasFactory, HasMenuItems, HasOrigin, HasUlids, Searchable, SoftDeletes;
 
     protected $fillable = [
         'collection_id',
@@ -376,5 +377,53 @@ class Entry extends Model
         ];
 
         return str_replace(array_keys($replacements), array_values($replacements), $template);
+    }
+
+    // ── Content helpers ──
+
+    /**
+     * Extract plain text from Mason content blocks.
+     * Walks through all bricks, strips HTML tags, and returns concatenated text.
+     */
+    public function getPlainTextContent(): string
+    {
+        $blocks = $this->content;
+
+        if (! is_array($blocks) || $blocks === []) {
+            return '';
+        }
+
+        $texts = [];
+
+        foreach ($blocks as $block) {
+            $config = $block['attrs']['config'] ?? [];
+            $this->extractTextFromConfig($config, $texts);
+        }
+
+        return implode(' ', array_filter($texts));
+    }
+
+    /**
+     * Recursively extract text values from a Mason brick config.
+     *
+     * @param  array<string, mixed>  $config
+     * @param  array<int, string>  $texts
+     */
+    private function extractTextFromConfig(array $config, array &$texts): void
+    {
+        foreach ($config as $key => $value) {
+            if (is_string($value) && in_array($key, ['content', 'text', 'heading', 'subheading', 'description', 'eyebrow', 'title', 'label', 'value'], true)) {
+                $plain = trim(strip_tags($value));
+                if ($plain !== '') {
+                    $texts[] = $plain;
+                }
+            } elseif ($key === 'items' && is_array($value)) {
+                foreach ($value as $item) {
+                    if (is_array($item)) {
+                        $this->extractTextFromConfig($item, $texts);
+                    }
+                }
+            }
+        }
     }
 }

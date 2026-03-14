@@ -161,6 +161,26 @@ class EntryForm
                                 )
                             ) > 0)
                             ->collapsible(),
+
+                        // Computed data — read-only stats (word count, reading time)
+                        Section::make(__('content.entry_fields.computed_data'))
+                            ->schema([
+                                Placeholder::make('_word_count')
+                                    ->label(__('content.entry_fields.word_count'))
+                                    ->content(fn (?Entry $record): string => $record
+                                        ? number_format($record->getComputed('word_count') ?? 0)
+                                        : '0'
+                                    ),
+                                Placeholder::make('_reading_time')
+                                    ->label(__('content.entry_fields.reading_time'))
+                                    ->content(fn (?Entry $record): string => $record
+                                        ? trans_choice('content.entry_fields.reading_time_value', $record->getComputed('reading_time') ?? 1, ['minutes' => $record->getComputed('reading_time') ?? 1])
+                                        : trans_choice('content.entry_fields.reading_time_value', 1, ['minutes' => 1])
+                                    ),
+                            ])
+                            ->visible(fn (?Entry $record, string $operation): bool => $operation === 'edit' && $record?->computedKeys()->isNotEmpty())
+                            ->collapsible()
+                            ->collapsed(),
                     ])
                     ->columnSpan(['lg' => 1]),
 

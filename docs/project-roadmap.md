@@ -312,7 +312,7 @@ $schema->columns(3)
 - [x] CI/CD pipeline — GitHub Actions s Composer cache, lint + testy + install smoke *(P3)*
 - [x] Caching strategie — `CacheService` singleton, `PageCache` middleware na entry routes, `EntryDeleted` event + `CacheInvalidationSubscriber`, `NavComposer` view composer pro header/footer, admin UI tlačítko „Smazat cache" *(P4)*
 - [ ] Uživatelská dokumentace — admin UX guide *(P5)*
-- [ ] **[Statamic]** `ContainsComputedData` — virtuální pole (word_count, reading_time, derived slug) *(P6)*
+- [x] **[Statamic]** `ContainsComputedData` — `ComputedFieldRegistry` singleton (wildcard + scoped), `ContainsComputedData` trait na Entry, `getPlainTextContent()` extrakce z Mason bloků, výchozí `word_count` + `reading_time`, Filament sidebar sekce „Statistiky obsahu" *(P6)*
 
 ---
 

@@ -113,6 +113,10 @@ return [
         'meta_description' => 'SEO popis',
         'meta_description_hint' => 'Krátký popis stránky pro vyhledávače (doporučeno 120–160 znaků).',
         'meta_og_image' => 'OG obrázek (sociální sítě)',
+        'computed_data' => 'Statistiky obsahu',
+        'word_count' => 'Počet slov',
+        'reading_time' => 'Doba čtení',
+        'reading_time_value' => ':minutes min',
     ],
 
     // ── Dashboard stats ──

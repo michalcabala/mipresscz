@@ -113,6 +113,10 @@ return [
         'meta_description' => 'SEO description',
         'meta_description_hint' => 'Short description for search engines (recommended 120–160 characters).',
         'meta_og_image' => 'OG image (social media)',
+        'computed_data' => 'Content statistics',
+        'word_count' => 'Word count',
+        'reading_time' => 'Reading time',
+        'reading_time_value' => ':minutes min',
     ],
 
     // ── Dashboard stats ──
