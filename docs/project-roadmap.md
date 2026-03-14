@@ -285,7 +285,7 @@ $schema->columns(3)
 
 ---
 
-## Fáze 9 — Funkční rozšíření (probíhá)
+## Fáze 9 — Funkční rozšíření ✅ (dokončeno 14. března 2026)
 
 - [x] Admin dashboard widgety — počty entries, poslední aktivita (323 tests)
 - [x] **[Statamic]** Lifecycle event páry `EntrySaving`/`EntrySaved` — cancelovatelné pre-eventy (323 tests)
@@ -298,7 +298,7 @@ $schema->columns(3)
 - [x] **Nastavení domovské stránky přesunuto do `ManageSiteSettings`** — akce `set_homepage` odstraněna z `EditEntry` + `EntriesTable`, nová stránka v nav skupině Nastavení; `DefaultCollectionsSeeder` — kolekce Stránky implicitně součástí jádra (install bez `--seed`); homepage lze vybrat pouze ze stránek (363 tests)
 - [x] Entry preview — náhled před publikací *(P2)* (406 tests)
 - [x] Fulltext vyhledávání — Laravel Scout + database driver *(P3)* (406 tests)
-- [ ] Media tagging/folders — organizace Curator médií *(P4)*
+- [x] Media tagging/folders — organizace Curator médií *(P4)* (450 tests)
 - [x] **[Statamic]** `HasOrigin` trait — centralizovaný i18n fallback pro Entry, Term, GlobalSet *(P5)* (423 tests)
 - [x] **[Statamic]** Blink request-level cache — N+1 prevence pro origin/locale lookups *(P6)* (423 tests)
 
@@ -402,7 +402,7 @@ Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 - ~~ManageSiteSettings + DefaultCollectionsSeeder~~ ✅ dokončeno (12. března 2026)
 - ~~Entry preview — náhled před publikací~~ ✅ dokončeno
 - ~~Fulltext vyhledávání — Laravel Scout + database driver~~ ✅ dokončeno
-- Media tagging/folders — organizace Curator médií
+- ~~Media tagging/folders — organizace Curator médií~~ ✅ dokončeno (14. března 2026)
 - ~~**[Statamic]** `HasOrigin` trait + Blink cache~~ ✅ dokončeno (14. března 2026)
 
 ### P2 — Střednědobě
