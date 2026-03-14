@@ -42,7 +42,7 @@ unset($__defined_vars, $__key, $__value); ?>
     dir="<?php echo e(__('filament-panels::layout.direction') ?? 'ltr'); ?>"
     class="<?php echo \Illuminate\Support\Arr::toCssClasses([
         'fi',
-        'dark' => filament()->hasDarkModeForced(),
+        'dark' => filament()->hasDarkMode() && filament()->hasDarkModeForced(),
     ]); ?>"
 >
     <head>
@@ -123,6 +123,10 @@ unset($__defined_vars, $__key, $__value); ?>
                 --sidebar-width: <?php echo e(filament()->getSidebarWidth()); ?>;
                 --collapsed-sidebar-width: <?php echo e(filament()->getCollapsedSidebarWidth()); ?>;
                 --default-theme-mode: <?php echo e(filament()->getDefaultThemeMode()->value); ?>;
+            }
+
+            html.fi {
+                --livewire-progress-bar-color: var(--primary-500);
             }
         </style>
 
