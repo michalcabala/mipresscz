@@ -1,19 +1,27 @@
 <?php
 
-namespace Tests\Feature;
+use MiPressCz\Core\Enums\EntryStatus;
+use MiPressCz\Core\Models\Blueprint;
+use MiPressCz\Core\Models\Collection;
+use MiPressCz\Core\Models\Entry;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+it('returns homepage entry for root url', function () {
+    $collection = Collection::factory()->create([
+        'handle' => 'pages',
+        'route_template' => '/{slug}',
+    ]);
+    $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
 
-class ExampleTest extends TestCase
-{
-    /**
-     * A basic test example.
-     */
-    public function test_the_application_returns_a_successful_response(): void
-    {
-        $response = $this->get('/');
+    Entry::factory()->create([
+        'collection_id' => $collection->id,
+        'blueprint_id' => $blueprint->id,
+        'title' => 'Úvod',
+        'slug' => 'uvod',
+        'status' => EntryStatus::Published,
+        'published_at' => now()->subDay(),
+        'locale' => 'cs',
+        'is_homepage' => true,
+    ]);
 
-        $response->assertStatus(200);
-    }
-}
+    $this->get('/')->assertSuccessful();
+});
