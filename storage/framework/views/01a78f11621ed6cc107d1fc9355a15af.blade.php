@@ -1,9 +1,0 @@
-<x-filament::icon-button
-                    icon="heroicon-o-arrow-top-right-on-square"
-                    :href="url('/')"
-                    tag="a"
-                    target="_blank"
-                    :tooltip="__('panel.view_site')"
-                    :label="__('panel.view_site')"
-                    color="gray"
-                />

@@ -60,7 +60,7 @@ class ManageTemplates extends Page
     public function activate(string $slug): void
     {
         abort_unless(
-            auth()->user()?->can('manage.global_sets'),
+            auth()->user()?->can('manage.settings'),
             403,
             __('templates.unauthorized')
         );

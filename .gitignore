@@ -17,8 +17,10 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/framework/views/*
 /storage/pail
 /vendor
+test_result.txt
 Homestead.json
 Homestead.yaml
 Thumbs.db
