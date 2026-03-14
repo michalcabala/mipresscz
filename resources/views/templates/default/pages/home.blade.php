@@ -27,7 +27,7 @@
     {{-- Content --}}
     @if(!empty($entry->content))
     <div class="prose prose-lg max-w-4xl mx-auto">
-        {!! mason(content: $entry->content, bricks: \Awcodes\Mason\BrickCollection::make($bricks ?? []))->toHtml() !!}
+        {!! mason(content: $entry->content, bricks: $bricks ?? [])->toHtml() !!}
     </div>
     @endif
 
