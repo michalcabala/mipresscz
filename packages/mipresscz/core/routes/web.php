@@ -6,6 +6,7 @@ use MiPressCz\Core\Http\Controllers\FeedController;
 use MiPressCz\Core\Http\Controllers\PreviewController;
 use MiPressCz\Core\Http\Controllers\SearchController;
 use MiPressCz\Core\Http\Controllers\SitemapController;
+use MiPressCz\Core\Http\Middleware\PageCache;
 use MiPressCz\Core\Http\Middleware\SetFrontendLocale;
 
 // ── Static SEO endpoints (must be before catch-all routes) ──
@@ -52,7 +53,7 @@ Route::prefix('{locale}')
 // Locale-prefixed routes for non-default languages
 Route::prefix('{locale}')
     ->where(['locale' => '[a-z]{2}'])
-    ->middleware([SetFrontendLocale::class])
+    ->middleware([SetFrontendLocale::class, PageCache::class])
     ->group(function () {
         Route::get('{uri}', [EntryController::class, 'show'])
             ->where('uri', '.*')
@@ -60,7 +61,7 @@ Route::prefix('{locale}')
     });
 
 // Default locale (no prefix) — must be last
-Route::middleware([SetFrontendLocale::class])
+Route::middleware([SetFrontendLocale::class, PageCache::class])
     ->group(function () {
         Route::get('{uri}', [EntryController::class, 'show'])
             ->where('uri', '.*')

@@ -1,14 +1,3 @@
-@php
-    $navEntries = \MiPressCz\Core\Models\Entry::query()
-        ->whereHas('collection', fn ($q) => $q->where('handle', 'pages'))
-        ->where('is_homepage', false)
-        ->published()
-        ->where('locale', app()->getLocale())
-        ->orderBy('title')
-        ->limit(8)
-        ->get(['id', 'title', 'uri']);
-@endphp
-
 <header class="sticky top-0 z-50 border-b border-gray-200/80 dark:border-gray-800/80 backdrop-blur-xl bg-white/90 dark:bg-gray-950/90">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 gap-4">

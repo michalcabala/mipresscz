@@ -12,6 +12,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
+use MiPressCz\Core\Services\CacheService;
 
 class ManageSiteSettings extends Page implements HasForms
 {
@@ -79,6 +80,21 @@ class ManageSiteSettings extends Page implements HasForms
             Action::make('save')
                 ->label(__('settings.save'))
                 ->action('save'),
+            Action::make('clear_cache')
+                ->label(__('settings.cache.clear'))
+                ->color('gray')
+                ->icon('heroicon-o-arrow-path')
+                ->requiresConfirmation()
+                ->modalHeading(__('settings.cache.confirm_heading'))
+                ->modalDescription(__('settings.cache.confirm_description'))
+                ->action(function (): void {
+                    app(CacheService::class)->flushAll();
+
+                    Notification::make()
+                        ->title(__('settings.cache.cleared'))
+                        ->success()
+                        ->send();
+                }),
         ];
     }
 

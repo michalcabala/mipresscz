@@ -14,4 +14,11 @@ return [
         'entry_hint' => 'Zobrazuje se na adrese /. Lze vybrat pouze ze stránek.',
         'none' => '— Není nastavena —',
     ],
+
+    'cache' => [
+        'clear' => 'Vyprázdnit cache',
+        'confirm_heading' => 'Vyprázdnit cache?',
+        'confirm_description' => 'Tím se odstraní všechny uložené stránky a navigační cache. Při dalším načtení se obsah znovu vygeneruje z databáze.',
+        'cleared' => 'Cache byla úspěšně vyprázdněna.',
+    ],
 ];

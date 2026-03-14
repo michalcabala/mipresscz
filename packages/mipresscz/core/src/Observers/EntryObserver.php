@@ -2,6 +2,7 @@
 
 namespace MiPressCz\Core\Observers;
 
+use MiPressCz\Core\Events\EntryDeleted;
 use MiPressCz\Core\Events\EntrySaved;
 use MiPressCz\Core\Events\EntrySaving;
 use MiPressCz\Core\Models\Entry;
@@ -77,6 +78,11 @@ class EntryObserver
             'is_current' => true,
             'created_at' => now(),
         ]);
+    }
+
+    public function deleted(Entry $entry): void
+    {
+        EntryDeleted::dispatch($entry);
     }
 
     private function pruneRevisions(Entry $entry): void

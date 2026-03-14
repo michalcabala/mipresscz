@@ -3,10 +3,12 @@
 namespace MiPressCz\Core;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use MiPressCz\Core\Console\Commands\InstallCommand;
 use MiPressCz\Core\Console\Commands\TemplateListCommand;
+use MiPressCz\Core\Listeners\CacheInvalidationSubscriber;
 use MiPressCz\Core\Models\Blueprint;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
@@ -22,15 +24,18 @@ use MiPressCz\Core\Policies\EntryPolicy;
 use MiPressCz\Core\Policies\GlobalSetPolicy;
 use MiPressCz\Core\Policies\TaxonomyPolicy;
 use MiPressCz\Core\Policies\TermPolicy;
+use MiPressCz\Core\Services\CacheService;
 use MiPressCz\Core\Services\LocaleService;
 use MiPressCz\Core\Services\TemplateManager;
 use MiPressCz\Core\Support\Blink;
+use MiPressCz\Core\View\Composers\NavComposer;
 
 class MiPressCzCoreServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         $this->app->singleton(Blink::class);
+        $this->app->singleton(CacheService::class);
         $this->app->singleton(LocaleService::class);
         $this->app->singleton(TemplateManager::class);
 
@@ -53,6 +58,12 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         // with automatic fallback to the 'default' template directory.
         $this->app->make(TemplateManager::class)->registerViewNamespace();
 
+        // Nav view composer — provides cached nav entries to header/footer partials.
+        $this->app->make('view')->composer(
+            ['template::partials.header', 'template::partials.footer'],
+            NavComposer::class,
+        );
+
         Factory::guessFactoryNamesUsing(function (string $modelName): string {
             if (str_starts_with($modelName, 'MiPressCz\\Core\\Models\\')) {
                 return 'MiPressCz\\Core\\Database\\Factories\\'.class_basename($modelName).'Factory';
@@ -70,6 +81,8 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
 
         Entry::observe(EntryObserver::class);
         Locale::observe(LocaleObserver::class);
+
+        Event::subscribe(CacheInvalidationSubscriber::class);
 
         // Core catch-all frontend routes are registered after the application's
         // own routes so that app-specific routes always take precedence.

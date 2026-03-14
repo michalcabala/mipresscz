@@ -16,17 +16,7 @@
                 <h3 class="text-white text-sm font-semibold mb-4 uppercase tracking-wider">{{ __('Navigace') }}</h3>
                 <ul class="space-y-3">
                     <li><a href="{{ url('/') }}" class="text-sm hover:text-white transition-colors">{{ __('Domů') }}</a></li>
-                    @php
-                        $footerEntries = \MiPressCz\Core\Models\Entry::query()
-                            ->whereHas('collection', fn ($q) => $q->where('handle', 'pages'))
-                            ->where('is_homepage', false)
-                            ->published()
-                            ->where('locale', app()->getLocale())
-                            ->orderBy('title')
-                            ->limit(5)
-                            ->get(['title', 'uri']);
-                    @endphp
-                    @foreach($footerEntries as $entry)
+                    @foreach($footerEntries ?? [] as $entry)
                         <li><a href="{{ url($entry->uri) }}" class="text-sm hover:text-white transition-colors">{{ $entry->title }}</a></li>
                     @endforeach
                 </ul>
