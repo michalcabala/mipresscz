@@ -330,12 +330,18 @@ $schema->columns(3)
 
 ---
 
-## Fáze 11 — Editorial workflow (plánováno)
+## Fáze 11 — Editorial workflow ✅ (dokončeno 15. března 2026)
 
-- [ ] Working Copy — pracovní kopie entry odděleně od publikované verze
-- [ ] `publishWorkingCopy()` / `deleteWorkingCopy()` API na Entry modelu
-- [ ] CP UI pro schvalování a zamítnutí pracovní kopie (Editor → Admin workflow)
-- [ ] Integrovat s rolemi: Contributor může pouze uložit do working copy, ne publikovat přímo
+- [x] Working Copy — pracovní kopie entry odděleně od publikované verze (revision s `action = 'working'`)
+- [x] `HasWorkingCopy` trait — `makeWorkingCopy()`, `saveToWorkingCopy()`, `publishWorkingCopy()`, `deleteWorkingCopy()`, `fromWorkingCopy()`
+- [x] Migrace: `action` (string, default 'revision') + `content` (longText) sloupce v revisions tabulce
+- [x] Revision model — `isWorkingCopy()`, `scopeWorkingCopy()`, `scopeHistory()` scopes
+- [x] EntryObserver — ukládá `content` a `action` do revizí
+- [x] `publish.entries` permission — Admin + Editor mohou publikovat, Contributor ne
+- [x] Filament EditEntry — WC-aware save (ukládá do WC když je entry publikovaná), publish (3 stavy), discard WC
+- [x] Filament CreateEntry — publish button gated přes `publish.entries` permission
+- [x] Překlady CS/EN — akce, zprávy, revision field labels
+- [x] 25 testů (52 assertions) — trait, scopes, observer, policy, bypass scénáře
 
 ---
 
@@ -359,6 +365,7 @@ $schema->columns(3)
 | Fáze 10: Error pages + Security + CI/CD + Cache | 14. března 2026 | 469 |
 | Fáze 10: ContainsComputedData | 15. března 2026 | 497 |
 | Fáze 10: Uživatelská dokumentace | 14. března 2026 | 497 |
+| Fáze 11: Editorial workflow (Working Copy) | 15. března 2026 | 522 |
 
 ### ~~P1 — Nejbližší (Fáze 9 dokončení)~~ ✅ Vše dokončeno
 - ~~Menu builder — drag & drop navigační struktura~~ ✅
@@ -381,7 +388,6 @@ $schema->columns(3)
 - `withoutX()` selective toggle pattern (po vzoru `tallcms`)
 - Optional plugin manager-like registry
 - Optional class alias compat layer pro budoucí distribuci
-- **[Statamic]** Working Copy editační workflow (Fáze 11)
 - **[Statamic]** `Hookable` Pipeline pro addon/plugin rozšiřitelnost
 
 ### Otevřené technical debt položky

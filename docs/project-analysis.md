@@ -107,6 +107,7 @@ Obsahová doména je dobře navržená, ale `Entry` už teď nese velkou část 
 - `ContainsComputedData` — virtuální/vypočítaná pole registrovaná přes ComputedFieldRegistry
 - `HasLocalizedTitle` — multijazykové titulky pro Collection + Taxonomy
 - `HasMenuItems` — polymorfní vazba na menu builder
+- `HasWorkingCopy` — editorial workflow: pracovní kopie, publikování, discard (Statamic-inspired)
 
 ### Middleware
 
@@ -235,9 +236,9 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 
 ## Testové pokrytí
 
-### Aktuální stav (10. března 2026)
+### Aktuální stav (15. března 2026)
 
-**185 testů, 371 assertions — všechny procházejí.**
+**522 testů, 1100 assertions — všechny procházejí.**
 
 ### Co je dobře pokryto
 
@@ -298,7 +299,7 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 | Uživatelé | ✅ Kompletní | Auth, role, 2FA, profil, soft deletes |
 | Revize | ✅ Kompletní | Auto-versioning, max 50/entry, diff |
 | Installer | ✅ Kompletní | `php artisan mipresscz:install` |
-| Test suite | ✅ Silná | 497 testů; mezery pouze frontend rendering |
+| Test suite | ✅ Silná | 522 testů; mezery pouze frontend rendering |
 | SEO (meta, hreflang, sitemap, canonical) | ✅ Kompletní | Meta tagy, hreflang, sitemap.xml, feed.xml, canonical URL |
 | Fulltext vyhledávání | ✅ Kompletní | Laravel Scout + database driver |
 | Menu builder | ✅ Kompletní | Drag & drop, víceúrovňové, 3 typy položek |
@@ -312,7 +313,7 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 | Nastavení webu | ✅ Kompletní | ManageSiteSettings (homepage, budoucí rozšíření) |
 | Frontend rendering | ⚠️ Základ | Fallback šablona, žádný produkční layout |
 | Uživatelská dokumentace | ✅ Kompletní | `docs/admin-guide.md` — příručka administrátora |
-| Editorial workflow (Working Copy) | ❌ Plánováno | Fáze 11 |
+| Editorial workflow (Working Copy) | ✅ Kompletní | HasWorkingCopy trait, WC-aware Filament UI, publish.entries permission |
 | API vrstva (headless/REST) | ❌ Plánováno | P2 backlog |
 
 ---
