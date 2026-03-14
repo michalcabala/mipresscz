@@ -16,12 +16,13 @@ use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use MiPressCz\Core\Concerns\ContainsComputedData;
 use MiPressCz\Core\Concerns\HasOrigin;
+use MiPressCz\Core\Concerns\HasWorkingCopy;
 use MiPressCz\Core\Enums\EntryStatus;
 use NoteBrainsLab\FilamentMenuManager\Concerns\HasMenuItems;
 
 class Entry extends Model
 {
-    use ContainsComputedData, HasFactory, HasMenuItems, HasOrigin, HasUlids, Searchable, SoftDeletes;
+    use ContainsComputedData, HasFactory, HasMenuItems, HasOrigin, HasUlids, HasWorkingCopy, Searchable, SoftDeletes;
 
     protected $fillable = [
         'collection_id',

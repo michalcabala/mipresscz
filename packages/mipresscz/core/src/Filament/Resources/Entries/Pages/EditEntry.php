@@ -25,12 +25,48 @@ class EditEntry extends EditRecord
             ->findOrFail($key);
     }
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        /** @var Entry $record */
+        $record = $this->getRecord();
+
+        if (! $this->usesWorkingCopy()) {
+            return $data;
+        }
+
+        $wc = $record->workingCopy();
+
+        if (! $wc) {
+            return $data;
+        }
+
+        $data['title'] = $wc->title;
+        $data['content'] = $wc->content;
+
+        if (is_array($wc->data)) {
+            $data['data'] = $wc->data;
+        }
+
+        return $data;
+    }
+
     protected function getHeaderActions(): array
     {
-        return [
+        /** @var Entry $record */
+        $record = $this->getRecord();
+
+        $actions = [
             $this->getSaveAction(),
             $this->getPreviewAction(),
             $this->getPublishAction(),
+        ];
+
+        if ($this->usesWorkingCopy() && $record->hasWorkingCopy()) {
+            $actions[] = $this->getDiscardWorkingCopyAction();
+        }
+
+        return [
+            ...$actions,
             ...$this->getLocaleActions(),
             DeleteAction::make()
                 ->color('danger')
@@ -52,8 +88,42 @@ class EditEntry extends EditRecord
         return [];
     }
 
+    protected function usesWorkingCopy(): bool
+    {
+        /** @var Entry $record */
+        $record = $this->getRecord();
+
+        return $record->status === EntryStatus::Published
+            && $record->collection?->revisions_enabled;
+    }
+
     protected function getSaveAction(): Action
     {
+        if ($this->usesWorkingCopy()) {
+            return Action::make('save')
+                ->label(__('content.actions.save'))
+                ->color('gray')
+                ->action(function (): void {
+                    $this->form->getState();
+
+                    /** @var Entry $record */
+                    $record = $this->getRecord();
+
+                    $record->saveToWorkingCopy([
+                        'title' => $this->data['title'] ?? $record->title,
+                        'data' => $this->data['data'] ?? $record->data,
+                        'content' => $this->data['content'] ?? $record->content,
+                        'status' => $this->data['status'] ?? $record->status->value,
+                    ]);
+
+                    Notification::make()
+                        ->title(__('content.messages.working_copy_saved'))
+                        ->success()
+                        ->send();
+                })
+                ->keyBindings(['mod+s']);
+        }
+
         return Action::make('save')
             ->label(__('content.actions.save'))
             ->color('gray')
@@ -80,13 +150,38 @@ class EditEntry extends EditRecord
         $record = $this->getRecord();
         $isPublished = $record->status === EntryStatus::Published;
 
+        if ($isPublished && $this->usesWorkingCopy() && $record->hasWorkingCopy()) {
+            return Action::make('publish_changes')
+                ->label(__('content.actions.publish_changes'))
+                ->icon(Heroicon::OutlinedCheckCircle)
+                ->visible(fn (): bool => auth()->user()->can('publish', $record))
+                ->action(function (): void {
+                    /** @var Entry $record */
+                    $record = $this->getRecord();
+                    $record->publishWorkingCopy(auth()->user());
+
+                    Notification::make()
+                        ->title(__('content.messages.working_copy_published'))
+                        ->success()
+                        ->send();
+
+                    $this->redirect(static::getResource()::getUrl('edit', ['record' => $record->id]));
+                });
+        }
+
         if ($isPublished) {
             return Action::make('unpublish')
                 ->label(__('content.actions.unpublish'))
                 ->color('warning')
                 ->icon('heroicon-o-arrow-uturn-left')
+                ->visible(fn (): bool => auth()->user()->can('publish', $record))
                 ->requiresConfirmation()
                 ->action(function (): void {
+                    /** @var Entry $record */
+                    $record = $this->getRecord();
+
+                    $record->deleteWorkingCopy();
+
                     $this->data['status'] = EntryStatus::Draft->value;
                     $this->data['published_at'] = null;
                     $this->save();
@@ -95,11 +190,34 @@ class EditEntry extends EditRecord
 
         return Action::make('publish')
             ->label(__('content.actions.publish'))
-            ->icon('heroicon-o-check-circle')
+            ->icon(Heroicon::OutlinedCheckCircle)
+            ->visible(fn (): bool => auth()->user()->can('publish', $record))
             ->action(function (): void {
                 $this->data['status'] = EntryStatus::Published->value;
                 $this->data['published_at'] ??= now()->toDateTimeString();
                 $this->save();
+            });
+    }
+
+    protected function getDiscardWorkingCopyAction(): Action
+    {
+        return Action::make('discard_changes')
+            ->label(__('content.actions.discard_changes'))
+            ->color('danger')
+            ->icon(Heroicon::OutlinedTrash)
+            ->requiresConfirmation()
+            ->modalDescription(__('content.actions.discard_changes_confirm'))
+            ->action(function (): void {
+                /** @var Entry $record */
+                $record = $this->getRecord();
+                $record->deleteWorkingCopy();
+
+                Notification::make()
+                    ->title(__('content.messages.working_copy_discarded'))
+                    ->success()
+                    ->send();
+
+                $this->redirect(static::getResource()::getUrl('edit', ['record' => $record->id]));
             });
     }
 

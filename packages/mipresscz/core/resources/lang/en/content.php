@@ -215,6 +215,11 @@ return [
         'is_current' => 'Current',
         'note' => 'Note',
         'created_at' => 'Created at',
+        'action' => 'Action',
+        'action_revision' => 'Revision',
+        'action_working' => 'Working copy',
+        'action_publish' => 'Publish',
+        'action_unpublish' => 'Unpublish',
     ],
 
     // ── Global Sets ──
@@ -280,6 +285,9 @@ return [
         'preview' => 'Preview',
         'restore_revision' => 'Restore revision',
         'view_revisions' => 'View revisions',
+        'publish_changes' => 'Publish changes',
+        'discard_changes' => 'Discard changes',
+        'discard_changes_confirm' => 'Are you sure you want to discard the working copy? This action cannot be undone.',
     ],
 
     // ── Menus ──
@@ -338,6 +346,9 @@ return [
         'revision_restored' => 'Revision restored.',
         'translation_created' => 'Translation created.',
         'no_blueprint_fields' => 'Blueprint has no fields defined.',
+        'working_copy_saved' => 'Changes saved as working copy.',
+        'working_copy_published' => 'Working copy has been published.',
+        'working_copy_discarded' => 'Working copy has been discarded.',
     ],
 
     // ── Search ──

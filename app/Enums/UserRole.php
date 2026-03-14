@@ -44,7 +44,7 @@ enum UserRole: string
             self::Admin => [
                 'view.users', 'manage.users',
                 'view.collections', 'manage.collections',
-                'view.entries', 'create.entries', 'update.entries', 'delete.entries',
+                'view.entries', 'create.entries', 'update.entries', 'delete.entries', 'publish.entries',
                 'view.taxonomies', 'manage.taxonomies',
                 'view.global_sets', 'manage.global_sets',
                 'view.menus', 'manage.menus',
@@ -52,7 +52,7 @@ enum UserRole: string
             self::Editor => [
                 'view.users',
                 'view.collections',
-                'view.entries', 'create.entries', 'update.entries', 'delete.entries',
+                'view.entries', 'create.entries', 'update.entries', 'delete.entries', 'publish.entries',
                 'view.taxonomies', 'manage.taxonomies',
                 'view.global_sets',
                 'view.menus', 'manage.menus',

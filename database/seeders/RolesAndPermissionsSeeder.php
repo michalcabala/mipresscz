@@ -18,7 +18,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $permissions = [
             'view.users', 'manage.users',
             'view.collections', 'manage.collections',
-            'view.entries', 'create.entries', 'update.entries', 'delete.entries',
+            'view.entries', 'create.entries', 'update.entries', 'delete.entries', 'publish.entries',
             'view.taxonomies', 'manage.taxonomies',
             'view.global_sets', 'manage.global_sets',
             'view.menus', 'manage.menus',

@@ -45,4 +45,9 @@ class EntryPolicy
     {
         return $user->hasPermissionTo('delete.entries');
     }
+
+    public function publish(User $user, Entry $entry): bool
+    {
+        return $user->hasPermissionTo('publish.entries');
+    }
 }

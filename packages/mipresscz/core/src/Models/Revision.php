@@ -2,6 +2,7 @@
 
 namespace MiPressCz\Core\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +18,9 @@ class Revision extends Model
         'user_id',
         'title',
         'data',
+        'content',
         'status',
+        'action',
         'message',
         'is_current',
         'created_at',
@@ -27,9 +30,25 @@ class Revision extends Model
     {
         return [
             'data' => 'array',
+            'content' => 'array',
             'is_current' => 'boolean',
             'created_at' => 'datetime',
         ];
+    }
+
+    public function isWorkingCopy(): bool
+    {
+        return $this->action === 'working';
+    }
+
+    public function scopeWorkingCopy(Builder $query): Builder
+    {
+        return $query->where('action', 'working');
+    }
+
+    public function scopeHistory(Builder $query): Builder
+    {
+        return $query->where('action', '!=', 'working');
     }
 
     public function entry(): BelongsTo

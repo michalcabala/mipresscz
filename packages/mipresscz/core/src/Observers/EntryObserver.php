@@ -52,7 +52,9 @@ class EntryObserver
             'user_id' => auth()->id() ?? $entry->author_id,
             'title' => $entry->title,
             'data' => $entry->data,
+            'content' => $entry->content,
             'status' => $entry->status->value,
+            'action' => 'revision',
             'is_current' => true,
             'created_at' => now(),
         ]);
@@ -74,7 +76,9 @@ class EntryObserver
             'user_id' => auth()->id() ?? $entry->author_id,
             'title' => $entry->title,
             'data' => $entry->data,
+            'content' => $entry->content,
             'status' => $entry->status->value,
+            'action' => 'revision',
             'is_current' => true,
             'created_at' => now(),
         ]);

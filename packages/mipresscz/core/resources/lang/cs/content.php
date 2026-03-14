@@ -215,6 +215,11 @@ return [
         'is_current' => 'Aktuální',
         'note' => 'Poznámka',
         'created_at' => 'Vytvořeno',
+        'action' => 'Akce',
+        'action_revision' => 'Revize',
+        'action_working' => 'Rozpracováno',
+        'action_publish' => 'Publikace',
+        'action_unpublish' => 'Odpublikování',
     ],
 
     // ── Global Sets ──
@@ -280,6 +285,9 @@ return [
         'preview' => 'Náhled',
         'restore_revision' => 'Obnovit revizi',
         'view_revisions' => 'Zobrazit revize',
+        'publish_changes' => 'Publikovat změny',
+        'discard_changes' => 'Zahodit změny',
+        'discard_changes_confirm' => 'Opravdu chcete zahodit rozpracované změny? Tato akce je nevratná.',
     ],
 
     // ── Menus ──
@@ -338,6 +346,9 @@ return [
         'revision_restored' => 'Revize byla obnovena.',
         'translation_created' => 'Překlad byl vytvořen.',
         'no_blueprint_fields' => 'Blueprint nemá definovaná žádná pole.',
+        'working_copy_saved' => 'Změny byly uloženy jako rozpracovaná verze.',
+        'working_copy_published' => 'Rozpracované změny byly publikovány.',
+        'working_copy_discarded' => 'Rozpracované změny byly zahozeny.',
     ],
 
     // ── Search ──
