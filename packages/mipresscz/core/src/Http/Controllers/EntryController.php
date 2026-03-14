@@ -41,6 +41,21 @@ class EntryController
                 ->first();
         }
 
+        // Homepage fallback: when visiting '/', look for the entry marked as homepage.
+        if (! $entry && $uri === '/') {
+            $entry = Entry::query()
+                ->with($with)
+                ->published()
+                ->where('is_homepage', true)
+                ->where('locale', $locale)
+                ->first()
+                ?? Entry::query()
+                    ->with($with)
+                    ->published()
+                    ->where('is_homepage', true)
+                    ->first();
+        }
+
         if (! $entry) {
             throw new NotFoundHttpException;
         }
