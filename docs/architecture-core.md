@@ -116,7 +116,7 @@ Redirect z prefixed URL na unprefixed v single-language módu zajišťuje `SetFr
 
 - `configureBase()` — panel path, barvy, SPA
 - `configureNavigation()` — navigační skupiny
-- `configurePlugins()` — Curator, Breezy, LanguageSwitch
+- `configurePlugins()` — Curator, LanguageSwitch
 - `configureMiddleware()` — middleware stack
 - `configureDiscovery()` — auto-discovery resources/pages
 

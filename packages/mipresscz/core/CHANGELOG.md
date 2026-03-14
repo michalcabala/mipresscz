@@ -67,7 +67,7 @@ This project follows [Semantic Versioning](https://semver.org/).
 - `MiPressCzAdminPanelProvider` base class in core with hook methods:
   `configureBase()`, `configureNavigation()`, `configurePlugins()`, `configureMiddleware()`, `configureDiscovery()`.
 - App `AdminPanelProvider` reduced to a thin extension layer.
-- Curator, Breezy, AuthDesigner, and LanguageSwitch plugins moved to core configuration (overridable in app).
+- Curator, AuthDesigner, and LanguageSwitch plugins moved to core configuration (overridable in app).
 
 ---
 

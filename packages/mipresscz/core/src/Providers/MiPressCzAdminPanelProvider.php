@@ -27,7 +27,6 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Jeffgreco13\FilamentBreezy\BreezyCore;
 use MiPressCz\Core\Filament\Widgets\EntryStatsWidget;
 use MiPressCz\Core\Filament\Widgets\LatestEntriesWidget;
 use NoteBrainsLab\FilamentMenuManager\FilamentMenuManagerPlugin;
@@ -124,7 +123,7 @@ class MiPressCzAdminPanelProvider extends PanelProvider
     }
 
     /**
-     * Filament plugins: Curator media, AuthDesigner, Breezy profile.
+     * Filament plugins: Curator media, AuthDesigner.
      *
      * Override to swap or reconfigure plugins.
      */
@@ -134,12 +133,14 @@ class MiPressCzAdminPanelProvider extends PanelProvider
             FilamentMenuManagerPlugin::make()
                 ->locations($this->getMenuLocations())
                 ->modelSources($this->getMenuModelSources())
+                ->navigationIcon('fal-compass')
                 ->navigationGroup(__('content.collections.navigation_group'))
                 ->navigationLabel(__('content.menus.plural_label'))
                 ->navigationSort(3),
             CuratorPlugin::make()
                 ->label(__('content.media.label'))
                 ->pluralLabel(__('content.media.plural_label'))
+                ->navigationIcon('fal-photo-film-music')
                 ->navigationGroup(__('content.entries.navigation_group'))
                 ->navigationSort(99),
             AuthDesignerPlugin::make()
@@ -150,16 +151,6 @@ class MiPressCzAdminPanelProvider extends PanelProvider
                         ->blur(8)
                         ->themeToggle(top: '1rem', left: '1rem')
                 ),
-            BreezyCore::make()
-                ->myProfile(
-                    shouldRegisterUserMenu: true,
-                    userMenuLabel: __('panel.my_profile'),
-                    shouldRegisterNavigation: false,
-                    navigationGroup: 'Settings',
-                    hasAvatars: false,
-                    slug: 'my-profile'
-                )
-                ->enableBrowserSessions(condition: true),
         ]);
     }
 

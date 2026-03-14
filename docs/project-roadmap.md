@@ -102,14 +102,14 @@ mipresscz/
 - [x] V core vytvořit `MiPressCzAdminPanelProvider` s hook metodami:
   - `configureBase()` — path, colors, SPA, appearance
   - `configureNavigation()` — navigation groups
-  - `configurePlugins()` — Curator, Breezy, language switch
+  - `configurePlugins()` — Curator, language switch
   - `configureMiddleware()` — middleware stack
   - `configureDiscovery()` — resource/page auto-discovery
 - [x] App provider zredukovat na:
   ```php
   class AdminPanelProvider extends MiPressCzAdminPanelProvider {}
   ```
-- [x] Přesunout Curator, Breezy, AuthDesigner config do core (s možností override v app).
+- [x] Přesunout Curator, AuthDesigner config do core (s možností override v app).
 - [x] Ověřit boot, spustit testy.
 
 **Výstup:** čisté oddělení panel konfigurace, app provider je prázdná vrstva.
@@ -243,7 +243,7 @@ Cíl: uzavřít autorizační mezery, zvýšit testové pokrytí admin panelu a 
 ### 7.3 — Čištění redundancí ✅
 
 - [x] Audit language switcher balíčků — `craft-forge/filament-language-switcher` odstraněn, ponechán `bezhansalleh/filament-language-switch`
-- [x] Přeložit Breezy (2FA) strings do češtiny — `lang/vendor/filament-breezy/cs/default.php`
+- [x] ~~Přeložit Breezy (2FA) strings do češtiny~~ — *Breezy odebrán z projektu*
 - [x] Přepsat README.md — nahradit default Laravel placeholder odkazem na `docs/`
 
 ### 7.4 — Příprava na merge

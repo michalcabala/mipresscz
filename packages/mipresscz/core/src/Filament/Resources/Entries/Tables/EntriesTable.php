@@ -8,8 +8,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
-use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -30,16 +28,10 @@ class EntriesTable
                     ->label(__('content.entry_fields.featured_image'))
                     ->size(48)
                     ->toggleable(),
-                IconColumn::make('is_homepage')
-                    ->label(__('content.entry_fields.is_homepage'))
-                    ->icon(Heroicon::Home)
-                    ->color('success')
-                    ->boolean()
-                    ->trueIcon(Heroicon::Home)
-                    ->falseIcon('')
-                    ->width(36),
                 TextColumn::make('title')
                     ->label(__('content.entry_fields.title'))
+                    ->icon(fn (Entry $record): ?string => $record->is_homepage ? 'fal-house' : null)
+                    ->iconColor('success')
                     ->searchable()
                     ->sortable()
                     ->description(fn ($record) => $record->slug),

@@ -95,7 +95,7 @@ class AdminPanelProvider extends PanelServiceProvider { ... }
 class AdminPanelProvider extends MiPressCzAdminPanelProvider { ... }
 ```
 
-Přesuňte plugin konfiguraci (Curator, Breezy, LanguageSwitch) do hook metod base provideru nebo je odstraňte, pokud je core hodnoty vyhovují.
+Přesuňte plugin konfiguraci (Curator, LanguageSwitch) do hook metod base provideru nebo je odstraňte, pokud je core hodnoty vyhovují.
 
 ---
 

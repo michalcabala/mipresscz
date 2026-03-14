@@ -42,7 +42,6 @@ Největší průřezová rizika:
 - `awcodes/mason`
 - `awcodes/filament-curator`
 - `bezhansalleh/filament-language-switch`
-- `jeffgreco13/filament-breezy`
 - `caresome/filament-auth-designer`
 - `openplain/filament-tree-view`
 - `codewithdennis/filament-select-tree`
@@ -274,8 +273,7 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 ### Střední
 
 4. **Dva language switcher balíčky** — `bezhansalleh/filament-language-switch` + `craft-forge/filament-language-switcher` instalovány současně. Nejasné, který je aktivní.
-5. **Breezy překlady chybí** — 2FA UI strings nepřeloženy do češtiny.
-6. **README.md je default Laravel placeholder** — neodpovídá realitě projektu.
+5. **README.md je default Laravel placeholder** — neodpovídá realitě projektu.
 7. **Blocks tabulka v DB deprecated** — migrace ji stále vytváří, ale Mason je náhradou.
 
 ### Nízký
@@ -296,7 +294,7 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 | Locale systém | ✅ Kompletní | Multi/single-language routing, DB-driven |
 | Block builder (Mason) | ✅ Kompletní | 13+ bricks, drag-drop, JSON storage |
 | Media (Curator) | ✅ Kompletní | Featured image, galerie, RichEditor plugin, tagging/folders |
-| Uživatelé | ✅ Kompletní | Auth, role, 2FA, profil, soft deletes |
+| Uživatelé | ✅ Kompletní | Auth, role, profil, soft deletes |
 | Revize | ✅ Kompletní | Auto-versioning, max 50/entry, diff |
 | Installer | ✅ Kompletní | `php artisan mipresscz:install` |
 | Test suite | ✅ Silná | 522 testů; mezery pouze frontend rendering |
@@ -480,7 +478,7 @@ Tato sekce dokumentuje konkrétní bugy a nedostatky nalezené v revizi po Fázi
 | 🟡 | Stub soubory v `app/Enums/` | ✅ OPRAVENO (a598cd0) |
 | 🟡 | IDE false positive chyby | ✅ OPRAVENO (77834ed, f1d960f) |
 | 🟢 | Uncached Filament assets | ❌ OTEVŘENO (produkce) |
-| 🟢 | Breezy překlady | ❌ OTEVŘENO |
+| 🟢 | Uncached Filament assets | ❌ OTEVŘENO |
 
 ### ✅ Opravené nálezy
 
@@ -488,7 +486,7 @@ Tato sekce dokumentuje konkrétní bugy a nedostatky nalezené v revizi po Fázi
 `addPath()` přesunuto do `register()` přes `callAfterResolving()`. Všechny `content.*` překlady nyní fungují bez ohledu na pořadí bootování providerů.
 
 **🟠 Hardcoded stringy** (opraveno v a598cd0)
-`is_pinned`, Curator `label`/`pluralLabel`, Breezy `myProfile` — vše nahrazeno `__()` voláním. Přidány klíče do `content.php` a nový soubor `panel.php` (cs + en).
+`is_pinned`, Curator `label`/`pluralLabel` — vše nahrazeno `__()` voláním. Přidány klíče do `content.php` a nový soubor `panel.php` (cs + en).
 
 **🟠 Blokový builder / blocks** (opraveno v a1e2efb)
 Bloky nahrazeny Mason pluginem. Přidána migrace `drop_blocks_table`, vyčištěny permissions a překlady.
@@ -513,9 +511,6 @@ Model `Term` nemá registrovanou policy. Přidat `TermPolicy` do `packages/mipre
 php artisan icons:cache
 php artisan filament:cache-components
 ```
-
-**🟢 NÍZKÉ — Breezy překlady**
-Breezy Sessions page není lokalizovaná do češtiny. `php artisan vendor:publish --tag=filament-breezy-translations`
 
 ---
 

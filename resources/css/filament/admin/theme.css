@@ -5,11 +5,15 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../vendor/bezhansalleh/filament-language-switch/resources/views/**/*.blade.php';
-@source '../../../../vendor/jeffgreco13/filament-breezy/resources/**/*';
 @source '../../../../vendor/awcodes/mason/resources/**/*.blade.php';
 @source '../../../../vendor/awcodes/filament-curator/resources/**/*.blade.php';
 
 .fi-sidebar-item-icon {
     width: 1.1rem;
     height: 1.1rem;
+}
+
+/* Sidebar: match topbar appearance (white bg, ring border) */
+.fi-sidebar {
+    @apply lg:bg-white lg:shadow-xs lg:ring-1 lg:ring-gray-950/5 dark:lg:bg-gray-900 dark:lg:ring-white/10;
 }

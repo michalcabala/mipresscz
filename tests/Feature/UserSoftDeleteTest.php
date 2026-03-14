@@ -6,10 +6,6 @@ use App\Models\User;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    // BreezyCore::$scopeTwoFactorAuthenticationToPanel is a typed property that must be
-    // initialized before BreezySession::booted() is called (triggered on User deletion).
-    filament('filament-breezy')->enableTwoFactorAuthentication(condition: false, scopeToPanel: false);
-
     app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
     (new \Database\Seeders\RolesAndPermissionsSeeder)->run();
 
