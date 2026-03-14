@@ -296,19 +296,20 @@ $schema->columns(3)
 - [x] **Multijazyčné kolekce, blueprinty, taxonomie** — Terms per-locale záznamy (locale + origin_id self-FK, unikátní slug per locale), `HasLocalizedTitle` trait pro Collection + Taxonomy (`translations` JSON), dynamické Tabs per locale v CollectionForm + TaxonomyForm *(P1)* (362 tests)
 - [x] **Admin UI pro multijazyčné editování** — CollectionForm + TaxonomyForm: Tabs nahrazeny Select language switcherem + podmíněným `Group` per locale; EntryForm sidebar: locale `Placeholder` jako read-only indikátor
 - [x] **Nastavení domovské stránky přesunuto do `ManageSiteSettings`** — akce `set_homepage` odstraněna z `EditEntry` + `EntriesTable`, nová stránka v nav skupině Nastavení; `DefaultCollectionsSeeder` — kolekce Stránky implicitně součástí jádra (install bez `--seed`); homepage lze vybrat pouze ze stránek (363 tests)
-- [ ] Entry preview — náhled před publikací *(P2)*
-- [ ] Fulltext vyhledávání — Laravel Scout + database driver *(P3)*
+- [x] Entry preview — náhled před publikací *(P2)* (406 tests)
+- [x] Fulltext vyhledávání — Laravel Scout + database driver *(P3)* (406 tests)
 - [ ] Media tagging/folders — organizace Curator médií *(P4)*
 - [ ] **[Statamic]** `HasOrigin` trait — centralizovaný i18n fallback pro Entry lokalizaci *(P5)*
 - [ ] **[Statamic]** Blink request-level cache — N+1 prevence pro origin/locale lookups *(P6)*
 
 ---
 
-## Fáze 10 — Produkční připravenost (plánováno)
+## Fáze 10 — Produkční připravenost (probíhá)
+**Zahájeno: 14. března 2026**
 
-- [ ] Error pages — 404, 500, maintenance mode *(P1)*
-- [ ] Security hardening — CSP headers, rate limiting *(P2)*
-- [ ] CI/CD pipeline — GitHub Actions pro testy + Pint *(P3)*
+- [x] Error pages — 404, 500, 503 (maintenance) — dark mode, i18n přes `lang/*/errors.php`, `template::` layout *(P1)*
+- [x] Security hardening — `SecurityHeaders` middleware (CSP headers, X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS), Filament login má vestavěné rate limiting *(P2)*
+- [x] CI/CD pipeline — GitHub Actions s Composer cache, lint + testy + install smoke *(P3)*
 - [ ] Caching strategie — page cache, entry cache invalidace *(P4)*
 - [ ] Uživatelská dokumentace — admin UX guide *(P5)*
 - [ ] **[Statamic]** `ContainsComputedData` — virtuální pole (word_count, reading_time, derived slug) *(P6)*

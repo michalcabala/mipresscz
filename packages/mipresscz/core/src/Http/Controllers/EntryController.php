@@ -109,7 +109,7 @@ class EntryController
             ]);
     }
 
-    protected function resolveView(Entry $entry): string
+    public function resolveView(Entry $entry): string
     {
         $collection = $entry->collection->handle;
         $blueprint = $entry->blueprint->handle;

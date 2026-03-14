@@ -243,6 +243,7 @@ return [
         'create_translation_for' => 'Create translation — :locale',
         'add_short' => 'Add',
         'create_translation_confirm' => 'A new translation for :locale will be created. Data will be copied from the original entry.',
+        'preview' => 'Preview',
         'restore_revision' => 'Restore revision',
         'view_revisions' => 'View revisions',
     ],
@@ -303,5 +304,15 @@ return [
         'revision_restored' => 'Revision restored.',
         'translation_created' => 'Translation created.',
         'no_blueprint_fields' => 'Blueprint has no fields defined.',
+    ],
+
+    // ── Search ──
+    'search' => [
+        'title' => 'Search',
+        'placeholder' => 'Search the site…',
+        'button' => 'Search',
+        'no_results' => 'No results found for ":query".',
+        'results_count' => '{1} :count result for ":query"|[2,*] :count results for ":query"',
+        'min_length' => 'Enter at least 2 characters.',
     ],
 ];

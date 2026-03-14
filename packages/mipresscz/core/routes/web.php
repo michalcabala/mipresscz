@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use MiPressCz\Core\Http\Controllers\EntryController;
 use MiPressCz\Core\Http\Controllers\FeedController;
+use MiPressCz\Core\Http\Controllers\PreviewController;
+use MiPressCz\Core\Http\Controllers\SearchController;
 use MiPressCz\Core\Http\Controllers\SitemapController;
 use MiPressCz\Core\Http\Middleware\SetFrontendLocale;
 
@@ -23,6 +25,26 @@ Route::prefix('{locale}')
     ->group(function () {
         Route::get('feed.xml', [FeedController::class, 'index'])
             ->name('feed.locale');
+    });
+
+// ── Preview route (must be before catch-all) ──
+
+Route::get('_preview/{token}', [PreviewController::class, 'show'])
+    ->where('token', '[A-Za-z0-9]{64}')
+    ->name('entry.preview');
+
+// ── Search route ──
+
+Route::middleware([SetFrontendLocale::class])
+    ->group(function () {
+        Route::get('search', SearchController::class)->name('search');
+    });
+
+Route::prefix('{locale}')
+    ->where(['locale' => '[a-z]{2}'])
+    ->middleware([SetFrontendLocale::class])
+    ->group(function () {
+        Route::get('search', SearchController::class)->name('search.locale');
     });
 
 // ── Entry catch-all routes ──

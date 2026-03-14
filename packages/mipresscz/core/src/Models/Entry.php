@@ -14,12 +14,13 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Support\Str;
+use Laravel\Scout\Searchable;
 use MiPressCz\Core\Enums\EntryStatus;
 use NoteBrainsLab\FilamentMenuManager\Concerns\HasMenuItems;
 
 class Entry extends Model
 {
-    use HasFactory, HasMenuItems, HasUlids, SoftDeletes;
+    use HasFactory, HasMenuItems, HasUlids, Searchable, SoftDeletes;
 
     protected $fillable = [
         'collection_id',
@@ -44,6 +45,8 @@ class Entry extends Model
         'meta_title',
         'meta_description',
         'meta_og_image_id',
+        'preview_token',
+        'preview_token_expires_at',
     ];
 
     protected function casts(): array
@@ -57,6 +60,7 @@ class Entry extends Model
             'expired_at' => 'datetime',
             'is_pinned' => 'boolean',
             'is_homepage' => 'boolean',
+            'preview_token_expires_at' => 'datetime',
         ];
     }
 
@@ -348,6 +352,55 @@ class Entry extends Model
         }
 
         return $tags;
+    }
+
+    // ── Search ──
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'title' => $this->title,
+            'slug' => $this->slug,
+            'locale' => $this->locale,
+            'meta_title' => $this->meta_title,
+            'meta_description' => $this->meta_description,
+        ];
+    }
+
+    public function shouldBeSearchable(): bool
+    {
+        return $this->status === EntryStatus::Published
+            && $this->published_at?->isPast();
+    }
+
+    // ── Preview ──
+
+    public function generatePreviewToken(): string
+    {
+        $this->preview_token = Str::random(64);
+        $this->preview_token_expires_at = now()->addHours(24);
+        $this->saveQuietly();
+
+        return $this->preview_token;
+    }
+
+    public function isPreviewTokenValid(string $token): bool
+    {
+        return $this->preview_token === $token
+            && $this->preview_token_expires_at
+            && $this->preview_token_expires_at->isFuture();
+    }
+
+    public function getPreviewUrl(): string
+    {
+        if (! $this->preview_token || ! $this->preview_token_expires_at?->isFuture()) {
+            $this->generatePreviewToken();
+        }
+
+        return url('_preview/'.$this->preview_token);
     }
 
     // ── Slug & URI ──

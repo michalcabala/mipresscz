@@ -29,6 +29,7 @@ class EditEntry extends EditRecord
     {
         return [
             $this->getSaveAction(),
+            $this->getPreviewAction(),
             $this->getPublishAction(),
             ...$this->getLocaleActions(),
             DeleteAction::make()
@@ -58,6 +59,19 @@ class EditEntry extends EditRecord
             ->color('gray')
             ->action(fn () => $this->save())
             ->keyBindings(['mod+s']);
+    }
+
+    protected function getPreviewAction(): Action
+    {
+        /** @var Entry $record */
+        $record = $this->getRecord();
+
+        return Action::make('preview')
+            ->label(__('content.actions.preview'))
+            ->icon(Heroicon::OutlinedEye)
+            ->color('gray')
+            ->url(fn (): string => $record->getPreviewUrl())
+            ->openUrlInNewTab();
     }
 
     protected function getPublishAction(): Action

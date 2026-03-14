@@ -243,6 +243,7 @@ return [
         'create_translation_for' => 'Vytvořit překlad — :locale',
         'add_short' => 'Přidat',
         'create_translation_confirm' => 'Bude vytvořen nový překlad pro jazyk :locale. Data budou zkopírována z původního záznamu.',
+        'preview' => 'Náhled',
         'restore_revision' => 'Obnovit revizi',
         'view_revisions' => 'Zobrazit revize',
     ],
@@ -303,5 +304,15 @@ return [
         'revision_restored' => 'Revize byla obnovena.',
         'translation_created' => 'Překlad byl vytvořen.',
         'no_blueprint_fields' => 'Blueprint nemá definovaná žádná pole.',
+    ],
+
+    // ── Search ──
+    'search' => [
+        'title' => 'Vyhledávání',
+        'placeholder' => 'Hledejte na webu…',
+        'button' => 'Hledat',
+        'no_results' => 'Pro dotaz „:query" nebyly nalezeny žádné výsledky.',
+        'results_count' => '{1} :count výsledek pro „:query"|[2,4] :count výsledky pro „:query"|[5,*] :count výsledků pro „:query"',
+        'min_length' => 'Zadejte alespoň 2 znaky.',
     ],
 ];
