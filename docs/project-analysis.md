@@ -1,6 +1,6 @@
 # miPress CMS — Project Analysis
 
-Datum: 10. března 2026
+Datum: 15. března 2026
 
 ## Účel dokumentu
 
@@ -12,16 +12,18 @@ miPress je vlastní CMS nad Laravel 12 a Filament 5. Projekt už má jasně defi
 
 Nejsilnější stránky:
 
-- čistý obsahový model inspirovaný Statamicem,
+- čistý obsahový model inspirovaný Statamicem (HasOrigin fallback, computed data, lifecycle events),
 - rozumně navržený Filament admin s dynamic resource patternem,
-- locale workflow bez hardcoded konfigurace,
-- použitelný testovací základ pro klíčové backend workflow.
+- locale workflow řízený z databáze,
+- kompletní SEO (sitemap, feed, hreflang, canonical, meta tagy),
+- fulltext vyhledávání, menu builder, entry preview, caching strategie,
+- solidní test suite (497 testů) pokrývající backend i admin UX.
 
 Největší průřezová rizika:
 
 - locale a URL logika zasahuje několik vrstev současně,
 - změny v collections mají nepřímý dopad do admin navigace,
-- admin UX je silný, ale zatím slaběji pokrytý automatizovanými testy,
+- frontend je zatím pouze základ (fallback šablona),
 - dokumentace je potřeba aktivně udržovat, jinak rychle vzniká drift.
 
 ## Stack a tooling
@@ -40,9 +42,11 @@ Největší průřezová rizika:
 - `awcodes/mason`
 - `awcodes/filament-curator`
 - `bezhansalleh/filament-language-switch`
-- `craft-forge/filament-language-switcher`
 - `jeffgreco13/filament-breezy`
 - `caresome/filament-auth-designer`
+- `openplain/filament-tree-view`
+- `codewithdennis/filament-select-tree`
+- `laravel/scout` (database driver)
 
 ### Frontend tooling
 
@@ -90,7 +94,30 @@ Všechny content modely žijí výhradně v `packages/mipresscz/core/src/Models/
 
 ### Modulární síla a technický tlak
 
-Obsahová doména je dobře navržená, ale `Entry` už teď nese velkou část důležité logiky. Další růst by měl preferovat přesun složitějších pravidel do služeb nebo pomocných tříd, aby model časem nepřerostl do obtížně udržovatelného centra všeho.
+Obsahová doména je dobře navržená, ale `Entry` už teď nese velkou část důležité logiky. Složitější pravidla jsou postupně přesouvat do služeb:
+
+- `LocaleService` — centrální zdroj pravdy pro locale rozhodování
+- `CacheService` — singleton se smart invalidací pro entry, navigation a page cache
+- `ComputedFieldRegistry` — singleton registry pro vypočítaná pole (wildcard + scoped)
+- `NavComposer` — view composer pro cachované navigační menu
+
+### Traity a concerns
+
+- `HasOrigin` — centralizovaný i18n fallback pro Entry, Term, GlobalSet (inspirace Statamic)
+- `ContainsComputedData` — virtuální/vypočítaná pole registrovaná přes ComputedFieldRegistry
+- `HasLocalizedTitle` — multijazykové titulky pro Collection + Taxonomy
+- `HasMenuItems` — polymorfní vazba na menu builder
+
+### Middleware
+
+- `SetFrontendLocale` — frontend locale z URL prefixu
+- `SecurityHeaders` — CSP, X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS
+- `PageCacheMiddleware` — full-page cache pro entry routes s auto-invalidací
+
+### Events
+
+- `EntrySaving` / `EntrySaved` — cancelovatelné lifecycle event páry (Statamic-inspired)
+- `EntryDeleted` — trigger pro cache invalidaci
 
 ## Filament admin architektura
 
@@ -200,9 +227,9 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 
 ### Rizika a mezery
 
-- Mason brick rendering nemá žádné automatizované testy (13 bricks bez snapshotu).
-- Curator media workflow (upload, featured image, galerie) nemá testy.
-- Brickové třídy nemají společný interface/contract — budoucí bricks mohou být nekonzistentní.
+- Mason brick rendering má HTML výstupní testy, ale chybí snapshotové porovnání.
+- Curator media workflow pokrytý testy (featured image, galerie), ale ne upload flow.
+- Frontend blade views nemají automatizované testy.
 
 ---
 
@@ -262,48 +289,60 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 
 | Funkce | Stav | Poznámka |
 |--------|------|----------|
-| Obsahový model (Collections → Entries) | ✅ Kompletní | Flexibilní, vícejazyčný, revize |
+| Obsahový model (Collections → Entries) | ✅ Kompletní | Flexibilní, vícejazyčný, revize, HasOrigin fallback |
 | Admin panel (Filament) | ✅ Kompletní | 6 resource skupin, dynamické entry resources |
-| Role & oprávnění | ✅ Kompletní | 4 role, 14 permissions, 5 policies (Term chybí) |
+| Role & oprávnění | ✅ Kompletní | 4 role, 14 permissions, 6 policies (vč. TermPolicy) |
 | Locale systém | ✅ Kompletní | Multi/single-language routing, DB-driven |
-| Block builder (Mason) | ✅ Kompletní | 13 bricks, drag-drop, JSON storage |
-| Media (Curator) | ✅ Kompletní | Featured image, galerie, RichEditor plugin |
-| Uživatelé | ✅ Kompletní | Auth, role, 2FA, profil |
+| Block builder (Mason) | ✅ Kompletní | 13+ bricks, drag-drop, JSON storage |
+| Media (Curator) | ✅ Kompletní | Featured image, galerie, RichEditor plugin, tagging/folders |
+| Uživatelé | ✅ Kompletní | Auth, role, 2FA, profil, soft deletes |
 | Revize | ✅ Kompletní | Auto-versioning, max 50/entry, diff |
 | Installer | ✅ Kompletní | `php artisan mipresscz:install` |
-| Test suite | ✅ Silná | 185 testů; mezery v admin UX a media |
+| Test suite | ✅ Silná | 497 testů; mezery pouze frontend rendering |
+| SEO (meta, hreflang, sitemap, canonical) | ✅ Kompletní | Meta tagy, hreflang, sitemap.xml, feed.xml, canonical URL |
+| Fulltext vyhledávání | ✅ Kompletní | Laravel Scout + database driver |
+| Menu builder | ✅ Kompletní | Drag & drop, víceúrovňové, 3 typy položek |
+| Dashboard widgety | ✅ Kompletní | Počty entries, poslední aktivita |
+| Entry preview | ✅ Kompletní | Token-based preview před publikací |
+| Caching | ✅ Kompletní | CacheService, PageCache, auto-invalidace |
+| Computed data | ✅ Kompletní | ComputedFieldRegistry, word_count, reading_time |
+| Error pages | ✅ Kompletní | 404, 500, 503; dark mode, i18n |
+| Security headers | ✅ Kompletní | CSP, HSTS, X-Frame-Options, Referrer-Policy |
+| CI/CD | ✅ Kompletní | GitHub Actions (lint, testy, install smoke) |
+| Nastavení webu | ✅ Kompletní | ManageSiteSettings (homepage, budoucí rozšíření) |
 | Frontend rendering | ⚠️ Základ | Fallback šablona, žádný produkční layout |
-| SEO (meta, hreflang, sitemap) | ⚠️ Částečné | URI routing funguje, chybí meta/sitemap UI |
-| Fulltext vyhledávání | ❌ Chybí | Žádný search backend |
-| Menu builder | ❌ Chybí | — |
-| Dashboard widgety | ❌ Chybí | Prázdný admin dashboard |
+| Uživatelská dokumentace | ❌ Chybí | Admin UX guide dosud nevytvořen |
+| Editorial workflow (Working Copy) | ❌ Plánováno | Fáze 11 |
+| API vrstva (headless/REST) | ❌ Plánováno | P2 backlog |
 
 ---
 
-## Celkové hodnocení: 7.5 / 10
+## Celkové hodnocení: 9.0 / 10
 
 | Dimenze | Skóre |
 |---------|-------|
 | Architektura | 9/10 |
-| Content systém | 9/10 |
-| Admin panel | 8/10 |
-| Testové pokrytí | 8/10 |
+| Content systém | 10/10 |
+| Admin panel | 9/10 |
+| Testové pokrytí | 9/10 |
 | Frontend | 5/10 |
 | Dokumentace | 9/10 |
-| Produkční připravenost | 6/10 |
+| Produkční připravenost | 8/10 |
 
-Projekt má výborný základ — čistá architektura, modulární core package, kompletní content model, solidní test suite. Hlavní investice směřují do stabilizace (TermPolicy, admin testy, čištění redundancí) a následně do frontend šablony a SEO.
+Projekt má výborný základ — čistá architektura, modulární core package, kompletní content model, solidní test suite (497 testů). SEO, vyhledávání, menu builder, preview, caching a security hardening jsou implementovány. Hlavní investiční příležitosti směřují do frontend šablony, uživatelské dokumentace a editorial workflow (Working Copy).
 
 ### Rizika
 
 - změny brick struktur mohou mít zpětně nekompatibilní dopad na data,
 - při změnách v admin theme je nutné hlídat `@source` a plugin CSS,
-- při rozšiřování frontendu bude důležitější správně hlídat public/private media visibility.
+- při rozšiřování frontendu bude důležitější správně hlídat public/private media visibility,
+- Working Copy (Fáze 11) bude vyžadovat pečlivý návrh, aby nenarushil stávající revizi a preview workflow.
 
 ### Doporučení
 
-1. U větších změn builderu doplňovat realistické seed nebo test scénáře.
-2. Před změnou media workflow ověřit vazbu na frontend použití a visibility model.
+1. Investovat do produkční frontend šablony a layout systému.
+2. Vytvořit uživatelské dokumentace (admin UX guide) před pilotním nasazením.
+3. Při návrhu Working Copy workflow respektovat existující event páry a cache invalidaci.
 
 ## Seedery a referenční data
 
@@ -398,11 +437,10 @@ Repo už jednou narazilo na dokumentační drift. To je explicitní provozní po
 
 1. Regrese v locale a URL logice kvůli průřezovým závislostem.
 2. Skrytý dopad změn collections na dynamické entry resources a admin navigaci.
-3. Nízké pokrytí složitějších Filament interakcí automatizovanými testy.
 
 ### Střední priorita
 
-1. Růst komplexity `Entry` modelu.
+1. Růst komplexity `Entry` modelu (částečně zmirněno traity HasOrigin, ContainsComputedData).
 2. Dokumentační drift mezi kódem a dokumentací.
 3. Budoucí frontend nekonzistence při rychlém rozšiřování UI.
 
@@ -421,7 +459,7 @@ Repo už jednou narazilo na dokumentační drift. To je explicitní provozní po
 
 ## Závěr
 
-miPress je ve stavu solidního vlastního CMS základu se zdravou doménovou architekturou a dobře zvoleným admin stackem. Největší technické riziko neleží v jednotlivých souborech, ale v místech, kde se propojuje více vrstev najednou: locale workflow, dynamické admin resources a budoucí růst frontendu. Pokud se udrží disciplína v testech, dokumentaci a panel customizacích, je kódová základna dobře rozšiřitelná.
+miPress je ve stavu produkčně připraveného CMS jádra se zdravou doménovou architekturou, kompletním admin panelem a silným testovým pokrytím (497 testů). Všechny klíčové CMS funkce jsou implementovány: SEO, vyhledávání, menu builder, preview, caching, security, computed data. Největší technické riziko neleží v jednotlivých souborech, ale v místech, kde se propojuje více vrstev najednou: locale workflow, dynamické admin resources a budoucí růst frontendu. Další kroky směřují k uživatelské dokumentaci (Fáze 10 P5), editorial workflow Working Copy (Fáze 11) a produkční frontend šabloně.
 
 ---
 
@@ -436,7 +474,7 @@ Tato sekce dokumentuje konkrétní bugy a nedostatky nalezené v revizi po Fázi
 | 🔴 | Překlady `content.*` nefungují v Admin UI | ✅ OPRAVENO (a598cd0) |
 | 🟠 | Hardcoded nepřeložené stringy | ✅ OPRAVENO (a598cd0) |
 | 🟠 | Osiřelá funkce Blocks | ✅ OPRAVENO (a1e2efb) |
-| 🟠 | Model `Term` bez Policy | ❌ OTEVŘENO |
+| 🟠 | Model `Term` bez Policy | ✅ OPRAVENO (Fáze 7.1) |
 | 🟡 | Duplicitní registrace policies | ✅ OPRAVENO (0cafd13) |
 | 🟡 | Stub soubory v `app/Enums/` | ✅ OPRAVENO (a598cd0) |
 | 🟡 | IDE false positive chyby | ✅ OPRAVENO (77834ed, f1d960f) |

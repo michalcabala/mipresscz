@@ -1,6 +1,6 @@
 # miPress CMS — Project Roadmap
 
-Datum: 12. března 2026
+Datum: 15. března 2026
 
 ## Strategický cíl
 
@@ -199,6 +199,21 @@ mipresscz/
 
 ---
 
+## Fáze 6b — Release a governance ✅
+**Dokončeno: 9. března 2026**
+
+- [x] Semver verzování v `packages/mipresscz/core/composer.json` (verze `0.6.0`).
+- [x] `CHANGELOG.md` pro core (`packages/mipresscz/core/CHANGELOG.md`).
+- [x] CI: `.github/workflows/ci.yml` — lint (Pint), testy (MySQL), install smoke test.
+- [x] Dokumentace:
+  - `docs/architecture-core.md` — hranice core/app, jak core rozšiřovat
+  - `docs/upgrade-guide.md` — versioning a breaking changes
+  - `docs/contributing-core.md` — workflow pro přispívání do core
+
+**Výstup:** dlouhodobě udržitelný model s jasnou governance.
+
+---
+
 ## Fáze 7 — Stabilizace a hardening ⏳
 **Zahájeno: 10. března 2026**
 
@@ -325,91 +340,41 @@ $schema->columns(3)
 
 ---
 
-## Fáze 7 — Release a governance ✅
-**Dokončeno: 9. března 2026**
-
-- [x] Semver verzování v `packages/mipresscz/core/composer.json` (verze `0.6.0`).
-- [x] `CHANGELOG.md` pro core (`packages/mipresscz/core/CHANGELOG.md`).
-- [x] CI: `.github/workflows/ci.yml` — lint (Pint), testy (MySQL), install smoke test.
-- [x] Dokumentace:
-  - `docs/architecture-core.md` — hranice core/app, jak core rozšiřovat
-  - `docs/upgrade-guide.md` — versioning a breaking changes
-  - `docs/contributing-core.md` — workflow pro přispívání do core
-
-**Výstup:** dlouhodobě udržitelný model s jasnou governance.
-
 ---
 
 ## Prioritní To-Do backlog
 
-### ✅ Hotovo — Jádro extrahováno (Fáze 0–7, 9. března 2026)
+### ✅ Hotovo — Shrnutí milníků
 
-Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
+| Milník | Datum | Testy |
+|--------|-------|-------|
+| Fáze 0–6b: Core extraction + governance | 9. března 2026 | 185 |
+| Fáze 7: Stabilizace + merge (`v0.7.0`) | 11. března 2026 | 291 |
+| Fáze 8: SEO & Discovery | 11. března 2026 | 307 |
+| Fáze 9: Funkční rozšíření (dashboard, events, soft deletes) | 11. března 2026 | 338 |
+| Fáze 9: Multijazyčné kolekce/taxonomie | 12. března 2026 | 362 |
+| Fáze 9: Admin UI + nastavení webu | 12. března 2026 | 363 |
+| Fáze 9: Menu builder | 13. března 2026 | 369 |
+| Fáze 9: Preview, Search, HasOrigin, Blink | 14. března 2026 | 423 |
+| Fáze 9: Media tagging/folders | 14. března 2026 | 450 |
+| Fáze 10: Error pages + Security + CI/CD + Cache | 14. března 2026 | 469 |
+| Fáze 10: ContainsComputedData | 15. března 2026 | 497 |
 
-- [x] `packages/mipresscz/core` s kompletní doménovou logikou
-- [x] `AdminPanelProvider` dědí z `MiPressCzAdminPanelProvider`
-- [x] Všechny content modely, services, observers, policies v core
-- [x] Filament resources v core
-- [x] Installer command (`php artisan mipresscz:install`)
-- [x] Routing + locale kontrakt v core
-- [x] Seeders/factories/lang/views v core
-- [x] 185 testů zelených
-- [x] Release governance (semver, changelog, CI, docs)
-
-### ✅ Hotovo — Fáze 7 stabilizace + merge (11. března 2026)
-
-- [x] `refactor/core-extraction` → `main` merge, tag `v0.7.0`
-- [x] 243 testů zelených (oprava LocaleServiceTest izolace + TermFactory unique slug)
-- [x] `npm run build` — Vite build čistý, 4 assety OK
-
-### ✅ Hotovo — Fáze 8 + Fáze 9 první sada (11. března 2026)
-
-- [x] Fáze 8: sitemap, RSS/Atom feed, hreflang, meta tagy, canonical URL — 307 testů
-- [x] Fáze 9: admin dashboard widgety, lifecycle event páry `EntrySaving`/`EntrySaved` — 323 testů
-- [x] Fáze 9: výchozí jazyk nelze smazat, nastavení domovské stránky, soft deletes pro uživatele — 338 testů
-
-### ✅ Hotovo — Fáze 9 multijazyčné kolekce/taxonomie (12. března 2026)
-
-- [x] Terms: per-locale záznamy — `locale` (string, default `cs`), `origin_id` (nullable self-FK s `nullOnDelete`), unique constraint změněn z `(taxonomy_id, slug)` → `(taxonomy_id, locale, slug)`
-- [x] `HasLocalizedTitle` trait — `getLocalizedTitle(?locale)` + `getLocalizedDescription(?locale)` s fallback na `$this->title` / `$this->description`
-- [x] Collection + Taxonomy modely: `translations` JSON sloupec (cast `array`), trait registrován
-- [x] TermForm: `locale` select, `origin_id` select (filtráno dle taxonomy + výchozí locale), slug unique validace per locale, `parent_id` filtrován dle locale
-- [x] TermsTable: locale badge sloupec + SelectFilter
-- [x] CollectionForm + TaxonomyForm: dynamické Tabs per aktivní locale (`locales()->getActive()`)
-- [x] Idempotentní migrace přepsána na `Schema::getForeignKeys()` / `Schema::getIndexes()` (spolehlivá i v test env)
-- [x] 362 testů zelených (16 nových: MultilingualTermTest + LocalizedTitleTest)
-
-### ✅ Hotovo — Admin UI + nastavení webu (12. března 2026)
-
-**Admin UI pro multijazyčné editování** *(commit `2c1d0d9`)*
-- [x] CollectionForm + TaxonomyForm: per-locale `Tabs` nahrazeny `Select` jazykový přepínač + podmíněný `Group` per locale (přehledné, nezabírá místo při jednom jazyce)
-- [x] EntryForm sidebar: `Placeholder` zobrazující aktuální locale jako read-only indikátor (label z `locales()->findByCode()`)
-- [x] Lang: klíč `'language'` doplněn do `collection_fields` a `taxonomy_fields` (cs + en)
-
-**Nastavení domovské stránky — ManageSiteSettings** *(commit `ba3690c`)*
-- [x] Nová Filament stránka `ManageSiteSettings` v nav skupině `Nastavení` (sort 20, ikona `heroicon-o-cog-6-tooth`)
-- [x] `Select::make('homepage_entry_id')` — options pouze z kolekce `pages` (`whereNull('origin_id')`, seřazeno dle titulu)
-- [x] `save()` — nejprve vynuluje všechny `is_homepage`, pak nastaví vybraný entry; notifikace po uložení
-- [x] `DefaultCollectionsSeeder` — idempotentní (`updateOrCreate`) vytvoření kolekce `pages` + blueprint `standard`; spouštěn z `InstallCommand` jako `seedDefaultCollections()` krok
-- [x] Odstraněna akce `set_homepage` z `EditEntry` header i z `EntriesTable` recordActions (visible indicator `is_homepage` IconColumn ponechán)
-- [x] `HomepageEntryTest` přepsán pro `ManageSiteSettings` (9 testů, 26 assertions)
-- [x] **363 testů zelených**
-
-### P1 — Nejbližší (Fáze 9 dokončení)
-- ~~Menu builder — drag & drop navigační struktura~~ ✅ dokončeno
-- ~~Multijazyčné kolekce/taxonomie~~ ✅ dokončeno (12. března 2026)
-- ~~Admin UI pro multijazyčné editování (Select switcher)~~ ✅ dokončeno (12. března 2026)
-- ~~ManageSiteSettings + DefaultCollectionsSeeder~~ ✅ dokončeno (12. března 2026)
-- ~~Entry preview — náhled před publikací~~ ✅ dokončeno
-- ~~Fulltext vyhledávání — Laravel Scout + database driver~~ ✅ dokončeno
-- ~~Media tagging/folders — organizace Curator médií~~ ✅ dokončeno (14. března 2026)
-- ~~**[Statamic]** `HasOrigin` trait + Blink cache~~ ✅ dokončeno (14. března 2026)
+### ~~P1 — Nejbližší (Fáze 9 dokončení)~~ ✅ Vše dokončeno
+- ~~Menu builder — drag & drop navigační struktura~~ ✅
+- ~~Multijazyčné kolekce/taxonomie~~ ✅
+- ~~Admin UI pro multijazyčné editování (Select switcher)~~ ✅
+- ~~ManageSiteSettings + DefaultCollectionsSeeder~~ ✅
+- ~~Entry preview — náhled před publikací~~ ✅
+- ~~Fulltext vyhledávání — Laravel Scout + database driver~~ ✅
+- ~~Media tagging/folders — organizace Curator médií~~ ✅
+- ~~**[Statamic]** `HasOrigin` trait + Blink cache~~ ✅
 
 ### P2 — Střednědobě
 - API vrstva do core (headless/REST)
 - `mipresscz:new-site` command
 - Publish tags a dokumentace pro integrátory
-- **[Statamic]** `ContainsComputedData` pro vypočítaná pole (Fáze 10)
+- ~~**[Statamic]** `ContainsComputedData` pro vypočítaná pole (Fáze 10)~~ ✅ dokončeno (497 tests)
 - ~~**[Statamic]** Lifecycle event páry pro Entry~~ ✅ dokončeno (323 tests)
 
 ### P3 — Dlouhodobě
@@ -421,8 +386,6 @@ Všechny plánované fáze dokončeny. Core extraction je **KOMPLETNÍ**.
 
 ### Otevřené technical debt položky
 
-- ✅ ~~`TermPolicy` chybí~~ — vyřešeno 10. března 2026
-- ✅ ~~Breezy překlady~~ — vyřešeno 10. března 2026
 - 🟢 Uncached Filament assets — `php artisan icons:cache && php artisan filament:cache-components`
 
 ---
@@ -448,7 +411,7 @@ Statamic CMS byl přidán do workspace jako referenční codebase (`c:/laragon/w
 | `HasOrigin` — automatický i18n fallback na hodnoty z origin entry | ★★★★★ | ✅ Hotovo |
 | Lifecycle event páry `*Saving` / `*Saved` (cancelovatelný pre-event) | ★★★★☆ | ✅ Hotovo |
 | Working Copy — pracovní kopie odděleně od publikované verze | ★★★★☆ | Fáze 11 |
-| `ContainsComputedData` — virtuální/vypočítaná pole na modelu | ★★★☆☆ | Fáze 10 |
+| `ContainsComputedData` — virtuální/vypočítaná pole na modelu | ★★★☆☆ | ✅ Hotovo |
 | Blink request-level cache — prevence N+1 pro origin lookups | ★★★☆☆ | ✅ Hotovo |
 | `Hookable` Pipeline — rozšiřitelné hooky pro addon systém | ★★☆☆☆ | Fáze P3 |
 | `FluentlyGetsAndSets` — fluent getter/setter pattern na modelech | ★★☆☆☆ | Fáze P3 |
@@ -478,10 +441,10 @@ Request-scoped in-memory cache (ne globální `Cache`). Vhodná pro Entry/origin
 - [x] `AdminPanelProvider` v app je tenká dědická vrstva
 - [x] Core obsahuje všechny CMS-common součásti
 - [x] Installer funguje na čisté instalaci
-- [x] Kritické testy pro content + locale + routing + policy jsou zelené (243/243)
+- [x] Kritické testy pro content + locale + routing + policy jsou zelené (497/497)
 - [x] `docs/architecture-core.md` jasně dokumentuje hranici core/app
 
-**Stav: Definition of Done splněno. ✅**
+**Stav: Definition of Done splněno. ✅ (aktuálně 497 testů)**
 
 ---
 
