@@ -319,14 +319,13 @@ $schema->columns(3)
 
 ---
 
-## Fáze 10 — Produkční připravenost (probíhá)
-**Zahájeno: 14. března 2026**
+## Fáze 10 — Produkční připravenost ✅ (dokončeno 14. března 2026)
 
 - [x] Error pages — 404, 500, 503 (maintenance) — dark mode, i18n přes `lang/*/errors.php`, `template::` layout *(P1)*
 - [x] Security hardening — `SecurityHeaders` middleware (CSP headers, X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS), Filament login má vestavěné rate limiting *(P2)*
 - [x] CI/CD pipeline — GitHub Actions s Composer cache, lint + testy + install smoke *(P3)*
 - [x] Caching strategie — `CacheService` singleton, `PageCache` middleware na entry routes, `EntryDeleted` event + `CacheInvalidationSubscriber`, `NavComposer` view composer pro header/footer, admin UI tlačítko „Smazat cache" *(P4)*
-- [ ] Uživatelská dokumentace — admin UX guide *(P5)*
+- [x] Uživatelská dokumentace — `docs/admin-guide.md` — příručka administrátora (obsah, média, menu, nastavení, uživatelé, vyhledávání) *(P5)*
 - [x] **[Statamic]** `ContainsComputedData` — `ComputedFieldRegistry` singleton (wildcard + scoped), `ContainsComputedData` trait na Entry, `getPlainTextContent()` extrakce z Mason bloků, výchozí `word_count` + `reading_time`, Filament sidebar sekce „Statistiky obsahu" *(P6)*
 
 ---
@@ -359,6 +358,7 @@ $schema->columns(3)
 | Fáze 9: Media tagging/folders | 14. března 2026 | 450 |
 | Fáze 10: Error pages + Security + CI/CD + Cache | 14. března 2026 | 469 |
 | Fáze 10: ContainsComputedData | 15. března 2026 | 497 |
+| Fáze 10: Uživatelská dokumentace | 14. března 2026 | 497 |
 
 ### ~~P1 — Nejbližší (Fáze 9 dokončení)~~ ✅ Vše dokončeno
 - ~~Menu builder — drag & drop navigační struktura~~ ✅

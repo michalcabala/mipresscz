@@ -311,7 +311,7 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 | CI/CD | ✅ Kompletní | GitHub Actions (lint, testy, install smoke) |
 | Nastavení webu | ✅ Kompletní | ManageSiteSettings (homepage, budoucí rozšíření) |
 | Frontend rendering | ⚠️ Základ | Fallback šablona, žádný produkční layout |
-| Uživatelská dokumentace | ❌ Chybí | Admin UX guide dosud nevytvořen |
+| Uživatelská dokumentace | ✅ Kompletní | `docs/admin-guide.md` — příručka administrátora |
 | Editorial workflow (Working Copy) | ❌ Plánováno | Fáze 11 |
 | API vrstva (headless/REST) | ❌ Plánováno | P2 backlog |
 
