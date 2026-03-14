@@ -310,7 +310,7 @@ $schema->columns(3)
 - [x] Error pages — 404, 500, 503 (maintenance) — dark mode, i18n přes `lang/*/errors.php`, `template::` layout *(P1)*
 - [x] Security hardening — `SecurityHeaders` middleware (CSP headers, X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS), Filament login má vestavěné rate limiting *(P2)*
 - [x] CI/CD pipeline — GitHub Actions s Composer cache, lint + testy + install smoke *(P3)*
-- [ ] Caching strategie — page cache, entry cache invalidace *(P4)*
+- [x] Caching strategie — `CacheService` singleton, `PageCache` middleware na entry routes, `EntryDeleted` event + `CacheInvalidationSubscriber`, `NavComposer` view composer pro header/footer, admin UI tlačítko „Smazat cache" *(P4)*
 - [ ] Uživatelská dokumentace — admin UX guide *(P5)*
 - [ ] **[Statamic]** `ContainsComputedData` — virtuální pole (word_count, reading_time, derived slug) *(P6)*
 
