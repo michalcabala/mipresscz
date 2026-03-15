@@ -25,7 +25,6 @@
         "laravel/tinker": "^2.10.1",
         "mipresscz/core": "@dev",
         "muhammad-nawlo/filament-sitemap-generator": "^1.0",
-        "notebrainslab/filament-menu-manager": "^1.0",
         "openplain/filament-tree-view": "^0.5.4",
         "spatie/laravel-feed": "^4.5",
         "spatie/laravel-permission": "^7.2"

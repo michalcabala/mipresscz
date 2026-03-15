@@ -2,17 +2,17 @@
 
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
-use MiPressCz\Core\Models\Entry;
-use NoteBrainsLab\FilamentMenuManager\Concerns\HasMenuItems;
-use NoteBrainsLab\FilamentMenuManager\Models\Menu;
-use NoteBrainsLab\FilamentMenuManager\Models\MenuItem;
-use NoteBrainsLab\FilamentMenuManager\Models\MenuLocation;
+use MiPressCz\Core\Concerns\HasNavMenuItems;
 use MiPressCz\Core\Filament\Pages\MenuManagerPage;
+use MiPressCz\Core\Models\Entry;
+use MiPressCz\Core\Models\NavMenu;
+use MiPressCz\Core\Models\NavMenuItem;
+use MiPressCz\Core\Models\NavMenuLocation;
 
-describe('Entry HasMenuItems', function () {
-    it('implements HasMenuItems trait', function () {
+describe('Entry HasNavMenuItems', function () {
+    it('implements HasNavMenuItems trait', function () {
         $uses = class_uses_recursive(Entry::class);
-        expect($uses)->toContain(HasMenuItems::class);
+        expect($uses)->toContain(HasNavMenuItems::class);
     });
 
     it('returns menu label from title', function () {
@@ -28,22 +28,22 @@ describe('Entry HasMenuItems', function () {
 
 describe('Menu manager DB tables', function () {
     it('can create a menu location', function () {
-        $location = MenuLocation::create([
+        $location = NavMenuLocation::create([
             'handle' => 'primary',
             'name' => 'Primary navigation',
         ]);
 
         expect($location->handle)->toBe('primary');
-        expect(MenuLocation::count())->toBeGreaterThanOrEqual(1);
+        expect(NavMenuLocation::count())->toBeGreaterThanOrEqual(1);
     });
 
     it('can create a menu for a location', function () {
-        $location = MenuLocation::firstOrCreate(
+        $location = NavMenuLocation::firstOrCreate(
             ['handle' => 'primary'],
             ['name' => 'Primary navigation'],
         );
 
-        $menu = Menu::create([
+        $menu = NavMenu::create([
             'menu_location_id' => $location->id,
             'name' => 'Hlavní menu',
             'is_active' => true,
@@ -54,17 +54,17 @@ describe('Menu manager DB tables', function () {
     });
 
     it('can create a menu item', function () {
-        $location = MenuLocation::firstOrCreate(
+        $location = NavMenuLocation::firstOrCreate(
             ['handle' => 'primary'],
             ['name' => 'Primary navigation'],
         );
 
-        $menu = Menu::create([
+        $menu = NavMenu::create([
             'menu_location_id' => $location->id,
             'name' => 'Hlavní menu',
         ]);
 
-        $item = MenuItem::create([
+        $item = NavMenuItem::create([
             'menu_id' => $menu->id,
             'title' => 'Úvod',
             'url' => '/',
@@ -79,17 +79,17 @@ describe('Menu manager DB tables', function () {
     });
 
     it('deletes menu items when menu is deleted (cascade)', function () {
-        $location = MenuLocation::firstOrCreate(
+        $location = NavMenuLocation::firstOrCreate(
             ['handle' => 'footer'],
             ['name' => 'Footer'],
         );
 
-        $menu = Menu::create([
+        $menu = NavMenu::create([
             'menu_location_id' => $location->id,
             'name' => 'Footer menu',
         ]);
 
-        MenuItem::create([
+        NavMenuItem::create([
             'menu_id' => $menu->id,
             'title' => 'Kontakt',
             'url' => '/kontakt',
@@ -100,7 +100,7 @@ describe('Menu manager DB tables', function () {
         $menuId = $menu->id;
         $menu->delete();
 
-        expect(MenuItem::where('menu_id', $menuId)->count())->toBe(0);
+        expect(NavMenuItem::where('menu_id', $menuId)->count())->toBe(0);
     });
 });
 

@@ -15,16 +15,16 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use MiPressCz\Core\Concerns\ContainsComputedData;
+use MiPressCz\Core\Concerns\HasNavMenuItems;
 use MiPressCz\Core\Concerns\HasOrigin;
 use MiPressCz\Core\Concerns\HasWorkingCopy;
 use MiPressCz\Core\Enums\EntryStatus;
-use NoteBrainsLab\FilamentMenuManager\Concerns\HasMenuItems;
 use Spatie\Feed\Feedable;
 use Spatie\Feed\FeedItem;
 
 class Entry extends Model implements Feedable
 {
-    use ContainsComputedData, HasFactory, HasMenuItems, HasOrigin, HasUlids, HasWorkingCopy, Searchable, SoftDeletes;
+    use ContainsComputedData, HasFactory, HasNavMenuItems, HasOrigin, HasUlids, HasWorkingCopy, Searchable, SoftDeletes;
 
     protected $fillable = [
         'collection_id',

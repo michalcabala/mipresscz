@@ -2,13 +2,19 @@
 
 namespace MiPressCz\Core;
 
+use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 use MiPressCz\Core\Console\Commands\InstallCommand;
 use MiPressCz\Core\Console\Commands\TemplateListCommand;
 use MiPressCz\Core\Listeners\CacheInvalidationSubscriber;
+use MiPressCz\Core\Livewire\NavMenuBuilder;
+use MiPressCz\Core\Livewire\NavMenuPanel;
 use MiPressCz\Core\Models\Blueprint;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
@@ -31,6 +37,7 @@ use MiPressCz\Core\Policies\TermPolicy;
 use MiPressCz\Core\Services\CacheService;
 use MiPressCz\Core\Services\ComputedFieldRegistry;
 use MiPressCz\Core\Services\LocaleService;
+use MiPressCz\Core\Services\NavMenuService;
 use MiPressCz\Core\Services\TemplateManager;
 use MiPressCz\Core\Support\Blink;
 use MiPressCz\Core\View\Composers\NavComposer;
@@ -43,6 +50,7 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         $this->app->singleton(CacheService::class);
         $this->app->singleton(ComputedFieldRegistry::class);
         $this->app->singleton(LocaleService::class);
+        $this->app->singleton(NavMenuService::class);
         $this->app->singleton(TemplateManager::class);
 
         // Register core lang files as additional base-namespace paths so that
@@ -90,6 +98,14 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         Entry::observe(EntryObserver::class);
         Locale::observe(LocaleObserver::class);
 
+        Livewire::component('nav-menu-builder', NavMenuBuilder::class);
+        Livewire::component('nav-menu-panel', NavMenuPanel::class);
+
+        FilamentAsset::register([
+            Css::make('nav-menu-styles', __DIR__.'/../resources/dist/nav-menu.css'),
+            Js::make('nav-menu-scripts', __DIR__.'/../resources/dist/nav-menu.js'),
+        ], 'mipresscz/core');
+
         $this->registerDefaultComputedFields();
 
         Event::subscribe(CacheInvalidationSubscriber::class);
@@ -114,6 +130,10 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../resources/lang' => lang_path(),
             ], 'mipresscz-translations');
+
+            $this->publishes([
+                __DIR__.'/../config/nav-menu.php' => config_path('nav-menu.php'),
+            ], 'mipresscz-config');
         }
     }
 
