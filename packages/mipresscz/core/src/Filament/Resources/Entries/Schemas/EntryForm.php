@@ -35,36 +35,44 @@ class EntryForm
                 Group::make()
                     ->schema([
                         Section::make()
-                            ->schema([
-                                TextInput::make('title')
-                                    ->label(__('content.entry_fields.title'))
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(function (?string $state, callable $set, string $operation) {
-                                        if ($operation === 'create') {
-                                            $set('slug', \Illuminate\Support\Str::slug($state));
-                                        }
-                                    })
-                                    ->autofocus(),
-                                TextInput::make('slug')
-                                    ->label(__('content.entry_fields.slug'))
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->prefix('/')
-                                    ->rules([
-                                        fn (Get $get, ?Entry $record): \Illuminate\Validation\Rules\Unique => Rule::unique('entries', 'slug')
-                                            ->where('collection_id', $get('collection_id'))
-                                            ->where('locale', $get('locale') ?: locales()->getDefaultCode())
-                                            ->ignore($record?->getKey()),
-                                    ]),
+                            ->schema(function (?Entry $record): array {
+                                $blueprintId = $record?->blueprint_id ?? static::resolveDefaultBlueprintId();
+                                $blueprint = static::resolveBlueprint($blueprintId);
 
-                                // Mason is always the content editor
-                                Mason::make('content')
-                                    ->label(__('content.entry_fields.content'))
-                                    ->bricks(static::$brickClasses)
-                                    ->columnSpanFull(),
-                            ]),
+                                $fields = [
+                                    TextInput::make('title')
+                                        ->label(__('content.entry_fields.title'))
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function (?string $state, callable $set, string $operation) {
+                                            if ($operation === 'create') {
+                                                $set('slug', \Illuminate\Support\Str::slug($state));
+                                            }
+                                        })
+                                        ->autofocus(),
+                                    TextInput::make('slug')
+                                        ->label(__('content.entry_fields.slug'))
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->prefix('/')
+                                        ->rules([
+                                            fn (Get $get, ?Entry $record): \Illuminate\Validation\Rules\Unique => Rule::unique('entries', 'slug')
+                                                ->where('collection_id', $get('collection_id'))
+                                                ->where('locale', $get('locale') ?: locales()->getDefaultCode())
+                                                ->ignore($record?->getKey()),
+                                        ]),
+                                ];
+
+                                if ($blueprint?->use_mason ?? false) {
+                                    $fields[] = Mason::make('content')
+                                        ->label(__('content.entry_fields.content'))
+                                        ->bricks(static::$brickClasses)
+                                        ->columnSpanFull();
+                                }
+
+                                return $fields;
+                            }),
 
                         // Dynamic main fields from blueprint
                         Section::make(__('content.entry_fields.extra_fields'))
@@ -246,6 +254,7 @@ class EntryForm
             $component = match ($type) {
                 'textarea' => Textarea::make($name)->label($label)->rows(4),
                 'rich_editor' => RichEditor::make($name)->label($label),
+                'mason' => Mason::make($name)->label($label)->bricks(static::$brickClasses),
                 'curator', 'media' => CuratorPicker::make($name)->label($label)->constrained(true)->lazyLoad(true),
                 'select' => Select::make($name)->label($label)->options($field['config']['options'] ?? []),
                 'toggle' => Toggle::make($name)->label($label),
@@ -304,13 +313,16 @@ class EntryForm
             return [];
         }
 
-        // Mason replaces rich content types — skip them to avoid duplication
-        // Also skip featured_image — it's a fixed field in the sidebar
-        $contentTypes = ['rich_editor', 'blocks', 'mason'];
+        // When use_mason is enabled, skip mason/rich_editor/blocks types to avoid
+        // duplication with the fixed Mason::make('content') field.
+        // When use_mason is disabled, allow mason-type blueprint fields to render.
+        $skipTypes = $blueprint->use_mason
+            ? ['rich_editor', 'blocks', 'mason']
+            : ['rich_editor', 'blocks'];
         $alwaysFixed = ['featured_image'];
 
         $fields = collect($blueprint->getFieldsBySection('main'))
-            ->reject(fn (array $f) => in_array($f['type'] ?? '', $contentTypes))
+            ->reject(fn (array $f) => in_array($f['type'] ?? '', $skipTypes))
             ->reject(fn (array $f) => in_array($f['handle'] ?? '', $alwaysFixed))
             ->values()
             ->all();

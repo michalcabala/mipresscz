@@ -41,6 +41,8 @@ return [
         'title' => 'Název',
         'handle' => 'Handle',
         'is_default' => 'Výchozí',
+        'use_mason' => 'Použít Mason editor',
+        'use_mason_hint' => 'Zapne editor pro tvorbu obsahu z bloků (Mason). Vhodné pro stránky a obsah se strukturovaným layoutem.',
         'fields' => 'Pole',
         'collection' => 'Kolekce',
         'add_field' => 'Přidat pole',

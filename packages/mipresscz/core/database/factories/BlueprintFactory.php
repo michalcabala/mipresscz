@@ -25,6 +25,7 @@ class BlueprintFactory extends Factory
             'handle' => fake()->unique()->slug(2),
             'fields' => [],
             'is_default' => false,
+            'use_mason' => false,
             'is_active' => true,
             'order' => 0,
         ];

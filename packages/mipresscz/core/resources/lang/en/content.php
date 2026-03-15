@@ -41,6 +41,8 @@ return [
         'title' => 'Title',
         'handle' => 'Handle',
         'is_default' => 'Default',
+        'use_mason' => 'Use Mason editor',
+        'use_mason_hint' => 'Enables the block-based content editor (Mason). Recommended for pages and content with structured layouts.',
         'fields' => 'Fields',
         'collection' => 'Collection',
         'add_field' => 'Add field',

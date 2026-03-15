@@ -59,6 +59,11 @@ class BlueprintForm
                         Toggle::make('is_default')
                             ->label(__('content.blueprint_fields.is_default'))
                             ->default(false),
+                        Toggle::make('use_mason')
+                            ->label(__('content.blueprint_fields.use_mason'))
+                            ->helperText(__('content.blueprint_fields.use_mason_hint'))
+                            ->default(false)
+                            ->columnSpanFull(),
                         Toggle::make('is_active')
                             ->label(__('content.collection_fields.is_active'))
                             ->default(true),

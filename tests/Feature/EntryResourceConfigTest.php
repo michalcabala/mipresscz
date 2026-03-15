@@ -93,5 +93,5 @@ it('uses default icon when collection has no icon', function () {
     $provider = new AdminPanelProvider(app());
     $resources = (new \ReflectionMethod($provider, 'getCollectionResources'))->invoke($provider);
 
-    expect($resources[0]->getNavigationIcon())->toBe('fal-file-lines');
+    expect($resources[0]->getNavigationIcon())->toBe('far-file-lines');
 });

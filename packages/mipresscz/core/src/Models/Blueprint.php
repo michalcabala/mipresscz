@@ -20,6 +20,7 @@ class Blueprint extends Model
         'handle',
         'fields',
         'is_default',
+        'use_mason',
         'icon',
         'order',
         'is_active',
@@ -30,6 +31,7 @@ class Blueprint extends Model
         return [
             'fields' => 'array',
             'is_default' => 'boolean',
+            'use_mason' => 'boolean',
             'is_active' => 'boolean',
         ];
     }
