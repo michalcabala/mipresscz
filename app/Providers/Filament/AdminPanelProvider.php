@@ -19,7 +19,11 @@ class AdminPanelProvider extends MiPressCzAdminPanelProvider
     protected function configurePlugins(Panel $panel): Panel
     {
         return parent::configurePlugins($panel)
-            ->plugin(BotlyPlugin::make())
+            ->plugin(
+                BotlyPlugin::make()
+                    ->navigationGroup(__('settings.navigation_group'))
+                    ->navigationLabel(__('botly::botly.navigation.label')),
+            )
             ->plugin(FilamentSitemapGeneratorPlugin::make());
     }
 
