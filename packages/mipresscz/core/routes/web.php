@@ -2,12 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use MiPressCz\Core\Http\Controllers\EntryController;
-use MiPressCz\Core\Http\Controllers\FeedController;
 use MiPressCz\Core\Http\Controllers\PreviewController;
 use MiPressCz\Core\Http\Controllers\SearchController;
 use MiPressCz\Core\Http\Controllers\SitemapController;
 use MiPressCz\Core\Http\Middleware\PageCache;
 use MiPressCz\Core\Http\Middleware\SetFrontendLocale;
+use Spatie\Feed\Http\FeedController as SpatieFeedController;
 
 // ── Static SEO endpoints (must be before catch-all routes) ──
 
@@ -16,16 +16,16 @@ Route::get('sitemap.xml', [SitemapController::class, 'index'])
 
 Route::middleware([SetFrontendLocale::class])
     ->group(function () {
-        Route::get('feed.xml', [FeedController::class, 'index'])
-            ->name('feed');
+        Route::get('feed.xml', SpatieFeedController::class)
+            ->name('feeds.main');
     });
 
 Route::prefix('{locale}')
     ->where(['locale' => '[a-z]{2}'])
     ->middleware([SetFrontendLocale::class])
     ->group(function () {
-        Route::get('feed.xml', [FeedController::class, 'index'])
-            ->name('feed.locale');
+        Route::get('feed.xml', SpatieFeedController::class)
+            ->name('feeds.locale');
     });
 
 // ── Preview route (must be before catch-all) ──

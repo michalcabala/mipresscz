@@ -19,8 +19,10 @@ use MiPressCz\Core\Concerns\HasOrigin;
 use MiPressCz\Core\Concerns\HasWorkingCopy;
 use MiPressCz\Core\Enums\EntryStatus;
 use NoteBrainsLab\FilamentMenuManager\Concerns\HasMenuItems;
+use Spatie\Feed\Feedable;
+use Spatie\Feed\FeedItem;
 
-class Entry extends Model
+class Entry extends Model implements Feedable
 {
     use ContainsComputedData, HasFactory, HasMenuItems, HasOrigin, HasUlids, HasWorkingCopy, Searchable, SoftDeletes;
 
@@ -262,6 +264,33 @@ class Entry extends Model
         }
 
         return url($prefix.$this->uri);
+    }
+
+    public static function getFeedItems(): \Illuminate\Database\Eloquent\Collection
+    {
+        $locale = app()->getLocale();
+
+        return static::query()
+            ->with('collection')
+            ->published()
+            ->whereHas('collection')
+            ->where('locale', $locale)
+            ->orderByDesc('published_at')
+            ->limit(50)
+            ->get();
+    }
+
+    public function toFeedItem(): FeedItem
+    {
+        $url = $this->getFullUrl() ?? url('/');
+
+        return FeedItem::create()
+            ->id($url)
+            ->title($this->title ?? '')
+            ->summary($this->meta_description ?? '')
+            ->updated($this->published_at ?? $this->updated_at ?? now())
+            ->link($url)
+            ->authorName(config('app.name'));
     }
 
     /**

@@ -164,12 +164,13 @@ it('sitemap does not contain draft entries', function () {
 
 // ── RSS Feed ──
 
-it('rss feed returns 200 with rss content type', function () {
+it('rss feed returns 200 with xml content type', function () {
     Locale::factory()->default()->create(['code' => 'cs']);
 
-    $this->get('/feed.xml')
-        ->assertStatus(200)
-        ->assertHeader('Content-Type', 'application/rss+xml; charset=utf-8');
+    $response = $this->get('/feed.xml')->assertStatus(200);
+
+    expect((string) $response->headers->get('Content-Type'))
+        ->toStartWith('application/xml');
 });
 
 it('rss feed contains published entry titles', function () {

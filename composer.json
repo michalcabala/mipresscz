@@ -25,6 +25,7 @@
         "mipresscz/core": "@dev",
         "notebrainslab/filament-menu-manager": "^1.0",
         "openplain/filament-tree-view": "^0.5.4",
+        "spatie/laravel-feed": "^4.5",
         "spatie/laravel-permission": "^7.2"
     },
     "require-dev": {
