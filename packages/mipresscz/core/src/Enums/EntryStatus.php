@@ -2,16 +2,23 @@
 
 namespace MiPressCz\Core\Enums;
 
-enum EntryStatus: string
+use Filament\Support\Contracts\HasLabel;
+
+enum EntryStatus: string implements HasLabel
 {
     case Draft = 'draft';
     case Published = 'published';
     case Scheduled = 'scheduled';
     case Archived = 'archived';
 
-    public function label(): string
+    public function getLabel(): string
     {
         return __('content.statuses.'.$this->value);
+    }
+
+    public function label(): string
+    {
+        return $this->getLabel();
     }
 
     public function icon(): string
