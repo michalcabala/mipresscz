@@ -11,6 +11,7 @@ return [
     'activated' => 'Šablona byla aktivována.',
     'unauthorized' => 'Nemáte oprávnění měnit šablonu.',
     'active_template_label' => 'Aktivní šablona',
+    'header_subtitle' => 'Aktivní šablona pro frontend webu',
     'template_count' => ':count šablona|:count šablony|:count šablon',
     'default_badge' => 'Výchozí',
     'no_preview' => 'Bez náhledu',
