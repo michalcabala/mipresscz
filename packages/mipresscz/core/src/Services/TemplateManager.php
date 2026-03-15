@@ -8,6 +8,11 @@ use MiPressCz\Core\Models\Setting;
 
 class TemplateManager
 {
+    /** @var Collection<int, array{name: string, slug: string, version: string, author: string, description: string, screenshot: string, screenshot_exists: bool, path: string}>|null */
+    private ?Collection $availableTemplates = null;
+
+    private ?string $activeTemplate = null;
+
     /**
      * Scan the templates directory and return all available templates.
      *
@@ -15,35 +20,37 @@ class TemplateManager
      */
     public function getAvailable(): Collection
     {
-        $templatesPath = resource_path('views/templates');
+        return $this->availableTemplates ??= (function (): Collection {
+            $templatesPath = resource_path('views/templates');
 
-        if (! File::isDirectory($templatesPath)) {
-            return collect();
-        }
+            if (! File::isDirectory($templatesPath)) {
+                return collect();
+            }
 
-        return collect(File::directories($templatesPath))
-            ->map(function (string $path): ?array {
-                $jsonPath = $path.DIRECTORY_SEPARATOR.'template.json';
+            return collect(File::directories($templatesPath))
+                ->map(function (string $path): ?array {
+                    $jsonPath = $path.DIRECTORY_SEPARATOR.'template.json';
 
-                if (! File::exists($jsonPath)) {
-                    return null;
-                }
+                    if (! File::exists($jsonPath)) {
+                        return null;
+                    }
 
-                $data = json_decode(File::get($jsonPath), true);
+                    $data = json_decode(File::get($jsonPath), true);
 
-                if (! is_array($data)) {
-                    return null;
-                }
+                    if (! is_array($data)) {
+                        return null;
+                    }
 
-                $screenshotFile = $data['screenshot'] ?? 'screenshot.png';
+                    $screenshotFile = $data['screenshot'] ?? 'screenshot.png';
 
-                return array_merge($data, [
-                    'path' => $path,
-                    'screenshot_exists' => File::exists($path.DIRECTORY_SEPARATOR.$screenshotFile),
-                ]);
-            })
-            ->filter()
-            ->values();
+                    return array_merge($data, [
+                        'path' => $path,
+                        'screenshot_exists' => File::exists($path.DIRECTORY_SEPARATOR.$screenshotFile),
+                    ]);
+                })
+                ->filter()
+                ->values();
+        })();
     }
 
     /**
@@ -52,10 +59,14 @@ class TemplateManager
      */
     public function getActive(): string
     {
+        if ($this->activeTemplate !== null) {
+            return $this->activeTemplate;
+        }
+
         try {
-            return Setting::get('active_template', 'default');
+            return $this->activeTemplate = Setting::get('active_template', 'default');
         } catch (\Throwable) {
-            return 'default';
+            return $this->activeTemplate = 'default';
         }
     }
 
@@ -73,6 +84,7 @@ class TemplateManager
         }
 
         Setting::set('active_template', $slug);
+        $this->activeTemplate = $slug;
         $this->registerViewNamespace();
     }
 

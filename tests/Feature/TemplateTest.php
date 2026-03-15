@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use MiPressCz\Core\Models\Setting;
 use MiPressCz\Core\Services\TemplateManager;
 
@@ -96,6 +97,30 @@ it('returns the stored active template slug', function (): void {
     Cache::flush();
 
     expect(app(TemplateManager::class)->getActive())->toBe('default');
+});
+
+it('memoizes the active template within the current request', function (): void {
+    Setting::set('active_template', 'default');
+    Cache::flush();
+
+    app()->forgetInstance(TemplateManager::class);
+    $manager = app(TemplateManager::class);
+
+    $queries = [];
+
+    DB::listen(static function ($query) use (&$queries): void {
+        $queries[] = $query->sql;
+    });
+
+    // First call — may trigger DB/cache queries
+    expect($manager->getActive())->toBe('default');
+    $queriesAfterFirst = count($queries);
+
+    // Second call — should be memoized, zero additional queries
+    expect($manager->getActive())->toBe('default');
+    $queriesAfterSecond = count($queries);
+
+    expect($queriesAfterSecond - $queriesAfterFirst)->toBe(0);
 });
 
 // ---------------------------------------------------------------------------

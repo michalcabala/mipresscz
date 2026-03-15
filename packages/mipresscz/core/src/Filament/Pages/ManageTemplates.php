@@ -5,6 +5,7 @@ namespace MiPressCz\Core\Filament\Pages;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\File;
 use MiPressCz\Core\Services\TemplateManager;
 
 class ManageTemplates extends Page
@@ -50,6 +51,23 @@ class ManageTemplates extends Page
     public function getActiveTemplate(): string
     {
         return app(TemplateManager::class)->getActive();
+    }
+
+    /** @return array{layouts: int, pages: int, partials: int, errors: int, total: int} */
+    public function getTemplateStats(string $path): array
+    {
+        $counts = [];
+
+        foreach (['layouts', 'pages', 'partials', 'errors'] as $dir) {
+            $dirPath = $path.DIRECTORY_SEPARATOR.$dir;
+            $counts[$dir] = File::isDirectory($dirPath)
+                ? count(File::glob($dirPath.DIRECTORY_SEPARATOR.'*.blade.php'))
+                : 0;
+        }
+
+        $counts['total'] = array_sum($counts);
+
+        return $counts;
     }
 
     protected function getHeaderActions(): array
