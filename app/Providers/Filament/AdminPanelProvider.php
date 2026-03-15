@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\SitemapGeneratorPage;
+use App\Filament\Pages\SitemapSettingsPage;
 use Awcodes\Botly\BotlyPlugin;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
@@ -12,7 +14,6 @@ use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Models\Taxonomy;
 use MiPressCz\Core\Providers\MiPressCzAdminPanelProvider;
-use MuhammadNawlo\FilamentSitemapGenerator\FilamentSitemapGeneratorPlugin;
 
 class AdminPanelProvider extends MiPressCzAdminPanelProvider
 {
@@ -22,9 +23,13 @@ class AdminPanelProvider extends MiPressCzAdminPanelProvider
             ->plugin(
                 BotlyPlugin::make()
                     ->navigationGroup(__('settings.navigation_group'))
-                    ->navigationLabel(__('botly::botly.navigation.label')),
+                    ->navigationLabel(__('botly::botly.navigation.label'))
+                    ->navigationIcon('far-robot'),
             )
-            ->plugin(FilamentSitemapGeneratorPlugin::make());
+            ->pages([
+                SitemapGeneratorPage::class,
+                SitemapSettingsPage::class,
+            ]);
     }
 
     /**
