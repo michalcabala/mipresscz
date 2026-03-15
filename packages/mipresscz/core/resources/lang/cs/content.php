@@ -126,7 +126,7 @@ return [
         'content' => 'Obsah',
         'extra_fields' => 'Další pole',
         'metadata' => 'Metadata',
-        'featured_image' => 'Hlavní obrázek',
+        'featured_image' => 'Náhledový obrázek',
         'excerpt' => 'Perex',
         'is_pinned' => 'Připnuto',
         'is_homepage' => 'Domovská stránka',

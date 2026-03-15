@@ -26,7 +26,7 @@ class EntriesTable
         return $table
             ->columns([
                 CuratorColumn::make('featuredImage')
-                    ->label(__('content.entry_fields.featured_image'))
+                    ->label('')
                     ->size(48)
                     ->toggleable(),
                 TextColumn::make('title')
@@ -65,7 +65,8 @@ class EntriesTable
                     })
                     ->imageHeight(20)
                     ->circular()
-                    ->stacked(),
+                    ->stacked()
+                    ->visible(fn (): bool => locales()->isMultilingual()),
                 TextColumn::make('author.name')
                     ->label(__('content.entry_fields.author'))
                     ->sortable()
