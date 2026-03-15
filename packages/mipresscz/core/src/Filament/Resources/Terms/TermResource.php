@@ -17,7 +17,7 @@ class TermResource extends Resource
 {
     protected static ?string $model = Term::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'fal-tag';
+    protected static string|BackedEnum|null $navigationIcon = 'far-tag';
 
     protected static ?string $recordTitleAttribute = 'title';
 

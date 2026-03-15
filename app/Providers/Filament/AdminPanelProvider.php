@@ -44,7 +44,7 @@ class AdminPanelProvider extends MiPressCzAdminPanelProvider
                 ->slug($collection->handle)
                 ->collectionHandle($collection->handle)
                 ->navigationLabel($collection->title)
-                ->navigationIcon($collection->icon ?? 'fal-file-lines')
+                ->navigationIcon($collection->icon ?? 'far-file-lines')
                 ->navigationSort($index + 1)
             )
             ->all();
@@ -78,7 +78,7 @@ class AdminPanelProvider extends MiPressCzAdminPanelProvider
             ->flatMap(fn (Collection $collection) => $collection->taxonomies->map(
                 fn (Taxonomy $taxonomy) => NavigationItem::make("taxonomy-{$collection->handle}-{$taxonomy->handle}")
                     ->label($taxonomy->title)
-                    ->icon('fal-tags')
+                    ->icon('far-tags')
                     ->group($contentGroup)
                     ->parentItem($collection->title)
                     ->url(fn (): string => TermResource::getUrl('index').'?'.http_build_query(['taxonomy_id' => $taxonomy->id]))

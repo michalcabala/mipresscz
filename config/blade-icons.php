@@ -25,6 +25,11 @@ return [
             'prefix' => 'fal',
         ],
 
+        'fa-regular' => [
+            'path' => 'resources/svg/fa/regular',
+            'prefix' => 'far',
+        ],
+
     ],
 
     /*

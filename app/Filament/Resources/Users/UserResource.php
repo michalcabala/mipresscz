@@ -17,7 +17,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'fal-user-group';
+    protected static string|BackedEnum|null $navigationIcon = 'far-user-group';
 
     protected static ?string $recordTitleAttribute = 'name';
 

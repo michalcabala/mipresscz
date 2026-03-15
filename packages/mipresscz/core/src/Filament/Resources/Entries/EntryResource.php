@@ -19,7 +19,7 @@ class EntryResource extends Resource
 {
     protected static ?string $model = Entry::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'fal-file-lines';
+    protected static string|BackedEnum|null $navigationIcon = 'far-file-lines';
 
     protected static ?string $recordTitleAttribute = 'title';
 

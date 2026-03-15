@@ -17,7 +17,7 @@ class GlobalSetResource extends Resource
 {
     protected static ?string $model = GlobalSet::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'fal-globe';
+    protected static string|BackedEnum|null $navigationIcon = 'far-globe';
 
     protected static ?string $recordTitleAttribute = 'title';
 

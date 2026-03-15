@@ -17,7 +17,7 @@ class TaxonomyResource extends Resource
 {
     protected static ?string $model = Taxonomy::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'fal-tags';
+    protected static string|BackedEnum|null $navigationIcon = 'far-tags';
 
     protected static ?string $recordTitleAttribute = 'title';
 

@@ -133,14 +133,14 @@ class MiPressCzAdminPanelProvider extends PanelProvider
             MenuManagerPlugin::make()
                 ->locations($this->getMenuLocations())
                 ->modelSources($this->getMenuModelSources())
-                ->navigationIcon('fal-compass')
+                ->navigationIcon('far-compass')
                 ->navigationGroup(__('content.collections.navigation_group'))
                 ->navigationLabel(__('content.menus.plural_label'))
                 ->navigationSort(3),
             CuratorPlugin::make()
                 ->label(__('content.media.label'))
                 ->pluralLabel(__('content.media.plural_label'))
-                ->navigationIcon('fal-photo-film-music')
+                ->navigationIcon('far-photo-film-music')
                 ->navigationGroup(__('content.entries.navigation_group'))
                 ->navigationSort(99)
                 ->registerNavigation(fn (): bool => auth()->user()?->can('manage.media') ?? false),

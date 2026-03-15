@@ -54,7 +54,7 @@ class ManageLocales extends Page implements HasTable
 
     public static function getNavigationIcon(): \BackedEnum|string|null
     {
-        return 'fal-language';
+        return 'far-language';
     }
 
     protected function getHeaderActions(): array

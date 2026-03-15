@@ -17,7 +17,7 @@ class BlueprintResource extends Resource
 {
     protected static ?string $model = Blueprint::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'fal-puzzle-piece';
+    protected static string|BackedEnum|null $navigationIcon = 'far-puzzle-piece';
 
     protected static ?string $recordTitleAttribute = 'title';
 
