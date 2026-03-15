@@ -128,6 +128,15 @@ class MenuManagerPage extends Page implements HasForms
         $this->dispatch('menuIdChanged', menuId: $menuId);
     }
 
+    /** @return array<string, mixed> */
+    protected function getViewData(): array
+    {
+        return [
+            'locations' => $this->getLocations(),
+            'menusForActiveLocation' => $this->getMenusForActiveLocation(),
+        ];
+    }
+
     /** @return array<int, Action> */
     protected function getHeaderActions(): array
     {

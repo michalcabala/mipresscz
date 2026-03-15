@@ -53,6 +53,8 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         $this->app->singleton(NavMenuService::class);
         $this->app->singleton(TemplateManager::class);
 
+        $this->mergeConfigFrom(__DIR__.'/../config/nav-menu.php', 'nav-menu');
+
         // Register core lang files as additional base-namespace paths so that
         // __('content.*') and __('locales.*') resolve from the package when not
         // overridden by the host application's own lang directory.
