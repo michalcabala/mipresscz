@@ -4,6 +4,7 @@
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
+@source '../../../../packages/mipresscz/core/resources/views/**/*';
 @source '../../../../vendor/bezhansalleh/filament-language-switch/resources/views/**/*.blade.php';
 @source '../../../../vendor/awcodes/mason/resources/**/*.blade.php';
 @source '../../../../vendor/awcodes/filament-curator/resources/**/*.blade.php';
