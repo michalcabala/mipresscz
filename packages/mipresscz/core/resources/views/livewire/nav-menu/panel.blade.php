@@ -17,6 +17,11 @@
                 class="fmm-panel-tab {{ $activeTab === 'models' ? 'active' : '' }}"
                 wire:click="$set('activeTab','models')"
             >{{ __('content.menus.panel_tab_models') }}</button>
+
+            <button
+                class="fmm-panel-tab {{ $activeTab === 'archives' ? 'active' : '' }}"
+                wire:click="$set('activeTab','archives')"
+            >{{ __('content.menus.panel_tab_archives') }}</button>
         </div>
 
         {{-- Panel Body --}}
@@ -97,7 +102,7 @@
                                     <div
                                         class="fmm-model-item {{ $isUsed ? 'disabled' : '' }}"
                                         @if(!$isUsed)
-                                            wire:click="addModelItem('{{ addslashes($modelClass) }}', {{ $record->getKey() }})"
+                                            wire:click="addModelItem(@js($modelClass), @js($record->getKey()))"
                                             role="button"
                                             tabindex="0"
                                         @else
@@ -120,6 +125,47 @@
                             </div>
                         </div>
                     @endforeach
+                @endif
+
+            @elseif($activeTab === 'archives')
+                @if(empty($archiveSources))
+                    <div class="fmm-empty" style="padding:1.5rem 0">
+                        <p style="font-size:0.8rem">{{ __('content.menus.no_archive_sources') }}</p>
+                    </div>
+                @else
+                    <div>
+                        <div class="fmm-panel-section-header">
+                            {{ __('content.menus.panel_tab_archives') }}
+                        </div>
+
+                        <div class="fmm-model-list" style="margin-top:0.375rem">
+                            @foreach($archiveSources as $archive)
+                                @php
+                                    $isUsed = in_array($archive['handle'], $usedArchives, true);
+                                @endphp
+                                <div
+                                    class="fmm-model-item {{ $isUsed ? 'disabled' : '' }}"
+                                    @if(!$isUsed)
+                                        wire:click="addArchiveItem('{{ $archive['handle'] }}')"
+                                        role="button"
+                                        tabindex="0"
+                                    @else
+                                        style="opacity: 0.5; cursor: not-allowed;"
+                                        title="{{ __('content.menus.already_added') }}"
+                                    @endif
+                                >
+                                    <span>{{ $archive['title'] }}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:0.875rem;height:0.875rem;flex-shrink:0;color:var(--fmm-muted)">
+                                        @if($isUsed)
+                                            <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                                        @else
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z" clip-rule="evenodd" />
+                                        @endif
+                                    </svg>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 @endif
             @endif
 

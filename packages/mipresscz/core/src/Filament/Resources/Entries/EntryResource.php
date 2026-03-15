@@ -104,7 +104,7 @@ class EntryResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()
-            ->with(['collection', 'blueprint', 'author', 'featuredImage', 'translations'])
+            ->with(['collection', 'blueprint', 'author', 'featuredImage', 'translations', 'terms.taxonomy'])
             ->whereNull('origin_id');
 
         if ($handle = static::getCollectionHandle()) {

@@ -24,21 +24,42 @@
 
     @yield('meta')
 
-    {{-- Dark mode: apply class before render to prevent flash --}}
+    {{-- Frontend theme bootstrap --}}
     <script>
-        (function () {
-            var t = localStorage.getItem('mipress-theme');
-            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            }
-        })();
-    </script>
+        function miPressResolveTheme() {
+            try {
+                var savedTheme = localStorage.getItem('theme') || localStorage.getItem('mipress-theme');
 
-    {{-- Tailwind v4 CDN: class-based dark mode uses .dark on <html> --}}
-    <style type="text/tailwindcss">
-        @custom-variant dark (&:where(.dark, .dark *));
-    </style>
-    <script src="https://cdn.tailwindcss.com"></script>
+                if (savedTheme === 'dark' || savedTheme === 'light') {
+                    return savedTheme;
+                }
+            } catch (error) {
+                // no-op
+            }
+
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function miPressApplyTheme(theme) {
+            var resolvedTheme = theme === 'dark' ? 'dark' : 'light';
+            var root = document.documentElement;
+
+            root.classList.toggle('dark', resolvedTheme === 'dark');
+            root.style.colorScheme = resolvedTheme;
+
+            try {
+                localStorage.setItem('theme', resolvedTheme);
+                localStorage.removeItem('mipress-theme');
+            } catch (error) {
+                // no-op
+            }
+
+            return resolvedTheme;
+        }
+
+        miPressApplyTheme(miPressResolveTheme());
+    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @yield('head')
 </head>
@@ -54,14 +75,7 @@
 
     <script>
         function miPressToggleTheme() {
-            var html = document.documentElement;
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                localStorage.setItem('mipress-theme', 'light');
-            } else {
-                html.classList.add('dark');
-                localStorage.setItem('mipress-theme', 'dark');
-            }
+            miPressApplyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
         }
 
         function miPressOpenMenu() {
@@ -86,6 +100,10 @@
 
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') { miPressCloseMenu(); }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            miPressApplyTheme(miPressResolveTheme());
         });
     </script>
 

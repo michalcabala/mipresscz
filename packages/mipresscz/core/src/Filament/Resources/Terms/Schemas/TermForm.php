@@ -2,6 +2,7 @@
 
 namespace MiPressCz\Core\Filament\Resources\Terms\Schemas;
 
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -10,6 +11,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Validation\Rule;
+use MiPressCz\Core\Filament\Resources\Terms\TermResource;
 use MiPressCz\Core\Models\Taxonomy;
 use MiPressCz\Core\Models\Term;
 
@@ -17,6 +19,9 @@ class TermForm
 {
     public static function configure(Schema $schema): Schema
     {
+        $scopedTaxonomy = TermResource::getScopedTaxonomy();
+        $hasScopedTaxonomy = $scopedTaxonomy !== null;
+
         return $schema
             ->components([
                 Section::make(__('content.term_fields.title'))
@@ -28,7 +33,11 @@ class TermForm
                             ->searchable()
                             ->required()
                             ->live()
+                            ->visible(! $hasScopedTaxonomy)
                             ->columnSpanFull(),
+                        Hidden::make('taxonomy_id')
+                            ->default(fn (?Term $record): ?string => $record?->taxonomy_id ?? $scopedTaxonomy?->getKey())
+                            ->visible($hasScopedTaxonomy),
                         Select::make('locale')
                             ->label(__('content.entry_fields.locale'))
                             ->options(locales()->toSelectOptions())
@@ -93,6 +102,7 @@ class TermForm
                                     ->all();
                             })
                             ->searchable()
+                            ->visible(! $hasScopedTaxonomy || $scopedTaxonomy->is_hierarchical)
                             ->placeholder('—'),
                         TextInput::make('order')
                             ->label(__('content.term_fields.order'))

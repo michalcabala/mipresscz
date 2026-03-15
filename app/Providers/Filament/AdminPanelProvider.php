@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\SitemapGeneratorPage;
 use App\Filament\Pages\SitemapSettingsPage;
 use Awcodes\Botly\BotlyPlugin;
+use Filament\Facades\Filament;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Illuminate\Support\Facades\Schema;
@@ -66,6 +67,32 @@ class AdminPanelProvider extends MiPressCzAdminPanelProvider
     }
 
     /**
+     * @return array<int, mixed>
+     */
+    protected function getTaxonomyResources(): array
+    {
+        if (! Schema::hasTable('collection_taxonomy')) {
+            return [];
+        }
+
+        return Taxonomy::query()
+            ->where('is_active', true)
+            ->whereHas('collections', fn ($query) => $query->where('is_active', true))
+            ->with(['collections' => fn ($query) => $query->where('is_active', true)->orderBy('title')])
+            ->orderBy('title')
+            ->get()
+            ->map(fn (Taxonomy $taxonomy, int $index) => TermResource::make($taxonomy->handle)
+                ->slug("terms/{$taxonomy->handle}")
+                ->taxonomyHandle($taxonomy->handle)
+                ->navigationLabel($taxonomy->title)
+                ->navigationParentItem($taxonomy->collections->first()?->title)
+                ->navigationIcon('far-tags')
+                ->navigationSort($index + 1)
+            )
+            ->all();
+    }
+
+    /**
      * @return array<int, NavigationItem>
      */
     protected function getTaxonomyNavigationItems(): array
@@ -74,22 +101,20 @@ class AdminPanelProvider extends MiPressCzAdminPanelProvider
             return [];
         }
 
-        $contentGroup = __('content.entries.navigation_group');
-
-        return Collection::query()
+        return Taxonomy::query()
             ->where('is_active', true)
-            ->with(['taxonomies' => fn ($q) => $q->where('is_active', true)->orderBy('title')])
+            ->whereHas('collections', fn ($query) => $query->where('is_active', true))
+            ->with(['collections' => fn ($query) => $query->where('is_active', true)->orderBy('title')])
+            ->orderBy('title')
             ->get()
-            ->flatMap(fn (Collection $collection) => $collection->taxonomies->map(
-                fn (Taxonomy $taxonomy) => NavigationItem::make("taxonomy-{$collection->handle}-{$taxonomy->handle}")
-                    ->label($taxonomy->title)
-                    ->icon('far-tags')
-                    ->group($contentGroup)
-                    ->parentItem($collection->title)
-                    ->url(fn (): string => TermResource::getUrl('index').'?'.http_build_query(['taxonomy_id' => $taxonomy->id]))
-                    ->isActiveWhen(fn (): bool => request()->query('taxonomy_id') === $taxonomy->id)
-                    ->sort(90)
-            ))
+            ->map(fn (Taxonomy $taxonomy, int $index) => NavigationItem::make($taxonomy->title)
+                ->group(__('content.entries.navigation_group'))
+                ->parentItem($taxonomy->collections->first()?->title)
+                ->icon('far-tags')
+                ->sort($index + 1)
+                ->url(fn (): string => TermResource::getUrl('index', configuration: $taxonomy->handle))
+                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.resources.terms.*')
+                    && Filament::getCurrentResourceConfigurationKey() === $taxonomy->handle))
             ->all();
     }
 }

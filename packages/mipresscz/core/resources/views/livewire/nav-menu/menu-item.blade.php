@@ -4,6 +4,9 @@
 ============================================================ --}}
 
 <div class="fmm-item-row" data-id="{{ $item['id'] }}">
+    @php
+        $typeLabel = __('content.menus.type_'.($item['type'] ?? 'custom'));
+    @endphp
 
     {{-- Item Card --}}
     <div class="fmm-item-card {{ !$item['enabled'] ? 'disabled-item' : '' }}">
@@ -19,7 +22,7 @@
         <div class="fmm-item-body">
             <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
                 <span class="fmm-item-title">{{ $item['title'] }}</span>
-                <span class="fmm-item-badge">{{ $item['type'] ?? 'custom' }}</span>
+                <span class="fmm-item-badge">{{ $typeLabel }}</span>
                 @if(!$item['enabled'])
                     <span class="fmm-item-badge" style="background:rgb(254 226 226);color:rgb(185 28 28);">{{ __('content.menus.hidden') }}</span>
                 @endif

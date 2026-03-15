@@ -10,7 +10,9 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Locale;
+use MiPressCz\Core\Models\Taxonomy;
 
 class TaxonomyForm
 {
@@ -42,12 +44,22 @@ class TaxonomyForm
                 Toggle::make('is_active')
                     ->label(__('content.taxonomy_fields.is_active'))
                     ->default(true),
-                Select::make('collections')
-                    ->label(__('content.taxonomy_fields.collections'))
-                    ->relationship('collections', 'title')
-                    ->multiple()
+                Select::make('collection_id')
+                    ->label(__('content.entry_fields.collection'))
+                    ->options(fn (): array => Collection::query()
+                        ->where('is_active', true)
+                        ->orderBy('title')
+                        ->pluck('title', 'id')
+                        ->all())
                     ->preload()
-                    ->searchable(),
+                    ->searchable()
+                    ->afterStateHydrated(function (Select $component, ?Taxonomy $record): void {
+                        if (! $record) {
+                            return;
+                        }
+
+                        $component->state($record->collections()->value('collections.id'));
+                    }),
                 Section::make(__('content.taxonomy_fields.translations'))
                     ->description(__('content.taxonomy_fields.translations_hint'))
                     ->collapsed()

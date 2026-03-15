@@ -10,7 +10,15 @@
 
             
             <nav class="hidden lg:flex items-center gap-1 flex-1 justify-center">
-                <?php echo $__env->make('template::partials.nav', ['navEntries' => $navEntries], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($primaryMenu)): ?>
+                    <?php echo $__env->make('mipresscz-core::components.nav-menu', [
+                        'items' => $primaryMenu,
+                        'class' => 'flex items-center gap-1',
+                        'itemClass' => 'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                <?php else: ?>
+                    <?php echo $__env->make('template::partials.nav', ['navEntries' => $navEntries], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </nav>
 
             
@@ -102,10 +110,20 @@
     <nav class="flex flex-col items-start justify-center flex-1 gap-1 px-6 py-8">
         <a href="<?php echo e(url('/')); ?>" onclick="miPressCloseMenu()"
            class="block text-2xl font-semibold text-white hover:text-blue-400 transition-colors py-3 px-3 rounded-xl w-full"><?php echo e(__('Domů')); ?></a>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $navEntries; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
-            <a href="<?php echo e(url($item->uri)); ?>" onclick="miPressCloseMenu()"
-               class="block text-2xl font-semibold text-white hover:text-blue-400 transition-colors py-3 px-3 rounded-xl w-full"><?php echo e($item->title); ?></a>
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!empty($primaryMenu)): ?>
+            <?php echo $__env->make('mipresscz-core::components.nav-menu-list', [
+                'items' => $primaryMenu,
+                'class' => 'w-full space-y-1',
+                'childClass' => 'mt-2 ml-3 space-y-1 border-l border-gray-800 pl-4',
+                'itemClass' => 'block w-full rounded-xl px-3 py-3 text-2xl font-semibold text-white transition-colors hover:text-blue-400',
+                'itemOnclick' => 'miPressCloseMenu()',
+            ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+        <?php else: ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::openLoop(); ?><?php endif; ?><?php $__currentLoopData = $navEntries; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::startLoop($loop->index); ?><?php endif; ?>
+                <a href="<?php echo e(url($item->uri)); ?>" onclick="miPressCloseMenu()"
+                   class="block text-2xl font-semibold text-white hover:text-blue-400 transition-colors py-3 px-3 rounded-xl w-full"><?php echo e($item->title); ?></a>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
     </nav>
 
     <div class="px-6 pb-8 border-t border-gray-800 pt-6 space-y-4">

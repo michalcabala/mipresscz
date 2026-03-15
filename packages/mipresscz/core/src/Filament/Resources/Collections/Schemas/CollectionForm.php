@@ -2,6 +2,7 @@
 
 namespace MiPressCz\Core\Filament\Resources\Collections\Schemas;
 
+use Closure;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -10,9 +11,12 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 use MiPressCz\Core\Enums\DateBehavior;
 use MiPressCz\Core\Enums\DefaultStatus;
+use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Locale;
+use MiPressCz\Core\Models\Taxonomy;
 
 class CollectionForm
 {
@@ -94,10 +98,45 @@ class CollectionForm
                     ->schema([
                         Select::make('taxonomies')
                             ->label(__('content.collection_fields.taxonomies'))
-                            ->relationship('taxonomies', 'title')
+                            ->relationship(
+                                'taxonomies',
+                                'title',
+                                fn (Builder $query, ?Collection $record) => $query
+                                    ->where(function (Builder $taxonomyQuery) use ($record): void {
+                                        $taxonomyQuery->whereDoesntHave('collections');
+
+                                        if ($record) {
+                                            $taxonomyQuery->orWhereHas('collections', fn (Builder $collectionQuery) => $collectionQuery->whereKey($record->getKey()));
+                                        }
+                                    })
+                                    ->orderBy('title')
+                            )
                             ->multiple()
                             ->preload()
-                            ->searchable(),
+                            ->searchable()
+                            ->rules([
+                                fn (?Collection $record): Closure => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
+                                    $selectedTaxonomyIds = array_filter((array) $value);
+
+                                    if ($selectedTaxonomyIds === []) {
+                                        return;
+                                    }
+
+                                    $conflictingTaxonomies = Taxonomy::query()
+                                        ->whereKey($selectedTaxonomyIds)
+                                        ->whereHas('collections', function (Builder $query) use ($record): void {
+                                            if ($record) {
+                                                $query->whereKeyNot($record->getKey());
+                                            }
+                                        })
+                                        ->pluck('title')
+                                        ->all();
+
+                                    if ($conflictingTaxonomies !== []) {
+                                        $fail(__('content.messages.taxonomies_already_assigned', ['taxonomies' => implode(', ', $conflictingTaxonomies)]));
+                                    }
+                                },
+                            ]),
                     ]),
             ]);
     }

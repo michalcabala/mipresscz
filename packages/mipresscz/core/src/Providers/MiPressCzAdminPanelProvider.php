@@ -28,6 +28,14 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use MiPressCz\Core\Filament\Plugins\MenuManagerPlugin;
+use MiPressCz\Core\Filament\Resources\Blueprints\BlueprintResource;
+use MiPressCz\Core\Filament\Resources\Collections\CollectionResource;
+use MiPressCz\Core\Filament\Resources\Entries\EntryResource;
+use MiPressCz\Core\Filament\Resources\Globals\GlobalSetResource;
+use MiPressCz\Core\Filament\Resources\MediaFolders\MediaFolderResource;
+use MiPressCz\Core\Filament\Resources\MediaTags\MediaTagResource;
+use MiPressCz\Core\Filament\Resources\Taxonomies\TaxonomyResource;
+use MiPressCz\Core\Filament\Resources\Terms\TermResource;
 use MiPressCz\Core\Filament\Widgets\EntryStatsWidget;
 use MiPressCz\Core\Filament\Widgets\LatestEntriesWidget;
 
@@ -187,14 +195,24 @@ class MiPressCzAdminPanelProvider extends PanelProvider
     protected function configureDiscovery(Panel $panel): Panel
     {
         return $panel
-            ->discoverResources(in: __DIR__.'/../Filament/Resources', for: 'MiPressCz\Core\Filament\Resources')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: __DIR__.'/../Filament/Pages', for: 'MiPressCz\Core\Filament\Pages')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,
             ])
-            ->resources($this->getCollectionResources())
+            ->resources([
+                BlueprintResource::class,
+                CollectionResource::class,
+                EntryResource::class,
+                GlobalSetResource::class,
+                MediaFolderResource::class,
+                MediaTagResource::class,
+                TaxonomyResource::class,
+                TermResource::class,
+                ...$this->getCollectionResources(),
+                ...$this->getTaxonomyResources(),
+            ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
@@ -212,6 +230,18 @@ class MiPressCzAdminPanelProvider extends PanelProvider
      * @return array<int, mixed>
      */
     protected function getCollectionResources(): array
+    {
+        return [];
+    }
+
+    /**
+     * Returns dynamically registered Filament resources for active taxonomy term views.
+     *
+     * Override in the application to inject per-taxonomy TermResource instances.
+     *
+     * @return array<int, mixed>
+     */
+    protected function getTaxonomyResources(): array
     {
         return [];
     }

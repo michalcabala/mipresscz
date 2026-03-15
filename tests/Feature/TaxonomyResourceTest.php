@@ -6,6 +6,7 @@ use Livewire\Livewire;
 use MiPressCz\Core\Filament\Resources\Taxonomies\Pages\CreateTaxonomy;
 use MiPressCz\Core\Filament\Resources\Taxonomies\Pages\EditTaxonomy;
 use MiPressCz\Core\Filament\Resources\Taxonomies\Pages\ListTaxonomies;
+use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Locale;
 use MiPressCz\Core\Models\Taxonomy;
 
@@ -42,18 +43,24 @@ it('can render the taxonomy create page', function () {
         ->assertOk();
 });
 
-it('can create a taxonomy', function () {
+it('can create a taxonomy assigned to one collection', function () {
+    $collection = Collection::factory()->create();
+
     Livewire::test(CreateTaxonomy::class)
         ->fillForm([
             'title' => 'Kategorie',
             'handle' => 'kategorie',
+            'collection_id' => $collection->getKey(),
             'is_hierarchical' => true,
             'is_active' => true,
         ])
         ->call('create')
         ->assertHasNoFormErrors();
 
-    expect(Taxonomy::where('handle', 'kategorie')->exists())->toBeTrue();
+    $taxonomy = Taxonomy::where('handle', 'kategorie')->first();
+
+    expect($taxonomy)->not->toBeNull()
+        ->and($taxonomy->collections()->pluck('collections.id')->all())->toBe([$collection->getKey()]);
 });
 
 it('validates required fields on taxonomy create', function () {
@@ -90,18 +97,23 @@ it('can render the taxonomy edit page', function () {
 });
 
 it('can update a taxonomy', function () {
+    $firstCollection = Collection::factory()->create(['title' => 'Články']);
+    $secondCollection = Collection::factory()->create(['title' => 'Stránky']);
     $taxonomy = Taxonomy::factory()->create(['title' => 'Old Title']);
+    $taxonomy->collections()->attach($firstCollection);
 
     Livewire::test(EditTaxonomy::class, [
         'record' => $taxonomy->getRouteKey(),
     ])
         ->fillForm([
             'title' => 'New Title',
+            'collection_id' => $secondCollection->getKey(),
         ])
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($taxonomy->fresh()->title)->toBe('New Title');
+    expect($taxonomy->fresh()->title)->toBe('New Title')
+        ->and($taxonomy->fresh()->collections()->pluck('collections.id')->all())->toBe([$secondCollection->getKey()]);
 });
 
 // -- Authorization --

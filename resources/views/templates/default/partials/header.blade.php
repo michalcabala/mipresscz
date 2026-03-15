@@ -10,7 +10,15 @@
 
             {{-- Desktop nav --}}
             <nav class="hidden lg:flex items-center gap-1 flex-1 justify-center">
-                @include('template::partials.nav', ['navEntries' => $navEntries])
+                @if(!empty($primaryMenu))
+                    @include('mipresscz-core::components.nav-menu', [
+                        'items' => $primaryMenu,
+                        'class' => 'flex items-center gap-1',
+                        'itemClass' => 'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    ])
+                @else
+                    @include('template::partials.nav', ['navEntries' => $navEntries])
+                @endif
             </nav>
 
             {{-- Actions --}}
@@ -81,10 +89,20 @@
     <nav class="flex flex-col items-start justify-center flex-1 gap-1 px-6 py-8">
         <a href="{{ url('/') }}" onclick="miPressCloseMenu()"
            class="block text-2xl font-semibold text-white hover:text-blue-400 transition-colors py-3 px-3 rounded-xl w-full">{{ __('Domů') }}</a>
-        @foreach($navEntries as $item)
-            <a href="{{ url($item->uri) }}" onclick="miPressCloseMenu()"
-               class="block text-2xl font-semibold text-white hover:text-blue-400 transition-colors py-3 px-3 rounded-xl w-full">{{ $item->title }}</a>
-        @endforeach
+        @if(!empty($primaryMenu))
+            @include('mipresscz-core::components.nav-menu-list', [
+                'items' => $primaryMenu,
+                'class' => 'w-full space-y-1',
+                'childClass' => 'mt-2 ml-3 space-y-1 border-l border-gray-800 pl-4',
+                'itemClass' => 'block w-full rounded-xl px-3 py-3 text-2xl font-semibold text-white transition-colors hover:text-blue-400',
+                'itemOnclick' => 'miPressCloseMenu()',
+            ])
+        @else
+            @foreach($navEntries as $item)
+                <a href="{{ url($item->uri) }}" onclick="miPressCloseMenu()"
+                   class="block text-2xl font-semibold text-white hover:text-blue-400 transition-colors py-3 px-3 rounded-xl w-full">{{ $item->title }}</a>
+            @endforeach
+        @endif
     </nav>
 
     <div class="px-6 pb-8 border-t border-gray-800 pt-6 space-y-4">

@@ -2,8 +2,12 @@
 
 use App\Enums\UserRole;
 use App\Models\User;
+use Filament\Facades\Filament;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use MiPressCz\Core\Enums\EntryStatus;
+use MiPressCz\Core\Filament\Resources\Entries\EntryResource;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\CreateEntry;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\EditEntry;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\ListEntries;
@@ -11,6 +15,8 @@ use MiPressCz\Core\Models\Blueprint;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Models\Locale;
+use MiPressCz\Core\Models\Taxonomy;
+use MiPressCz\Core\Models\Term;
 
 beforeEach(function () {
     app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
@@ -110,6 +116,12 @@ it('can filter entries by status', function () {
         ->assertCanNotSeeTableRecords([$draft]);
 });
 
+it('hides locale filter when only one default locale is configured', function () {
+    Livewire::test(ListEntries::class)
+        ->call('loadTable')
+        ->assertTableFilterHidden('locale');
+});
+
 it('can filter entries by locale', function () {
     Locale::factory()->create(['code' => 'en', 'is_active' => true, 'order' => 2]);
     locales()->clearCache();
@@ -131,6 +143,7 @@ it('can filter entries by locale', function () {
 
     Livewire::test(ListEntries::class)
         ->call('loadTable')
+        ->assertTableFilterVisible('locale')
         ->filterTable('locale', 'cs')
         ->assertCanSeeTableRecords([$czech])
         ->assertCanNotSeeTableRecords([$english]);
@@ -160,6 +173,434 @@ it('can search entries by title', function () {
         ->call('loadTable')
         ->searchTable('Hledaný')
         ->assertCanNotSeeTableRecords([$other]);
+});
+
+it('shows taxonomy columns for scoped collection resources', function () {
+    $taxonomy = Taxonomy::factory()->create([
+        'title' => 'Témata',
+        'handle' => 'topics',
+    ]);
+    $this->collection->taxonomies()->attach($taxonomy);
+
+    $term = Term::factory()->create([
+        'taxonomy_id' => $taxonomy->id,
+        'title' => 'Laravel',
+        'locale' => 'cs',
+    ]);
+
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'author_id' => $this->admin->id,
+    ]);
+    $entry->terms()->syncWithoutDetaching([$term->id]);
+
+    $configurationKey = 'test-articles-taxonomies';
+    $panel = Filament::getDefaultPanel();
+    Filament::setCurrentPanel($panel);
+    Route::get("/_test/{$configurationKey}/create", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.create");
+    Route::get("/_test/{$configurationKey}/{record}/edit", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.edit");
+
+    $panel->resources([
+        EntryResource::make($configurationKey)
+            ->collectionHandle($this->collection->handle)
+            ->navigationLabel($this->collection->title),
+    ]);
+
+    EntryResource::withConfiguration($configurationKey, fn () => Livewire::test(ListEntries::class)
+        ->call('loadTable')
+        ->assertTableColumnVisible('taxonomy_topics')
+        ->assertTableColumnStateSet('taxonomy_topics', 'Laravel', $entry)
+    );
+});
+
+it('can filter scoped collection entries by taxonomy term', function () {
+    $taxonomy = Taxonomy::factory()->create([
+        'title' => 'Témata',
+        'handle' => 'topics',
+    ]);
+    $this->collection->taxonomies()->attach($taxonomy);
+
+    $laravel = Term::factory()->create([
+        'taxonomy_id' => $taxonomy->id,
+        'title' => 'Laravel',
+        'locale' => 'cs',
+    ]);
+    $php = Term::factory()->create([
+        'taxonomy_id' => $taxonomy->id,
+        'title' => 'PHP',
+        'locale' => 'cs',
+    ]);
+
+    $matchingEntry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'author_id' => $this->admin->id,
+    ]);
+    $matchingEntry->terms()->syncWithoutDetaching([$laravel->id]);
+
+    $otherEntry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'author_id' => $this->admin->id,
+    ]);
+    $otherEntry->terms()->syncWithoutDetaching([$php->id]);
+
+    $configurationKey = 'test-articles-taxonomy-filter';
+    $panel = Filament::getDefaultPanel();
+    Filament::setCurrentPanel($panel);
+    Route::get("/_test/{$configurationKey}/create", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.create");
+    Route::get("/_test/{$configurationKey}/{record}/edit", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.edit");
+
+    $panel->resources([
+        EntryResource::make($configurationKey)
+            ->collectionHandle($this->collection->handle)
+            ->navigationLabel($this->collection->title),
+    ]);
+
+    EntryResource::withConfiguration($configurationKey, fn () => Livewire::test(ListEntries::class)
+        ->call('loadTable')
+        ->assertTableFilterVisible('taxonomy_topics')
+        ->filterTable('taxonomy_topics', $laravel->id)
+        ->assertCanSeeTableRecords([$matchingEntry])
+        ->assertCanNotSeeTableRecords([$otherEntry])
+    );
+});
+
+it('can filter scoped collection entries by hierarchical taxonomy term using select tree', function () {
+    $taxonomy = Taxonomy::factory()->hierarchical()->create([
+        'title' => 'Kategorie',
+        'handle' => 'categories',
+    ]);
+    $this->collection->taxonomies()->attach($taxonomy);
+
+    $parentTerm = Term::factory()->create([
+        'taxonomy_id' => $taxonomy->id,
+        'title' => 'Laravel',
+        'locale' => 'cs',
+        'parent_id' => null,
+        'order' => 1,
+    ]);
+    $childTerm = Term::factory()->create([
+        'taxonomy_id' => $taxonomy->id,
+        'title' => 'Filament',
+        'locale' => 'cs',
+        'parent_id' => $parentTerm->id,
+        'order' => 2,
+    ]);
+    $otherTerm = Term::factory()->create([
+        'taxonomy_id' => $taxonomy->id,
+        'title' => 'Statamic',
+        'locale' => 'cs',
+        'parent_id' => null,
+        'order' => 3,
+    ]);
+
+    $matchingEntry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'author_id' => $this->admin->id,
+    ]);
+    $matchingEntry->terms()->syncWithoutDetaching([$childTerm->id]);
+
+    $otherEntry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'author_id' => $this->admin->id,
+    ]);
+    $otherEntry->terms()->syncWithoutDetaching([$otherTerm->id]);
+
+    $configurationKey = 'test-articles-hierarchical-taxonomy-filter';
+    $panel = Filament::getDefaultPanel();
+    Filament::setCurrentPanel($panel);
+    Route::get("/_test/{$configurationKey}/create", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.create");
+    Route::get("/_test/{$configurationKey}/{record}/edit", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.edit");
+
+    $panel->resources([
+        EntryResource::make($configurationKey)
+            ->collectionHandle($this->collection->handle)
+            ->navigationLabel($this->collection->title),
+    ]);
+
+    EntryResource::withConfiguration($configurationKey, fn () => Livewire::test(ListEntries::class)
+        ->call('loadTable')
+        ->assertTableFilterVisible('taxonomy_categories')
+        ->filterTable('taxonomy_categories', ['value' => $childTerm->id])
+        ->assertCanSeeTableRecords([$matchingEntry])
+        ->assertCanNotSeeTableRecords([$otherEntry])
+    );
+});
+
+it('shows an active indicator for hierarchical taxonomy filters', function () {
+    $taxonomy = Taxonomy::factory()->hierarchical()->create([
+        'title' => 'Kategorie',
+        'handle' => 'categories',
+    ]);
+    $this->collection->taxonomies()->attach($taxonomy);
+
+    $term = Term::factory()->create([
+        'taxonomy_id' => $taxonomy->id,
+        'title' => 'Filament',
+        'locale' => 'cs',
+        'parent_id' => null,
+        'order' => 1,
+    ]);
+
+    $configurationKey = 'test-articles-hierarchical-taxonomy-indicator';
+    $panel = Filament::getDefaultPanel();
+    Filament::setCurrentPanel($panel);
+    Route::get("/_test/{$configurationKey}/create", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.create");
+    Route::get("/_test/{$configurationKey}/{record}/edit", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.edit");
+
+    $panel->resources([
+        EntryResource::make($configurationKey)
+            ->collectionHandle($this->collection->handle)
+            ->navigationLabel($this->collection->title),
+    ]);
+
+    $indicatorLabels = EntryResource::withConfiguration($configurationKey, function () use ($term): array {
+        $component = Livewire::test(ListEntries::class)
+            ->call('loadTable')
+            ->filterTable('taxonomy_categories', ['value' => $term->id]);
+
+        return collect($component->instance()->getTable()->getFilterIndicators())
+            ->map(fn ($indicator): string => (string) $indicator->getLabel())
+            ->values()
+            ->all();
+    });
+
+    expect($indicatorLabels)->toContain('Kategorie: Filament');
+});
+
+it('allows drag and drop reordering for scoped collections sorted by order', function () {
+    $firstEntry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'author_id' => $this->admin->id,
+        'order' => 1,
+        'title' => 'První',
+    ]);
+    $secondEntry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'author_id' => $this->admin->id,
+        'order' => 2,
+        'title' => 'Druhý',
+    ]);
+
+    $configurationKey = 'test-articles-reordering';
+    $panel = Filament::getDefaultPanel();
+    Filament::setCurrentPanel($panel);
+    Route::get("/_test/{$configurationKey}/create", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.create");
+    Route::get("/_test/{$configurationKey}/{record}/edit", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.edit");
+
+    $panel->resources([
+        EntryResource::make($configurationKey)
+            ->collectionHandle($this->collection->handle)
+            ->navigationLabel($this->collection->title),
+    ]);
+
+    EntryResource::withConfiguration($configurationKey, function () use ($firstEntry, $secondEntry): void {
+        $component = Livewire::test(ListEntries::class)
+            ->call('loadTable');
+
+        expect($component->instance()->getTable()->isReorderable())
+            ->toBeTrue()
+            ->and($component->instance()->getTable()->getReorderColumn())
+            ->toBe('order');
+
+        $component
+            ->call('toggleTableReordering')
+            ->call('reorderTable', [$secondEntry->getKey(), $firstEntry->getKey()]);
+    });
+
+    expect($secondEntry->fresh()->order)->toBe(1)
+        ->and($firstEntry->fresh()->order)->toBe(2);
+});
+
+it('allows drag and drop reordering for scoped article collections even when default sort is published_at', function () {
+    $this->collection->update([
+        'sort_field' => 'published_at',
+        'sort_direction' => 'desc',
+    ]);
+
+    $olderEntry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'author_id' => $this->admin->id,
+        'order' => 1,
+        'published_at' => now()->subDay(),
+        'title' => 'Starší článek',
+    ]);
+    $newerEntry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'author_id' => $this->admin->id,
+        'order' => 2,
+        'published_at' => now(),
+        'title' => 'Novější článek',
+    ]);
+
+    $configurationKey = 'test-articles-reordering-published-at';
+    $panel = Filament::getDefaultPanel();
+    Filament::setCurrentPanel($panel);
+    Route::get("/_test/{$configurationKey}/create", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.create");
+    Route::get("/_test/{$configurationKey}/{record}/edit", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.edit");
+
+    $panel->resources([
+        EntryResource::make($configurationKey)
+            ->collectionHandle($this->collection->handle)
+            ->navigationLabel($this->collection->title),
+    ]);
+
+    EntryResource::withConfiguration($configurationKey, function () use ($olderEntry, $newerEntry): void {
+        $component = Livewire::test(ListEntries::class)
+            ->call('loadTable');
+
+        expect($component->instance()->getTable()->isReorderable())
+            ->toBeTrue()
+            ->and($component->instance()->getTable()->getDefaultSortDirection())
+            ->toBe('desc');
+
+        $component
+            ->call('toggleTableReordering')
+            ->call('reorderTable', [$newerEntry->getKey(), $olderEntry->getKey()]);
+    });
+
+    expect($newerEntry->fresh()->order)->toBe(1)
+        ->and($olderEntry->fresh()->order)->toBe(2);
+});
+
+it('loads scoped collection taxonomies only once when building columns and filters', function () {
+    $taxonomy = Taxonomy::factory()->create([
+        'title' => 'Témata',
+        'handle' => 'topics',
+    ]);
+    $this->collection->taxonomies()->attach($taxonomy);
+
+    $term = Term::factory()->create([
+        'taxonomy_id' => $taxonomy->id,
+        'title' => 'Laravel',
+        'locale' => 'cs',
+    ]);
+
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'author_id' => $this->admin->id,
+    ]);
+    $entry->terms()->syncWithoutDetaching([$term->id]);
+
+    $configurationKey = 'test-articles-taxonomy-query-count';
+    $panel = Filament::getDefaultPanel();
+    Filament::setCurrentPanel($panel);
+    Route::get("/_test/{$configurationKey}/create", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.create");
+    Route::get("/_test/{$configurationKey}/{record}/edit", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.edit");
+
+    $panel->resources([
+        EntryResource::make($configurationKey)
+            ->collectionHandle($this->collection->handle)
+            ->navigationLabel($this->collection->title),
+    ]);
+
+    $queries = EntryResource::withConfiguration($configurationKey, function () {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        Livewire::test(ListEntries::class)
+            ->assertTableColumnVisible('taxonomy_topics')
+            ->assertTableFilterVisible('taxonomy_topics');
+
+        $queries = DB::getQueryLog();
+        DB::disableQueryLog();
+
+        return $queries;
+    });
+
+    $collectionLookupCount = collect($queries)
+        ->filter(fn (array $query): bool => str_contains($query['query'], 'from `collections`')
+            && str_contains($query['query'], 'where `handle` = ?'))
+        ->count();
+
+    $taxonomyLookupCount = collect($queries)
+        ->filter(fn (array $query): bool => str_contains($query['query'], 'from `taxonomies`')
+            && str_contains($query['query'], 'inner join `collection_taxonomy`'))
+        ->count();
+
+    expect($collectionLookupCount)->toBe(1)
+        ->and($taxonomyLookupCount)->toBe(1);
+});
+
+it('does not show taxonomy columns for scoped collections without taxonomies', function () {
+    $pagesCollection = Collection::factory()->create([
+        'handle' => 'pages',
+        'title' => 'Stránky',
+        'is_active' => true,
+    ]);
+    Blueprint::factory()->create([
+        'collection_id' => $pagesCollection->id,
+        'title' => 'Stránka',
+        'handle' => 'page',
+        'is_default' => true,
+    ]);
+
+    Taxonomy::factory()->create([
+        'title' => 'Témata',
+        'handle' => 'topics',
+    ]);
+
+    $configurationKey = 'test-pages-no-taxonomies';
+    $panel = Filament::getDefaultPanel();
+    Filament::setCurrentPanel($panel);
+    Route::get("/_test/{$configurationKey}/create", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.create");
+    Route::get("/_test/{$configurationKey}/{record}/edit", fn () => 'ok')
+        ->name("filament.admin.resources.entries.{$configurationKey}.edit");
+
+    $panel->resources([
+        EntryResource::make($configurationKey)
+            ->collectionHandle($pagesCollection->handle)
+            ->navigationLabel($pagesCollection->title),
+    ]);
+
+    EntryResource::withConfiguration($configurationKey, fn () => Livewire::test(ListEntries::class)
+        ->call('loadTable')
+        ->assertTableColumnDoesNotExist('taxonomy_topics')
+    );
 });
 
 // ── Create page ────────────────────────────────────────────────────────────

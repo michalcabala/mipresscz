@@ -16,9 +16,20 @@
                 <h3 class="text-white text-sm font-semibold mb-4 uppercase tracking-wider">{{ __('Navigace') }}</h3>
                 <ul class="space-y-3">
                     <li><a href="{{ url('/') }}" class="text-sm hover:text-white transition-colors">{{ __('Domů') }}</a></li>
-                    @foreach($footerEntries ?? [] as $entry)
-                        <li><a href="{{ url($entry->uri) }}" class="text-sm hover:text-white transition-colors">{{ $entry->title }}</a></li>
-                    @endforeach
+                    @if(!empty($footerMenu))
+                        <li>
+                            @include('mipresscz-core::components.nav-menu-list', [
+                                'items' => $footerMenu,
+                                'class' => 'space-y-3',
+                                'childClass' => 'mt-2 space-y-2 border-l border-gray-800 pl-4',
+                                'itemClass' => 'text-sm hover:text-white transition-colors',
+                            ])
+                        </li>
+                    @else
+                        @foreach($footerEntries ?? [] as $entry)
+                            <li><a href="{{ url($entry->uri) }}" class="text-sm hover:text-white transition-colors">{{ $entry->title }}</a></li>
+                        @endforeach
+                    @endif
                 </ul>
             </div>
 

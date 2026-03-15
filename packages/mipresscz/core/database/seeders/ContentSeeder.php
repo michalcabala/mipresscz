@@ -257,7 +257,6 @@ class ContentSeeder extends Seeder
 
         // Link taxonomies to collections
         $articles->taxonomies()->syncWithoutDetaching([$categories->id, $tags->id]);
-        $pages->taxonomies()->syncWithoutDetaching([$categories->id]);
 
         // Category terms (hierarchical)
         $tech = Term::updateOrCreate(['taxonomy_id' => $categories->id, 'slug' => 'technologie'], [

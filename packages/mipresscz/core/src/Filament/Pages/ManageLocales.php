@@ -76,7 +76,7 @@ class ManageLocales extends Page implements HasTable
             ->reorderable('order')
             ->columns([
                 TextColumn::make('flag')
-                    ->label('')
+                    ->label(__('locales.fields.flag'))
                     ->html()
                     ->state(fn (Locale $record): string => $record->flag
                         ? '<span class="inline-flex items-center justify-center w-7 h-7 rounded-full overflow-hidden"><img src="'.e(asset("assets/flags/{$record->flag}")).'" class="w-full h-full object-cover" /></span>'

@@ -55,6 +55,8 @@ class CacheService
         foreach ($locales as $locale) {
             Cache::forget($this->getNavKey('header', $locale));
             Cache::forget($this->getNavKey('footer', $locale));
+            Cache::forget($this->getNavKey('menu.primary', $locale));
+            Cache::forget($this->getNavKey('menu.footer', $locale));
         }
     }
 

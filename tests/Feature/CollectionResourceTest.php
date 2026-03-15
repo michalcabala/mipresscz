@@ -8,6 +8,7 @@ use MiPressCz\Core\Filament\Resources\Collections\Pages\EditCollection;
 use MiPressCz\Core\Filament\Resources\Collections\Pages\ListCollections;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Locale;
+use MiPressCz\Core\Models\Taxonomy;
 
 beforeEach(function () {
     app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
@@ -106,6 +107,25 @@ it('can update a collection', function () {
         ->assertHasNoFormErrors();
 
     expect($collection->fresh()->title)->toBe('New Title');
+});
+
+it('prevents attaching a taxonomy that is already assigned to another collection', function () {
+    $primaryCollection = Collection::factory()->create(['title' => 'Články']);
+    $secondaryCollection = Collection::factory()->create(['title' => 'Stránky']);
+    $taxonomy = Taxonomy::factory()->create(['title' => 'Kategorie', 'handle' => 'categories']);
+    $primaryCollection->taxonomies()->attach($taxonomy);
+
+    Livewire::test(EditCollection::class, [
+        'record' => $secondaryCollection->getRouteKey(),
+    ])
+        ->fillForm([
+            'taxonomies' => [$taxonomy->getKey()],
+        ])
+        ->call('save')
+        ->assertHasFormErrors(['taxonomies']);
+
+    expect($secondaryCollection->fresh()->taxonomies)->toHaveCount(0)
+        ->and($primaryCollection->fresh()->taxonomies->pluck('id')->all())->toBe([$taxonomy->getKey()]);
 });
 
 // -- Authorization --

@@ -6,11 +6,13 @@ use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Services\CacheService;
+use MiPressCz\Core\Services\NavMenuService;
 
 class NavComposer
 {
     public function __construct(
         private CacheService $cache,
+        private NavMenuService $menuService,
     ) {}
 
     public function compose(View $view): void
@@ -19,12 +21,24 @@ class NavComposer
         $viewName = $view->getName();
 
         if (str_contains($viewName, 'header')) {
+            $view->with('primaryMenu', $this->getMenu('primary', $locale));
             $view->with('navEntries', $this->getHeaderNav($locale));
         }
 
         if (str_contains($viewName, 'footer')) {
+            $view->with('footerMenu', $this->getMenu('footer', $locale));
             $view->with('footerEntries', $this->getFooterNav($locale));
         }
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function getMenu(string $locationHandle, string $locale): array
+    {
+        return $this->cache->getNav("menu.{$locationHandle}", $locale, function () use ($locationHandle): array {
+            return $this->menuService->getMenuTree($locationHandle);
+        });
     }
 
     private function getHeaderNav(string $locale): Collection

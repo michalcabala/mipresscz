@@ -19,6 +19,10 @@ class ListTerms extends ListRecords
     {
         parent::mount();
 
+        if (TermResource::getTaxonomyHandle()) {
+            return;
+        }
+
         if ($taxonomyId = request()->query('taxonomy_id')) {
             $this->tableFilters['taxonomy_id'] = ['value' => $taxonomyId];
         }

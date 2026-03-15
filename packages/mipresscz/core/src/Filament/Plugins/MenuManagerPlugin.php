@@ -4,6 +4,8 @@ namespace MiPressCz\Core\Filament\Plugins;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
 use Filament\Support\Icons\Heroicon;
 use MiPressCz\Core\Filament\Pages\MenuManagerPage;
 use MiPressCz\Core\Services\NavMenuService;
@@ -124,7 +126,12 @@ class MenuManagerPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        $panel->pages([MenuManagerPage::class]);
+        $panel
+            ->pages([MenuManagerPage::class])
+            ->assets([
+                Css::make('nav-menu-styles', __DIR__.'/../../../resources/dist/nav-menu.css'),
+                Js::make('nav-menu-scripts', __DIR__.'/../../../resources/dist/nav-menu.js'),
+            ], 'mipresscz/core');
     }
 
     public function boot(Panel $panel): void

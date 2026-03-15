@@ -123,6 +123,7 @@ return [
         'published_at' => 'Publikováno',
         'order' => 'Pořadí',
         'data' => 'Data',
+        'image' => 'Obrázek',
         'content' => 'Obsah',
         'extra_fields' => 'Další pole',
         'metadata' => 'Metadata',
@@ -373,48 +374,21 @@ return [
         // Panel
         'panel_tab_custom' => 'Vlastní odkaz',
         'panel_tab_models' => 'Záznamy',
+        'panel_tab_archives' => 'Archivy',
         'select_menu_first' => 'Nejdříve vyberte menu.',
         'custom_title_placeholder' => 'Název odkazu',
         'or' => 'nebo',
         'field_open_in' => 'Otevřít v',
         'add_to_menu' => 'Přidat do menu',
         'no_model_sources' => 'Nejsou nakonfigurované žádné zdroje záznamů.',
+        'no_archive_sources' => 'Nejsou dostupné žádné archivní zdroje.',
         'search' => 'Hledat',
         'search_placeholder' => 'Hledat záznamy…',
         'already_added' => 'Již přidáno',
         'no_records' => 'Žádné záznamy.',
-    ],
-
-    'menu_fields' => [
-        'title' => 'Název',
-        'handle' => 'Handle',
-        'location' => 'Umístění',
-        'description' => 'Popis',
-    ],
-
-    'menu_locations' => [
-        'primary' => 'Hlavní navigace',
-        'footer' => 'Zápatí',
-        'sidebar' => 'Postranní panel',
-    ],
-
-    'menu_item_fields' => [
-        'type' => 'Typ',
-        'title' => 'Popisek',
-        'url' => 'URL',
-        'entry' => 'Záznam',
-        'target' => 'Otevřít v',
-        'is_active' => 'Aktivní',
-    ],
-
-    'menu_item_types' => [
-        'custom_link' => 'Vlastní odkaz',
-        'entry' => 'Záznam',
-    ],
-
-    'menu_item_targets' => [
-        '_self' => 'Stejná záložka',
-        '_blank' => 'Nová záložka',
+        'type_custom' => 'Vlastní odkaz',
+        'type_model' => 'Záznam',
+        'type_archive' => 'Archiv',
     ],
 
     'messages' => [
@@ -424,6 +398,7 @@ return [
         'entry_restored' => 'Záznam byl obnoven.',
         'homepage_set' => 'Domovská stránka byla nastavena.',
         'cannot_delete_homepage' => 'Nelze smazat záznam nastavený jako domovská stránka.',
+        'taxonomies_already_assigned' => 'Tyto taxonomie už jsou přiřazené k jiné kolekci: :taxonomies',
         'entry_published' => 'Záznam byl publikován.',
         'revision_restored' => 'Revize byla obnovena.',
         'translation_created' => 'Překlad byl vytvořen.',

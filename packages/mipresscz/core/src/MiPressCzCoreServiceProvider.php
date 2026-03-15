@@ -2,9 +2,6 @@
 
 namespace MiPressCz\Core;
 
-use Filament\Support\Assets\Css;
-use Filament\Support\Assets\Js;
-use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -102,11 +99,6 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
 
         Livewire::component('nav-menu-builder', NavMenuBuilder::class);
         Livewire::component('nav-menu-panel', NavMenuPanel::class);
-
-        FilamentAsset::register([
-            Css::make('nav-menu-styles', __DIR__.'/../resources/dist/nav-menu.css'),
-            Js::make('nav-menu-scripts', __DIR__.'/../resources/dist/nav-menu.js'),
-        ], 'mipresscz/core');
 
         $this->registerDefaultComputedFields();
 

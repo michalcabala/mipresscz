@@ -83,6 +83,7 @@ class NavMenuBuilder extends Component
         return [
             'menuItemAdded' => 'addItem',
             'menuIdChanged' => 'changeMenu',
+            'menu-content-updated' => 'refreshItems',
         ];
     }
 
@@ -91,6 +92,11 @@ class NavMenuBuilder extends Component
         $this->menuId = $menuId;
         $this->loadItems();
         $this->editingItemId = null;
+    }
+
+    public function refreshItems(): void
+    {
+        $this->loadItems();
     }
 
     // -------------------------------------------------------------------------
@@ -112,6 +118,7 @@ class NavMenuBuilder extends Component
         app(NavMenuService::class)->saveTree($this->menuId, $tree, null, $order);
         $this->loadItems();
         $this->isDirty = false;
+        $this->dispatch('menu-content-updated')->to(NavMenuPanel::class);
         $this->dispatch('menu-saved');
     }
 
@@ -247,7 +254,7 @@ class NavMenuBuilder extends Component
             $this->dispatch('menu-saved');
         }
 
-        $this->dispatch('menu-content-updated');
+        $this->dispatch('menu-content-updated')->to(NavMenuPanel::class);
     }
 
     public function confirmRemoval(int $itemId): void
@@ -269,7 +276,7 @@ class NavMenuBuilder extends Component
         }
 
         $this->loadItems();
-        $this->dispatch('menu-content-updated');
+        $this->dispatch('menu-content-updated')->to(NavMenuPanel::class);
         $this->deletingItemId = null;
     }
 

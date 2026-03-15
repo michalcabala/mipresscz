@@ -123,6 +123,7 @@ return [
         'published_at' => 'Published at',
         'order' => 'Order',
         'data' => 'Data',
+        'image' => 'Image',
         'content' => 'Content',
         'extra_fields' => 'Additional fields',
         'metadata' => 'Metadata',
@@ -373,48 +374,21 @@ return [
         // Panel
         'panel_tab_custom' => 'Custom link',
         'panel_tab_models' => 'Records',
+        'panel_tab_archives' => 'Archives',
         'select_menu_first' => 'Select a menu first.',
         'custom_title_placeholder' => 'Link title',
         'or' => 'or',
         'field_open_in' => 'Open in',
         'add_to_menu' => 'Add to menu',
         'no_model_sources' => 'No model sources are configured.',
+        'no_archive_sources' => 'No archive sources are available.',
         'search' => 'Search',
         'search_placeholder' => 'Search records…',
         'already_added' => 'Already added',
         'no_records' => 'No records found.',
-    ],
-
-    'menu_fields' => [
-        'title' => 'Title',
-        'handle' => 'Handle',
-        'location' => 'Location',
-        'description' => 'Description',
-    ],
-
-    'menu_locations' => [
-        'primary' => 'Primary navigation',
-        'footer' => 'Footer',
-        'sidebar' => 'Sidebar',
-    ],
-
-    'menu_item_fields' => [
-        'type' => 'Type',
-        'title' => 'Label',
-        'url' => 'URL',
-        'entry' => 'Entry',
-        'target' => 'Open in',
-        'is_active' => 'Active',
-    ],
-
-    'menu_item_types' => [
-        'custom_link' => 'Custom link',
-        'entry' => 'Entry',
-    ],
-
-    'menu_item_targets' => [
-        '_self' => 'Same tab',
-        '_blank' => 'New tab',
+        'type_custom' => 'Custom link',
+        'type_model' => 'Record',
+        'type_archive' => 'Archive',
     ],
 
     'messages' => [
@@ -424,6 +398,7 @@ return [
         'entry_restored' => 'Entry restored.',
         'homepage_set' => 'Homepage has been set.',
         'cannot_delete_homepage' => 'The homepage entry cannot be deleted.',
+        'taxonomies_already_assigned' => 'These taxonomies are already assigned to another collection: :taxonomies',
         'entry_published' => 'Entry published.',
         'revision_restored' => 'Revision restored.',
         'translation_created' => 'Translation created.',

@@ -5,6 +5,10 @@ namespace App\Providers;
 use App\Mason\BrickCollection;
 use BezhanSalleh\LanguageSwitch\Enums\Placement;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
+use Filament\Actions\Action;
+use Filament\Tables\Enums\ColumnManagerLayout;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -29,9 +33,20 @@ class AppServiceProvider extends ServiceProvider
 
         Table::configureUsing(function (Table $table): void {
             $table
+                ->columnManagerLayout(ColumnManagerLayout::Modal)
+                ->columnManagerTriggerAction(fn (Action $action): Action => $action->slideOver())
+                ->filtersLayout(FiltersLayout::Modal)
+                ->filtersTriggerAction(fn (Action $action): Action => $action->slideOver())
+                ->reorderableColumns()
                 ->striped()
                 ->deferLoading()
                 ->stackedOnMobile();
+        });
+
+        SelectFilter::configureUsing(function (SelectFilter $filter): void {
+            $filter
+                ->native(false)
+                ->searchable();
         });
 
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
