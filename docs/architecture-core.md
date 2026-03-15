@@ -108,6 +108,12 @@ Core registruje frontend routing ve dvou módech dle `LocaleService::isSingleLan
 
 Redirect z prefixed URL na unprefixed v single-language módu zajišťuje `SetFrontendLocale` middleware.
 
+## SEO endpointy
+
+- `/robots.txt` je obsluhovaný pluginem Botly (správa pravidel z administrace).
+- `/sitemap.xml` je servírovaná jako statický soubor `public/sitemap.xml`.
+- Soubor `public/sitemap.xml` generuje Filament Sitemap Generator a jeho automatická aktualizace závisí na běžícím Laravel scheduleru (`schedule:run`).
+
 ---
 
 ## Admin panel

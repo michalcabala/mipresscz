@@ -266,6 +266,15 @@ class Entry extends Model implements Feedable
         return url($prefix.$this->uri);
     }
 
+    public function getSitemapUrl(): ?string
+    {
+        if (! $this->isSitemapEligible()) {
+            return null;
+        }
+
+        return $this->getFullUrl();
+    }
+
     public static function getFeedItems(): \Illuminate\Database\Eloquent\Collection
     {
         $locale = app()->getLocale();
@@ -291,6 +300,23 @@ class Entry extends Model implements Feedable
             ->updated($this->published_at ?? $this->updated_at ?? now())
             ->link($url)
             ->authorName(config('app.name'));
+    }
+
+    private function isSitemapEligible(): bool
+    {
+        if ($this->status !== EntryStatus::Published) {
+            return false;
+        }
+
+        if ($this->published_at?->isFuture()) {
+            return false;
+        }
+
+        if ($this->expired_at?->isPast()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

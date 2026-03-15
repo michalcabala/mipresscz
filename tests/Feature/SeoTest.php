@@ -130,36 +130,53 @@ it('outputs hreflang links when translations exist', function () {
 // ── Sitemap ──
 
 it('sitemap returns 200 with xml content type', function () {
-    Locale::factory()->default()->create(['code' => 'cs']);
+    $sitemapPath = public_path('sitemap.xml');
+    $originalSitemap = file_exists($sitemapPath) ? file_get_contents($sitemapPath) : null;
 
-    $this->get('/sitemap.xml')
-        ->assertStatus(200)
-        ->assertHeader('Content-Type', 'application/xml; charset=utf-8');
+    file_put_contents($sitemapPath, <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://mipresscz.test</loc>
+    </url>
+</urlset>
+XML);
+
+    try {
+        $response = $this->get('/sitemap.xml')
+            ->assertSuccessful()
+            ->assertHeader('Content-Type', 'application/xml; charset=utf-8');
+
+        expect($response->baseResponse)->toBeInstanceOf(\Symfony\Component\HttpFoundation\BinaryFileResponse::class);
+        expect($response->baseResponse->getFile()->getPathname())->toBe($sitemapPath);
+    } finally {
+        if ($originalSitemap === null) {
+            @unlink($sitemapPath);
+        } else {
+            file_put_contents($sitemapPath, $originalSitemap);
+        }
+    }
 });
 
-it('sitemap contains published entry urls', function () {
-    Locale::factory()->default()->create(['code' => 'cs']);
+it('sitemap returns not found when static file is missing', function () {
+    $sitemapPath = public_path('sitemap.xml');
+    $backupPath = public_path('sitemap.xml.bak.testing');
 
-    $entry = seoTestEntry(['slug' => 'sitemap-stranka']);
+    if (file_exists($backupPath)) {
+        @unlink($backupPath);
+    }
 
-    $this->get('/sitemap.xml')
-        ->assertSee($entry->uri)
-        ->assertSee('<urlset', false);
-});
+    if (file_exists($sitemapPath)) {
+        rename($sitemapPath, $backupPath);
+    }
 
-it('sitemap does not contain draft entries', function () {
-    Locale::factory()->default()->create(['code' => 'cs']);
-
-    $collection = Collection::factory()->create(['handle' => 'pages', 'route_template' => '/{slug}']);
-    $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
-
-    $draft = Entry::factory()->create([
-        'collection_id' => $collection->id,
-        'blueprint_id' => $blueprint->id,
-        'slug' => 'skryta-stranka',
-    ]);
-
-    $this->get('/sitemap.xml')->assertDontSee($draft->uri);
+    try {
+        $this->get('/sitemap.xml')->assertNotFound();
+    } finally {
+        if (file_exists($backupPath)) {
+            rename($backupPath, $sitemapPath);
+        }
+    }
 });
 
 // ── RSS Feed ──
@@ -185,4 +202,10 @@ it('rss feed contains rss root element', function () {
     Locale::factory()->default()->create(['code' => 'cs']);
 
     $this->get('/feed.xml')->assertSee('<rss version="2.0"', false);
+});
+
+// ── Robots.txt ──
+
+it('robots txt route returns 200', function () {
+    $this->get('/robots.txt')->assertSuccessful();
 });

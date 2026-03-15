@@ -83,6 +83,7 @@ Všechny testy musí projít, Pint nesmí hlásit chyby.
 | Nový seeder | `php artisan db:seed --class=SeederName` |
 | Změna konfigurace | `php artisan config:clear` |
 | Změna rout | `php artisan route:clear` |
+| Změna SEO/scheduler automatizace | `php artisan schedule:list` |
 | Filament resource | `php artisan filament:optimize-clear` |
 | Nové ikony | `php artisan icons:clear && php artisan icons:cache` |
 | Vše | `php artisan optimize:clear` |

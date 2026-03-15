@@ -4,14 +4,21 @@ use Illuminate\Support\Facades\Route;
 use MiPressCz\Core\Http\Controllers\EntryController;
 use MiPressCz\Core\Http\Controllers\PreviewController;
 use MiPressCz\Core\Http\Controllers\SearchController;
-use MiPressCz\Core\Http\Controllers\SitemapController;
 use MiPressCz\Core\Http\Middleware\PageCache;
 use MiPressCz\Core\Http\Middleware\SetFrontendLocale;
 use Spatie\Feed\Http\FeedController as SpatieFeedController;
 
 // ── Static SEO endpoints (must be before catch-all routes) ──
 
-Route::get('sitemap.xml', [SitemapController::class, 'index'])
+Route::get('sitemap.xml', static function () {
+    $sitemapPath = public_path('sitemap.xml');
+
+    abort_unless(file_exists($sitemapPath), 404);
+
+    return response()->file($sitemapPath, [
+        'Content-Type' => 'application/xml; charset=utf-8',
+    ]);
+})
     ->name('sitemap');
 
 Route::middleware([SetFrontendLocale::class])

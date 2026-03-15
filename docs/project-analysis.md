@@ -15,9 +15,9 @@ Nejsilnější stránky:
 - čistý obsahový model inspirovaný Statamicem (HasOrigin fallback, computed data, lifecycle events),
 - rozumně navržený Filament admin s dynamic resource patternem,
 - locale workflow řízený z databáze,
-- kompletní SEO (sitemap, feed, hreflang, canonical, meta tagy),
+- kompletní SEO (robots, statická sitemap, feed, hreflang, canonical, meta tagy),
 - fulltext vyhledávání, menu builder, entry preview, caching strategie,
-- solidní test suite (497 testů) pokrývající backend i admin UX.
+- solidní test suite pokrývající backend doménu a klíčové workflow.
 
 Největší průřezová rizika:
 
@@ -298,7 +298,7 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 | Revize | ✅ Kompletní | Auto-versioning, max 50/entry, diff |
 | Installer | ✅ Kompletní | `php artisan mipresscz:install` |
 | Test suite | ✅ Silná | 522 testů; mezery pouze frontend rendering |
-| SEO (meta, hreflang, sitemap, canonical) | ✅ Kompletní | Meta tagy, hreflang, sitemap.xml, feed.xml, canonical URL |
+| SEO (meta, hreflang, sitemap, canonical) | ✅ Kompletní | Meta tagy, hreflang, `robots.txt` (Botly), statická `sitemap.xml` (generovaná + scheduler), feed.xml, canonical URL |
 | Fulltext vyhledávání | ✅ Kompletní | Laravel Scout + database driver |
 | Menu builder | ✅ Kompletní | Drag & drop, víceúrovňové, 3 typy položek |
 | Dashboard widgety | ✅ Kompletní | Počty entries, poslední aktivita |
@@ -328,7 +328,7 @@ Projekt už má integrované dvě klíčové stavební vrstvy pro obsah:
 | Dokumentace | 9/10 |
 | Produkční připravenost | 8/10 |
 
-Projekt má výborný základ — čistá architektura, modulární core package, kompletní content model, solidní test suite (497 testů). SEO, vyhledávání, menu builder, preview, caching a security hardening jsou implementovány. Hlavní investiční příležitosti směřují do frontend šablony, uživatelské dokumentace a editorial workflow (Working Copy).
+Projekt má výborný základ — čistá architektura, modulární core package, kompletní content model, solidní test suite (522 testů). SEO, vyhledávání, menu builder, preview, caching a security hardening jsou implementovány. Hlavní investiční příležitosti směřují do frontend šablony, uživatelské dokumentace a editorial workflow (Working Copy).
 
 ### Rizika
 
@@ -390,7 +390,7 @@ Projekt používá Pest 4 a MySQL test databázi `mipresscz_testing`.
 - `tests/Pest.php` aplikuje `RefreshDatabase` pro Feature testy,
 - testy pokrývají content system, entry routing, locale workflow, locale observer, locale service a roles/permissions,
 - testovací nastavení odpovídá reálnějšímu MySQL chování, ne SQLite-only variantě,
-- aktuálně **185 testů, 371 assertions** — všechny zelené.
+- aktuálně **522 testů, 1100 assertions** — všechny zelené.
 
 ### Rizika
 
@@ -458,7 +458,7 @@ Repo už jednou narazilo na dokumentační drift. To je explicitní provozní po
 
 ## Závěr
 
-miPress je ve stavu produkčně připraveného CMS jádra se zdravou doménovou architekturou, kompletním admin panelem a silným testovým pokrytím (497 testů). Všechny klíčové CMS funkce jsou implementovány: SEO, vyhledávání, menu builder, preview, caching, security, computed data. Největší technické riziko neleží v jednotlivých souborech, ale v místech, kde se propojuje více vrstev najednou: locale workflow, dynamické admin resources a budoucí růst frontendu. Další kroky směřují k uživatelské dokumentaci (Fáze 10 P5), editorial workflow Working Copy (Fáze 11) a produkční frontend šabloně.
+miPress je ve stavu produkčně připraveného CMS jádra se zdravou doménovou architekturou, kompletním admin panelem a silným testovým pokrytím (522 testů). Všechny klíčové CMS funkce jsou implementovány: SEO, vyhledávání, menu builder, preview, caching, security, computed data. Největší technické riziko neleží v jednotlivých souborech, ale v místech, kde se propojuje více vrstev najednou: locale workflow, dynamické admin resources a budoucí růst frontendu. Další kroky směřují k uživatelské dokumentaci (Fáze 10 P5), editorial workflow Working Copy (Fáze 11) a produkční frontend šabloně.
 
 ---
 
@@ -525,4 +525,4 @@ Výsledek refactoru z branch `refactor/core-extraction`:
 - `MiPressCzCoreServiceProvider` registruje: observers, policies, `Factory::guessFactoryNamesUsing()`
 - `AppServiceProvider` zredukován na: `Gate::before()`, Table config defaults, LanguageSwitch config
 - Všechny test soubory aktualizovány na `MiPressCz\Core\Models\*` namespace
-- **185 testů zelených**
+- **497 testů zelených**

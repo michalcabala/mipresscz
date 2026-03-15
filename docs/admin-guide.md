@@ -74,6 +74,13 @@ V postranním panelu záznamu najdete sekci **SEO** (klikněte pro rozbalení):
 
 Pokud pole necháte prázdná, použijí se výchozí hodnoty z názvu a obsahu záznamu.
 
+#### robots.txt a sitemap.xml
+
+- `robots.txt` je spravovaný přes admin plugin **Botly** (v administraci).
+- `sitemap.xml` je generovaná jako statický soubor `public/sitemap.xml` přes plugin **Filament Sitemap Generator**.
+- Veřejný endpoint `/sitemap.xml` servíruje tento vygenerovaný soubor.
+- Pro automatickou aktualizaci musí být na serveru aktivní Laravel scheduler (`php artisan schedule:run` každou minutu).
+
 #### Statistiky obsahu
 
 U existujících záznamů se v postranním panelu zobrazuje sekce **Statistiky obsahu**:

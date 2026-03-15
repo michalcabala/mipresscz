@@ -10,6 +10,55 @@ Referenční projekty:
 
 - `mipress` — target state (monorepo, core package, extensible panel provider, installer)
 - `tallcms` — inspirace pro package-first disciplínu, modular toggle, release governance
+- `filamentdemo` — inspirace pro správné psaní kódu pro Filament věci
+
+---
+
+## V1 Release Reality Check (nově)
+
+Poznámka: Projekt je funkčně velmi daleko, ale **v1 ještě není uzavřená**. Chybí jasný release gate a několik produkčně důležitých kroků.
+
+### Co musí být splněno pro V1
+
+- [ ] **Release gate checklist** musí být 100% zelený (níže).
+- [ ] **Frontend produkční šablona** (ne jen fallback) musí být hotová pro hlavní stránky: homepage, page detail, list/search, 404/500.
+- [ ] **Obsahové workflow** musí být ověřeno redakčním UAT (create/edit/review/publish/rollback).
+- [ ] **Dokumentace pro provoz** musí pokrýt nasazení, upgrade, rollback a běžnou správu.
+- [ ] **Scheduler runner** musí být aktivní v produkci (`* * * * * php artisan schedule:run`) kvůli automatickému generování `sitemap.xml`.
+- [ ] **CI release pipeline** musí mít explicitní artifact/release krok (ne jen lint+test).
+
+### V1 Blockers (aktuální)
+
+1. Chybí produkční frontend vrstva a design system pro veřejný web.
+2. Není formalizovaný release gate (Go/No-Go checklist).
+3. Chybí provozní runbook (incident, rollback, cache invalidace, DB backup/restore).
+4. Není dokončený pilotní UAT scénář se skutečným obsahem.
+
+### V1 Exit Criteria (Go/No-Go)
+
+- [ ] 0 kritických chyb v open backlogu.
+- [ ] 0 vysokých bezpečnostních nálezů bez mitigace.
+- [ ] 100% průchod CI na hlavní větvi.
+- [ ] 100% průchod smoke testu po deploy (install, login, create entry, publish, render frontend).
+- [ ] Ověřený rollback postup na poslední stabilní tag.
+- [ ] Schválený release note + changelog + upgrade notes.
+
+### Doručovací plán k V1
+
+#### Sprint V1-A (stabilizace)
+- Finalizace release gate checklistu.
+- Uzavření všech produkčních blockerů mimo frontend design.
+- Runbook + deploy/rollback dokumentace.
+
+#### Sprint V1-B (frontend a UX)
+- Produkční šablona veřejného webu.
+- UX polish (navigace, responsivita, přístupnost, i18n texty).
+- E2E smoke scénáře pro nejdůležitější user journeys.
+
+#### Sprint V1-C (release hardening)
+- Pilotní UAT s reálným obsahem.
+- Výkonnostní a cache verifikace.
+- Tag `v1.0.0`, release notes, release branch discipline.
 
 ---
 
@@ -294,8 +343,9 @@ $schema->columns(3)
 
 - [x] Meta tagy v Entry UI — `meta_title`, `meta_description`, `meta_og_image_id` (migrace + EntryForm sidebar SEO sekce)
 - [x] Hreflang tagy — automaticky z locale vazeb (`translations` / `origin.translations`)
-- [x] Sitemap generátor — `GET /sitemap.xml` z published entries (`SitemapController`)
-- [x] RSS/Atom feed — `GET /feed.xml` pro aktuální locale (`FeedController`)
+- [x] Sitemap generátor — statický `public/sitemap.xml` přes Filament Sitemap Generator (route servíruje vygenerovaný soubor)
+- [x] Provozní požadavek — server musí spouštět Laravel scheduler (`schedule:run`) každou minutu pro automatické denní generování `sitemap.xml`.
+- [x] RSS/Atom feed — `GET /feed.xml` pro aktuální locale (`spatie/laravel-feed`)
 - [x] Canonical URL — `<link rel="canonical">` v `show.blade.php` + `$canonicalUrl` z `EntryController`
 
 ---

@@ -21,7 +21,7 @@ class LatestEntriesWidget extends TableWidget
                 Entry::query()
                     ->with(['collection', 'author'])
                     ->latest('updated_at')
-                    ->limit(10)
+                    ->limit(5)
             )
             ->columns([
                 TextColumn::make('title')

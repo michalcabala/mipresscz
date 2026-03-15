@@ -8,6 +8,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -46,33 +47,32 @@ class EntriesTable
                     ->badge()
                     ->icon(fn (EntryStatus $state): string => $state->icon())
                     ->color(fn (EntryStatus $state): string => $state->color()),
-                TextColumn::make('locale')
+                ImageColumn::make('locale')
                     ->label(__('content.entry_fields.locale'))
-                    ->html()
-                    ->state(function (Entry $record): string {
+                    ->state(function (Entry $record): array {
                         return collect([$record->locale])
                             ->merge($record->translations->pluck('locale'))
                             ->unique()
                             ->sort()
-                            ->map(function (string $locale): string {
-                                $localeModel = locales()->findByCode($locale);
-                                if ($localeModel?->flag) {
-                                    $url = e(asset('assets/flags/'.$localeModel->flag));
+                            ->map(function (string $locale): ?string {
+                                $flag = locales()->findByCode($locale)?->flag;
 
-                                    return '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full overflow-hidden shrink-0" title="'.e($localeModel->native_name).'"><img src="'.$url.'" alt="'.e($locale).'" class="w-full h-full object-cover" /></span>';
-                                }
-
-                                return '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 text-xs font-bold">'.e(strtoupper($locale)).'</span>';
+                                return $flag ? asset('assets/flags/'.$flag) : null;
                             })
-                            ->implode(' ');
-                    }),
+                            ->filter()
+                            ->values()
+                            ->all();
+                    })
+                    ->imageHeight(20)
+                    ->circular()
+                    ->stacked(),
                 TextColumn::make('author.name')
                     ->label(__('content.entry_fields.author'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('published_at')
                     ->label(__('content.entry_fields.published_at'))
-                    ->dateTime()
+                    ->isoDateTime('LLL')
                     ->sortable(),
                 TextColumn::make('updated_at')
                     ->label(__('content.entry_fields.updated_at'))

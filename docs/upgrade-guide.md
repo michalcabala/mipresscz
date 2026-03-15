@@ -35,6 +35,10 @@ php artisan test --compact
 # 5. Vymazat cache
 php artisan optimize:clear
 php artisan filament:optimize-clear
+
+# 6. Ověřit běžící scheduler (nutné pro auto-generaci sitemap.xml)
+# Cron: * * * * * php artisan schedule:run
+php artisan schedule:list
 ```
 
 ---

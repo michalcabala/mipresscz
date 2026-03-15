@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use Awcodes\Botly\BotlyPlugin;
 use Filament\Navigation\NavigationItem;
+use Filament\Panel;
 use Illuminate\Support\Facades\Schema;
 use MiPressCz\Core\Filament\Resources\Entries\EntryResource;
 use MiPressCz\Core\Filament\Resources\Terms\TermResource;
@@ -10,9 +12,17 @@ use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Models\Taxonomy;
 use MiPressCz\Core\Providers\MiPressCzAdminPanelProvider;
+use MuhammadNawlo\FilamentSitemapGenerator\FilamentSitemapGeneratorPlugin;
 
 class AdminPanelProvider extends MiPressCzAdminPanelProvider
 {
+    protected function configurePlugins(Panel $panel): Panel
+    {
+        return parent::configurePlugins($panel)
+            ->plugin(BotlyPlugin::make())
+            ->plugin(FilamentSitemapGeneratorPlugin::make());
+    }
+
     /**
      * @return array<int, mixed>
      */
