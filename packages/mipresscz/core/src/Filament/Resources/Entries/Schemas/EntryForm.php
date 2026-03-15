@@ -4,13 +4,21 @@ namespace MiPressCz\Core\Filament\Resources\Entries\Schemas;
 
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Awcodes\Mason\Mason;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -259,6 +267,17 @@ class EntryForm
                 'select' => Select::make($name)->label($label)->options($field['config']['options'] ?? []),
                 'toggle' => Toggle::make($name)->label($label),
                 'number' => TextInput::make($name)->label($label)->numeric(),
+                'datetime' => DateTimePicker::make($name)->label($label),
+                'date' => DatePicker::make($name)->label($label),
+                'time' => TimePicker::make($name)->label($label),
+                'color' => ColorPicker::make($name)->label($label),
+                'tags' => TagsInput::make($name)->label($label),
+                'url' => TextInput::make($name)->label($label)->url(),
+                'email' => TextInput::make($name)->label($label)->email(),
+                'markdown' => MarkdownEditor::make($name)->label($label),
+                'checkbox' => Checkbox::make($name)->label($label),
+                'radio' => Radio::make($name)->label($label)->options($field['config']['options'] ?? []),
+                'checkbox_list' => CheckboxList::make($name)->label($label)->options($field['config']['options'] ?? []),
                 'entries' => Select::make($name)
                     ->label($label)
                     ->multiple()

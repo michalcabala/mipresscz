@@ -50,15 +50,41 @@ return [
 
     'field_types' => [
         'label' => 'Field type',
+        // Text content
         'text' => 'Text',
         'textarea' => 'Textarea',
         'rich_editor' => 'Rich editor',
         'mason' => 'Mason (blocks)',
+        'markdown' => 'Markdown',
+        // Number & selection
         'number' => 'Number',
         'select' => 'Select',
-        'toggle' => 'Toggle',
+        'toggle' => 'Toggle (yes/no)',
+        'checkbox' => 'Checkbox',
+        'radio' => 'Radio',
+        'checkbox_list' => 'Checkbox list',
+        // Date & time
+        'date' => 'Date',
+        'datetime' => 'Date & time',
+        'time' => 'Time',
+        // Contact & links
+        'email' => 'Email',
+        'url' => 'URL',
+        // Media
         'curator' => 'Media',
+        'color' => 'Color',
+        'tags' => 'Tags',
+        // Relations
         'entries' => 'Entries',
+    ],
+
+    'field_type_groups' => [
+        'text' => 'Text content',
+        'selection' => 'Number & selection',
+        'date_time' => 'Date & time',
+        'contact' => 'Contact & links',
+        'media' => 'Media',
+        'relations' => 'Relations',
     ],
 
     'field_config' => [

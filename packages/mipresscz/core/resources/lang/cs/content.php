@@ -50,15 +50,41 @@ return [
 
     'field_types' => [
         'label' => 'Typ pole',
+        // Textový obsah
         'text' => 'Text',
         'textarea' => 'Víceřádkový text',
         'rich_editor' => 'Bohatý text',
         'mason' => 'Mason (bloky)',
+        'markdown' => 'Markdown',
+        // Číslo a výběr
         'number' => 'Číslo',
         'select' => 'Výběr',
-        'toggle' => 'Přepínač',
+        'toggle' => 'Přepínač (ano/ne)',
+        'checkbox' => 'Zaškrtávací pole',
+        'radio' => 'Výběr jedné možnosti',
+        'checkbox_list' => 'Výběr více možností',
+        // Datum a čas
+        'date' => 'Datum',
+        'datetime' => 'Datum a čas',
+        'time' => 'Čas',
+        // Kontakt a web
+        'email' => 'E-mail',
+        'url' => 'URL adresa',
+        // Média
         'curator' => 'Média',
+        'color' => 'Barva',
+        'tags' => 'Štítky',
+        // Relace
         'entries' => 'Záznamy',
+    ],
+
+    'field_type_groups' => [
+        'text' => 'Textový obsah',
+        'selection' => 'Číslo a výběr',
+        'date_time' => 'Datum a čas',
+        'contact' => 'Kontakt a web',
+        'media' => 'Média',
+        'relations' => 'Relace',
     ],
 
     'field_config' => [

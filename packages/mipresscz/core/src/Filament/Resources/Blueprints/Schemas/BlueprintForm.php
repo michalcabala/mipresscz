@@ -82,17 +82,10 @@ class BlueprintForm
                                             ->alphaDash(),
                                         Select::make('type')
                                             ->label(__('content.field_types.label'))
-                                            ->options([
-                                                'text' => __('content.field_types.text'),
-                                                'textarea' => __('content.field_types.textarea'),
-                                                'rich_editor' => __('content.field_types.rich_editor'),
-                                                'mason' => __('content.field_types.mason'),
-                                                'number' => __('content.field_types.number'),
-                                                'select' => __('content.field_types.select'),
-                                                'toggle' => __('content.field_types.toggle'),
-                                                'curator' => __('content.field_types.curator'),
-                                                'entries' => __('content.field_types.entries'),
-                                            ])
+                                            ->native(false)
+                                            ->searchable()
+                                            ->allowHtml()
+                                            ->options(static::fieldTypeOptions())
                                             ->required()
                                             ->default('text'),
                                     ]),
@@ -150,5 +143,49 @@ class BlueprintForm
                                 : (($state['handle'] ?? '') !== '' ? $state['handle'] : '...')),
                     ]),
             ]);
+    }
+
+    /** @return array<string, array<string, string>> */
+    private static function fieldTypeOptions(): array
+    {
+        $opt = fn (string $icon, string $key): string => '<span class="flex items-center gap-1.5">'
+            .svg($icon, 'w-4 h-4 shrink-0 opacity-70')->toHtml()
+            .'<span>'.e(__('content.field_types.'.$key)).'</span>'
+            .'</span>';
+
+        return [
+            __('content.field_type_groups.text') => [
+                'text' => $opt('heroicon-o-pencil', 'text'),
+                'textarea' => $opt('heroicon-o-document', 'textarea'),
+                'rich_editor' => $opt('heroicon-o-document-text', 'rich_editor'),
+                'mason' => $opt('heroicon-o-squares-2x2', 'mason'),
+                'markdown' => $opt('heroicon-o-code-bracket', 'markdown'),
+            ],
+            __('content.field_type_groups.selection') => [
+                'number' => $opt('heroicon-o-hashtag', 'number'),
+                'select' => $opt('heroicon-o-chevron-up-down', 'select'),
+                'toggle' => $opt('heroicon-o-check-circle', 'toggle'),
+                'checkbox' => $opt('heroicon-o-check', 'checkbox'),
+                'radio' => $opt('heroicon-o-list-bullet', 'radio'),
+                'checkbox_list' => $opt('heroicon-o-queue-list', 'checkbox_list'),
+            ],
+            __('content.field_type_groups.date_time') => [
+                'date' => $opt('heroicon-o-calendar', 'date'),
+                'datetime' => $opt('heroicon-o-calendar-days', 'datetime'),
+                'time' => $opt('heroicon-o-clock', 'time'),
+            ],
+            __('content.field_type_groups.contact') => [
+                'email' => $opt('heroicon-o-envelope', 'email'),
+                'url' => $opt('heroicon-o-globe-alt', 'url'),
+            ],
+            __('content.field_type_groups.media') => [
+                'curator' => $opt('heroicon-o-photo', 'curator'),
+                'color' => $opt('heroicon-o-swatch', 'color'),
+                'tags' => $opt('heroicon-o-tag', 'tags'),
+            ],
+            __('content.field_type_groups.relations') => [
+                'entries' => $opt('heroicon-o-link', 'entries'),
+            ],
+        ];
     }
 }
