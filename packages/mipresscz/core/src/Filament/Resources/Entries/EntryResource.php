@@ -3,6 +3,7 @@
 namespace MiPressCz\Core\Filament\Resources\Entries;
 
 use BackedEnum;
+use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -27,6 +28,8 @@ class EntryResource extends Resource
     protected static ?string $recordTitleAttribute = 'title';
 
     protected static ?int $navigationSort = 2;
+
+    protected static ?SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     protected static ?string $configurationClass = EntryResourceConfiguration::class;
 
