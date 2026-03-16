@@ -218,6 +218,51 @@ it('history scope excludes working copies', function () {
     expect($entry->revisions()->history()->count())->toBe($historyBefore);
 });
 
+it('restoreRevision loads the selected revision into a working copy for published entries', function () {
+    $entry = wcPublishedEntry();
+    $revisionToRestore = $entry->revisions()->where('is_current', true)->firstOrFail();
+
+    $entry->update([
+        'title' => 'Updated Title',
+        'data' => ['summary' => 'updated'],
+        'content' => [['type' => 'text', 'data' => ['text' => 'updated content']]],
+    ]);
+
+    $entry->refresh()->restoreRevision($revisionToRestore, $this->user);
+    $workingCopy = $entry->fresh()->workingCopy();
+
+    expect($workingCopy)
+        ->not->toBeNull()
+        ->title->toBe('Original Title')
+        ->data->toBe(['summary' => 'original'])
+        ->content->toBe([['type' => 'text', 'data' => ['text' => 'original content']]]);
+
+    expect($entry->fresh()->title)->toBe('Updated Title');
+});
+
+it('restoreRevision applies the selected revision directly to non published entries', function () {
+    $entry = wcDraftEntry([
+        'title' => 'Draft Original',
+        'data' => ['summary' => 'draft original'],
+        'content' => [['type' => 'text', 'data' => ['text' => 'draft original content']]],
+    ]);
+    $revisionToRestore = $entry->revisions()->where('is_current', true)->firstOrFail();
+
+    $entry->update([
+        'title' => 'Draft Updated',
+        'data' => ['summary' => 'draft updated'],
+        'content' => [['type' => 'text', 'data' => ['text' => 'draft updated content']]],
+    ]);
+
+    $entry->refresh()->restoreRevision($revisionToRestore, $this->user);
+    $entry->refresh();
+
+    expect($entry->title)->toBe('Draft Original')
+        ->and($entry->data)->toBe(['summary' => 'draft original'])
+        ->and($entry->content)->toBe([['type' => 'text', 'data' => ['text' => 'draft original content']]])
+        ->and($entry->workingCopy())->toBeNull();
+});
+
 // ── Observer creates revisions with content ──
 
 it('observer stores content in revision on entry creation', function () {

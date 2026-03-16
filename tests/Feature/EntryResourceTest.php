@@ -10,7 +10,9 @@ use MiPressCz\Core\Enums\EntryStatus;
 use MiPressCz\Core\Filament\Resources\Entries\EntryResource;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\CreateEntry;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\EditEntry;
+use MiPressCz\Core\Filament\Resources\Entries\Pages\EditEntrySeo;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\ListEntries;
+use MiPressCz\Core\Filament\Resources\Entries\Pages\ManageEntryRevisions;
 use MiPressCz\Core\Models\Blueprint;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
@@ -89,6 +91,79 @@ it('defaults sort order to published_at descending', function () {
     Livewire::test(ListEntries::class)
         ->call('loadTable')
         ->assertOk();
+});
+
+it('renders the seo page for an entry', function () {
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'published_at' => now(),
+        'author_id' => $this->admin->id,
+    ]);
+
+    Livewire::test(EditEntrySeo::class, ['record' => $entry->id])
+        ->assertOk();
+});
+
+it('can save seo fields on the seo page', function () {
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'published_at' => now(),
+        'author_id' => $this->admin->id,
+    ]);
+
+    Livewire::test(EditEntrySeo::class, ['record' => $entry->id])
+        ->fillForm([
+            'meta_title' => 'SEO Test Title',
+            'meta_description' => 'SEO test description for search engines.',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($entry->fresh()->meta_title)->toBe('SEO Test Title');
+    expect($entry->fresh()->meta_description)->toBe('SEO test description for search engines.');
+});
+
+it('renders manage revisions page when revisions are enabled', function () {
+    $this->collection->update(['revisions_enabled' => true]);
+
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'published_at' => now(),
+        'author_id' => $this->admin->id,
+    ]);
+
+    Livewire::test(ManageEntryRevisions::class, ['record' => $entry->id])
+        ->assertOk();
+});
+
+it('lists revisions in the manage revisions page', function () {
+    $this->collection->update(['revisions_enabled' => true]);
+
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'published_at' => now(),
+        'author_id' => $this->admin->id,
+        'title' => 'Original title',
+    ]);
+
+    $entry->update(['title' => 'Updated title']);
+
+    Livewire::test(ManageEntryRevisions::class, ['record' => $entry->id])
+        ->assertOk()
+        ->call('loadTable')
+        ->assertCanSeeTableRecords($entry->fresh()->revisions()->latest('created_at')->get());
 });
 
 // ── Table filters ──────────────────────────────────────────────────────────

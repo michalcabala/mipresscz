@@ -12,7 +12,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Laravel\Scout\Searchable;
 use MiPressCz\Core\Concerns\ContainsComputedData;
 use MiPressCz\Core\Concerns\HasNavMenuItems;
@@ -128,6 +130,36 @@ class Entry extends Model implements Feedable
     public function revisions(): HasMany
     {
         return $this->hasMany(Revision::class);
+    }
+
+    public function restoreRevision(Revision $revision, ?User $user = null): void
+    {
+        if ($revision->entry_id !== $this->id) {
+            throw new InvalidArgumentException('The revision does not belong to this entry.');
+        }
+
+        if ($this->status === EntryStatus::Published && $this->collection?->revisions_enabled) {
+            $this->saveToWorkingCopy([
+                'title' => $revision->title,
+                'data' => $revision->data,
+                'content' => $revision->content,
+                'status' => $revision->status,
+            ], $user);
+
+            return;
+        }
+
+        $restoredStatus = EntryStatus::from($revision->status);
+
+        $this->title = $revision->title;
+        $this->data = $revision->data;
+        $this->content = $revision->content;
+        $this->status = $restoredStatus;
+        $this->published_at = $restoredStatus === EntryStatus::Published
+            ? ($this->published_at ?? now())
+            : null;
+
+        $this->save();
     }
 
     public function terms(): MorphToMany

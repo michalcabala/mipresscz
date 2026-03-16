@@ -3,13 +3,16 @@
 namespace MiPressCz\Core\Filament\Resources\Entries;
 
 use BackedEnum;
+use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\CreateEntry;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\EditEntry;
+use MiPressCz\Core\Filament\Resources\Entries\Pages\EditEntrySeo;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\ListEntries;
+use MiPressCz\Core\Filament\Resources\Entries\Pages\ManageEntryRevisions;
 use MiPressCz\Core\Filament\Resources\Entries\Schemas\EntryForm;
 use MiPressCz\Core\Filament\Resources\Entries\Tables\EntriesTable;
 use MiPressCz\Core\Models\Entry;
@@ -114,11 +117,25 @@ class EntryResource extends Resource
         return $query;
     }
 
+    public static function getRecordSubNavigation(Page $page): array
+    {
+        $record = method_exists($page, 'getRecord') ? $page->getRecord() : null;
+
+        $pages = [
+            EditEntry::class,
+            EditEntrySeo::class,
+        ];
+
+        if ($record?->collection?->revisions_enabled) {
+            $pages[] = ManageEntryRevisions::class;
+        }
+
+        return $page->generateNavigationItems($pages);
+    }
+
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
@@ -127,6 +144,8 @@ class EntryResource extends Resource
             'index' => ListEntries::route('/'),
             'create' => CreateEntry::route('/create'),
             'edit' => EditEntry::route('/{record}/edit'),
+            'seo' => EditEntrySeo::route('/{record}/edit/seo'),
+            'revisions' => ManageEntryRevisions::route('/{record}/revisions'),
         ];
     }
 }
