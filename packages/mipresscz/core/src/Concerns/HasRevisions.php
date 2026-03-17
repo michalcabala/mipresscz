@@ -16,6 +16,8 @@ use MiPressCz\Core\Models\Revision;
  */
 trait HasRevisions
 {
+    protected bool $suppressAutomaticRevisions = false;
+
     public function revisions(): MorphMany
     {
         return $this->morphMany(Revision::class, 'revisionable')
@@ -45,6 +47,29 @@ trait HasRevisions
         });
 
         return $revision;
+    }
+
+    public function shouldCreateAutomaticRevisions(): bool
+    {
+        return ! $this->suppressAutomaticRevisions;
+    }
+
+    /**
+     * @template TReturn
+     *
+     * @param  callable(): TReturn  $callback
+     * @return TReturn
+     */
+    public function withoutAutomaticRevisions(callable $callback): mixed
+    {
+        $previousState = $this->suppressAutomaticRevisions;
+        $this->suppressAutomaticRevisions = true;
+
+        try {
+            return $callback();
+        } finally {
+            $this->suppressAutomaticRevisions = $previousState;
+        }
     }
 
     /**

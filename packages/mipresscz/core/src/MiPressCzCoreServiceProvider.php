@@ -35,6 +35,7 @@ use MiPressCz\Core\Services\CacheService;
 use MiPressCz\Core\Services\ComputedFieldRegistry;
 use MiPressCz\Core\Services\LocaleService;
 use MiPressCz\Core\Services\NavMenuService;
+use MiPressCz\Core\Services\RevisionService;
 use MiPressCz\Core\Services\TemplateManager;
 use MiPressCz\Core\Support\Blink;
 use MiPressCz\Core\View\Composers\NavComposer;
@@ -48,6 +49,7 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         $this->app->singleton(ComputedFieldRegistry::class);
         $this->app->singleton(LocaleService::class);
         $this->app->singleton(NavMenuService::class);
+        $this->app->singleton(RevisionService::class);
         $this->app->singleton(TemplateManager::class);
 
         $this->mergeConfigFrom(__DIR__.'/../config/nav-menu.php', 'nav-menu');

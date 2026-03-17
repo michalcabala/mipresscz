@@ -41,12 +41,22 @@ class EntryObserver
     public function updated(Entry $entry): void
     {
         EntrySaved::dispatch($entry, false);
+
+        if (! $entry->shouldCreateAutomaticRevisions()) {
+            return;
+        }
+
         $entry->createRevision($entry->status === EntryStatus::Published ? RevisionType::Published : RevisionType::Draft);
     }
 
     public function created(Entry $entry): void
     {
         EntrySaved::dispatch($entry, true);
+
+        if (! $entry->shouldCreateAutomaticRevisions()) {
+            return;
+        }
+
         $entry->createRevision($entry->status === EntryStatus::Published ? RevisionType::Published : RevisionType::Draft);
     }
 
