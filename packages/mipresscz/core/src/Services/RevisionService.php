@@ -23,6 +23,34 @@ class RevisionService
         return $revision;
     }
 
+    /**
+     * @param  array<string, mixed>  $snapshot
+     */
+    public function createAutosaveRevision(Model $model, array $snapshot, ?string $note = null): ?Revision
+    {
+        $this->guardRevisionable($model);
+
+        $snapshotHash = $this->snapshotHash($snapshot);
+        $latestSnapshotHash = $this->snapshotHash(
+            $model->revisions()->first()?->content ?? [],
+        );
+
+        if ($snapshotHash === $latestSnapshotHash) {
+            return null;
+        }
+
+        if (! method_exists($model, 'createRevisionFromSnapshot')) {
+            throw new InvalidArgumentException(sprintf('Model [%s] does not support snapshot revisions.', $model::class));
+        }
+
+        /** @var Revision $revision */
+        $revision = $model->createRevisionFromSnapshot(RevisionType::Autosave, $snapshot, $note);
+
+        $this->pruneAutosaveRevisions($model, (int) config('mipress-revisions.autosave_max', 10));
+
+        return $revision;
+    }
+
     public function restoreRevision(Revision $revision): Model
     {
         $model = $revision->revisionable;
@@ -153,10 +181,63 @@ class RevisionService
             ->delete();
     }
 
+    public function pruneAutosaveRevisions(Model $model, int $keepLast = 10): int
+    {
+        $this->guardRevisionable($model);
+
+        $keepLast = max(0, $keepLast);
+
+        $revisionIds = $model->revisions()
+            ->where('type', RevisionType::Autosave->value)
+            ->get(['id'])
+            ->skip($keepLast)
+            ->pluck('id');
+
+        if ($revisionIds->isEmpty()) {
+            return 0;
+        }
+
+        return Revision::query()
+            ->whereIn('id', $revisionIds)
+            ->delete();
+    }
+
     private function guardRevisionable(Model $model): void
     {
         if (! method_exists($model, 'createRevision') || ! method_exists($model, 'revisions')) {
             throw new InvalidArgumentException(sprintf('Model [%s] does not support revisions.', $model::class));
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $snapshot
+     */
+    public function snapshotHash(array $snapshot): string
+    {
+        return md5((string) json_encode(
+            $this->normalizeSnapshotForHash($snapshot),
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
+        ));
+    }
+
+    private function normalizeSnapshotForHash(mixed $value): mixed
+    {
+        if (! is_array($value)) {
+            return $value;
+        }
+
+        if (array_is_list($value)) {
+            return array_map(fn (mixed $item): mixed => $this->normalizeSnapshotForHash($item), $value);
+        }
+
+        $normalized = [];
+
+        foreach ($value as $key => $item) {
+            $normalized[$key] = $this->normalizeSnapshotForHash($item);
+        }
+
+        ksort($normalized);
+
+        return $normalized;
     }
 }

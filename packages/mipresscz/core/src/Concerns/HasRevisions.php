@@ -32,8 +32,16 @@ trait HasRevisions
 
     public function createRevision(RevisionType $type, ?string $note = null): Revision
     {
+        return $this->createRevisionFromSnapshot($type, $this->toRevisionSnapshot(), $note);
+    }
+
+    /**
+     * @param  array<string, mixed>  $snapshot
+     */
+    public function createRevisionFromSnapshot(RevisionType $type, array $snapshot, ?string $note = null): Revision
+    {
         /** @var Revision $revision */
-        $revision = $this->getConnection()->transaction(function () use ($type, $note): Revision {
+        $revision = $this->getConnection()->transaction(function () use ($type, $snapshot, $note): Revision {
             $nextRevisionNumber = ((int) $this->revisions()->withTrashed()->lockForUpdate()->max('revision_number')) + 1;
 
             return $this->revisions()->create([
@@ -41,7 +49,7 @@ trait HasRevisions
                 'type' => $type,
                 'note' => $note,
                 'revision_number' => $nextRevisionNumber,
-                'content' => $this->toRevisionSnapshot(),
+                'content' => $snapshot,
                 'created_at' => now(),
             ]);
         });

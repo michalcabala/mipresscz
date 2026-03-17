@@ -32,6 +32,11 @@ return [
         'restore' => 'Restore',
         'swap' => 'Swap versions',
     ],
+    'autosave' => [
+        'saved' => 'Saved',
+        'saving' => 'Saving...',
+        'saved_at' => 'Saved at :time',
+    ],
     'messages' => [
         'restored' => 'Revision #:number has been restored.',
         'restore_confirm' => 'Do you really want to restore the selected revision? The current entry state will be overwritten and stored as a new rollback revision.',

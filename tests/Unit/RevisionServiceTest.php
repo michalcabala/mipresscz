@@ -130,3 +130,46 @@ it('prunes old non-published revisions and keeps published revisions', function 
         ->and($entry->revisions()->whereKey($publishedRevision->id)->exists())->toBeTrue()
         ->and(Revision::withTrashed()->whereNotNull('deleted_at')->count())->toBe(2);
 });
+
+it('produces identical snapshot hashes for equivalent associative arrays', function () {
+    $firstSnapshot = [
+        'title' => 'Homepage',
+        'data' => [
+            'hero' => [
+                'headline' => 'Welcome',
+                'cta' => 'Read more',
+            ],
+        ],
+        'content' => [
+            [
+                'type' => 'text',
+                'attrs' => [
+                    'level' => 2,
+                    'align' => 'left',
+                ],
+            ],
+        ],
+    ];
+
+    $secondSnapshot = [
+        'content' => [
+            [
+                'attrs' => [
+                    'align' => 'left',
+                    'level' => 2,
+                ],
+                'type' => 'text',
+            ],
+        ],
+        'data' => [
+            'hero' => [
+                'cta' => 'Read more',
+                'headline' => 'Welcome',
+            ],
+        ],
+        'title' => 'Homepage',
+    ];
+
+    expect($this->service->snapshotHash($firstSnapshot))
+        ->toBe($this->service->snapshotHash($secondSnapshot));
+});

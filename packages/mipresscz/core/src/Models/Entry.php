@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MiPressCz\Core\Models;
 
 use Awcodes\Curator\Models\Media;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -490,31 +491,61 @@ class Entry extends Model implements Feedable
     /**
      * @return array<string, mixed>
      */
-    protected function toRevisionSnapshot(): array
+    public function buildRevisionSnapshot(array $attributes = []): array
     {
         return [
-            'collection_id' => $this->collection_id,
-            'blueprint_id' => $this->blueprint_id,
-            'origin_id' => $this->origin_id,
-            'locale' => $this->locale,
-            'title' => $this->title,
-            'slug' => $this->slug,
-            'uri' => $this->uri,
-            'data' => $this->data ?? [],
-            'content' => $this->content,
-            'status' => $this->status instanceof EntryStatus ? $this->status->value : $this->status,
-            'published_at' => $this->published_at?->toISOString(),
-            'expired_at' => $this->expired_at?->toISOString(),
-            'parent_id' => $this->parent_id,
-            'order' => $this->order,
-            'author_id' => $this->author_id,
-            'is_pinned' => $this->is_pinned ?? false,
-            'is_homepage' => $this->is_homepage ?? false,
-            'settings' => $this->settings,
-            'featured_image_id' => $this->featured_image_id,
-            'meta_title' => $this->meta_title,
-            'meta_description' => $this->meta_description,
-            'meta_og_image_id' => $this->meta_og_image_id,
+            'collection_id' => $attributes['collection_id'] ?? $this->collection_id,
+            'blueprint_id' => $attributes['blueprint_id'] ?? $this->blueprint_id,
+            'origin_id' => $attributes['origin_id'] ?? $this->origin_id,
+            'locale' => $attributes['locale'] ?? $this->locale,
+            'title' => $attributes['title'] ?? $this->title,
+            'slug' => $attributes['slug'] ?? $this->slug,
+            'uri' => $attributes['uri'] ?? $this->uri,
+            'data' => $attributes['data'] ?? ($this->data ?? []),
+            'content' => $attributes['content'] ?? $this->content,
+            'status' => $this->normalizeRevisionStatus($attributes['status'] ?? $this->status),
+            'published_at' => $this->normalizeRevisionDate($attributes['published_at'] ?? $this->published_at),
+            'expired_at' => $this->normalizeRevisionDate($attributes['expired_at'] ?? $this->expired_at),
+            'parent_id' => $attributes['parent_id'] ?? $this->parent_id,
+            'order' => $attributes['order'] ?? $this->order,
+            'author_id' => $attributes['author_id'] ?? $this->author_id,
+            'is_pinned' => (bool) ($attributes['is_pinned'] ?? $this->is_pinned ?? false),
+            'is_homepage' => (bool) ($attributes['is_homepage'] ?? $this->is_homepage ?? false),
+            'settings' => $attributes['settings'] ?? $this->settings,
+            'featured_image_id' => $attributes['featured_image_id'] ?? $this->featured_image_id,
+            'meta_title' => $attributes['meta_title'] ?? $this->meta_title,
+            'meta_description' => $attributes['meta_description'] ?? $this->meta_description,
+            'meta_og_image_id' => $attributes['meta_og_image_id'] ?? $this->meta_og_image_id,
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function toRevisionSnapshot(): array
+    {
+        return $this->buildRevisionSnapshot();
+    }
+
+    private function normalizeRevisionStatus(mixed $status): ?string
+    {
+        if ($status instanceof EntryStatus) {
+            return $status->value;
+        }
+
+        return is_string($status) ? $status : null;
+    }
+
+    private function normalizeRevisionDate(mixed $value): ?string
+    {
+        if ($value instanceof CarbonInterface) {
+            return $value->toISOString();
+        }
+
+        if (blank($value)) {
+            return null;
+        }
+
+        return (string) $value;
     }
 }

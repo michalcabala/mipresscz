@@ -32,6 +32,11 @@ return [
         'restore' => 'Obnovit',
         'swap' => 'Prohodit verze',
     ],
+    'autosave' => [
+        'saved' => 'Uloženo',
+        'saving' => 'Ukládám...',
+        'saved_at' => 'Uloženo v :time',
+    ],
     'messages' => [
         'restored' => 'Revize #:number byla obnovena.',
         'restore_confirm' => 'Opravdu chcete obnovit vybranou revizi? Aktuální stav záznamu bude přepsán a uložen jako nová rollback revize.',

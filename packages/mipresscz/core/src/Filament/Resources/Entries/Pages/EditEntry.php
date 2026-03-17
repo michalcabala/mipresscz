@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MiPressCz\Core\Filament\Resources\Entries\Pages;
 
 use Filament\Actions\Action;
@@ -8,65 +10,38 @@ use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use MiPressCz\Core\Enums\EntryStatus;
 use MiPressCz\Core\Filament\Resources\Entries\EntryResource;
 use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Models\Locale;
+use MiPressCz\Core\Services\RevisionService;
 
 class EditEntry extends EditRecord
 {
     protected static string $resource = EntryResource::class;
 
-    protected function resolveRecord(int|string $key): Entry
+    protected string $view = 'mipresscz-core::filament.entries.pages.edit-entry';
+
+    public string $autosaveStatus = 'saved';
+
+    public ?string $autosaveSavedAt = null;
+
+    public string $lastAutosaveHash = '';
+
+    public function mount(int|string $record): void
     {
-        return Entry::with(['translations', 'origin.translations', 'blueprint', 'collection'])
-            ->findOrFail($key);
-    }
+        parent::mount($record);
 
-    protected function mutateFormDataBeforeFill(array $data): array
-    {
-        /** @var Entry $record */
-        $record = $this->getRecord();
-
-        if (! $this->usesWorkingCopy()) {
-            return $data;
-        }
-
-        $wc = $record->workingCopy();
-
-        if (! $wc) {
-            return $data;
-        }
-
-        $data['title'] = $wc->title;
-        $data['content'] = $wc->content;
-
-        if (is_array($wc->data)) {
-            $data['data'] = $wc->data;
-        }
-
-        return $data;
+        $this->syncAutosaveStateFromLatestRevision();
     }
 
     protected function getHeaderActions(): array
     {
-        /** @var Entry $record */
-        $record = $this->getRecord();
-
-        $actions = [
-            $this->getSaveAction(),
-            $this->getPreviewAction(),
-            $this->getPublishAction(),
-        ];
-
-        if ($this->usesWorkingCopy() && $record->hasWorkingCopy()) {
-            $actions[] = $this->getDiscardWorkingCopyAction();
-        }
-
         return [
-            ...$actions,
+            ...$this->getWorkflowActions(),
             ...$this->getLocaleActions(),
             DeleteAction::make()
                 ->color('danger')
@@ -83,47 +58,103 @@ class EditEntry extends EditRecord
         ];
     }
 
+    protected function resolveRecord(int|string $key): Entry
+    {
+        return Entry::with(['translations', 'origin.translations', 'blueprint', 'collection', 'revisions'])
+            ->findOrFail($key);
+    }
+
     protected function getFormActions(): array
     {
         return [];
     }
 
-    protected function usesWorkingCopy(): bool
+    public function autosave(): void
     {
         /** @var Entry $record */
         $record = $this->getRecord();
 
-        return $record->status === EntryStatus::Published
-            && $record->collection?->revisions_enabled;
-    }
-
-    protected function getSaveAction(): Action
-    {
-        if ($this->usesWorkingCopy()) {
-            return Action::make('save')
-                ->label(__('content.actions.save'))
-                ->color('gray')
-                ->action(function (): void {
-                    $this->form->getState();
-
-                    /** @var Entry $record */
-                    $record = $this->getRecord();
-
-                    $record->saveToWorkingCopy([
-                        'title' => $this->data['title'] ?? $record->title,
-                        'data' => $this->data['data'] ?? $record->data,
-                        'content' => $this->data['content'] ?? $record->content,
-                        'status' => $this->data['status'] ?? $record->status->value,
-                    ]);
-
-                    Notification::make()
-                        ->title(__('content.messages.working_copy_saved'))
-                        ->success()
-                        ->send();
-                })
-                ->keyBindings(['mod+s']);
+        if (! auth()->user()?->can('update', $record)) {
+            return;
         }
 
+        $this->autosaveStatus = 'saving';
+
+        $snapshot = $record->buildRevisionSnapshot(
+            $this->mutateFormDataBeforeSave($this->form->getStateSnapshot()),
+        );
+
+        $snapshotHash = app(RevisionService::class)->snapshotHash($snapshot);
+
+        if ($snapshotHash === $this->lastAutosaveHash) {
+            $this->autosaveStatus = 'saved';
+
+            return;
+        }
+
+        app(RevisionService::class)->createAutosaveRevision($record, $snapshot);
+
+        $this->lastAutosaveHash = $snapshotHash;
+        $this->autosaveStatus = 'saved';
+        $this->autosaveSavedAt = now()->toIso8601String();
+    }
+
+    public function getAutosaveIntervalSeconds(): int
+    {
+        return max(1, (int) config('mipress-revisions.autosave_interval', 60));
+    }
+
+    public function getAutosaveStatusLabel(): string
+    {
+        if ($this->autosaveStatus === 'saving') {
+            return __('revisions.autosave.saving');
+        }
+
+        if (filled($this->autosaveSavedAt)) {
+            return __('revisions.autosave.saved_at', [
+                'time' => Carbon::parse($this->autosaveSavedAt)->format('H:i:s'),
+            ]);
+        }
+
+        return __('revisions.autosave.saved');
+    }
+
+    /** @return list<Action|ActionGroup> */
+    protected function getWorkflowActions(): array
+    {
+        if ($this->isPublishedEntry()) {
+            return [
+                $this->getSavePublishedAction(),
+                $this->getWorkflowMoreActions(),
+            ];
+        }
+
+        return [
+            $this->getPublishDraftAction(),
+            $this->getSaveDraftAction(),
+            $this->getWorkflowMoreActions(),
+        ];
+    }
+
+    protected function isPublishedEntry(): bool
+    {
+        /** @var Entry $record */
+        $record = $this->getRecord();
+
+        return $record->status === EntryStatus::Published;
+    }
+
+    protected function getSaveDraftAction(): Action
+    {
+        return Action::make('save')
+            ->label(__('content.actions.save_draft'))
+            ->color('gray')
+            ->action(fn () => $this->save())
+            ->keyBindings(['mod+s']);
+    }
+
+    protected function getSavePublishedAction(): Action
+    {
         return Action::make('save')
             ->label(__('content.actions.save'))
             ->color('gray')
@@ -144,53 +175,15 @@ class EditEntry extends EditRecord
             ->openUrlInNewTab();
     }
 
-    protected function getPublishAction(): Action
+    protected function getPublishDraftAction(): Action
     {
         /** @var Entry $record */
         $record = $this->getRecord();
-        $isPublished = $record->status === EntryStatus::Published;
-
-        if ($isPublished && $this->usesWorkingCopy() && $record->hasWorkingCopy()) {
-            return Action::make('publish_changes')
-                ->label(__('content.actions.publish_changes'))
-                ->icon(Heroicon::OutlinedCheckCircle)
-                ->visible(fn (): bool => auth()->user()->can('publish', $record))
-                ->action(function (): void {
-                    /** @var Entry $record */
-                    $record = $this->getRecord();
-                    $record->publishWorkingCopy(auth()->user());
-
-                    Notification::make()
-                        ->title(__('content.messages.working_copy_published'))
-                        ->success()
-                        ->send();
-
-                    $this->redirect(static::getResource()::getUrl('edit', ['record' => $record->id]));
-                });
-        }
-
-        if ($isPublished) {
-            return Action::make('unpublish')
-                ->label(__('content.actions.unpublish'))
-                ->color('warning')
-                ->icon('heroicon-o-arrow-uturn-left')
-                ->visible(fn (): bool => auth()->user()->can('publish', $record))
-                ->requiresConfirmation()
-                ->action(function (): void {
-                    /** @var Entry $record */
-                    $record = $this->getRecord();
-
-                    $record->deleteWorkingCopy();
-
-                    $this->data['status'] = EntryStatus::Draft->value;
-                    $this->data['published_at'] = null;
-                    $this->save();
-                });
-        }
 
         return Action::make('publish')
             ->label(__('content.actions.publish'))
             ->icon(Heroicon::OutlinedCheckCircle)
+            ->color('primary')
             ->visible(fn (): bool => auth()->user()->can('publish', $record))
             ->action(function (): void {
                 $this->data['status'] = EntryStatus::Published->value;
@@ -199,26 +192,40 @@ class EditEntry extends EditRecord
             });
     }
 
-    protected function getDiscardWorkingCopyAction(): Action
+    protected function getUnpublishAction(): Action
     {
-        return Action::make('discard_changes')
-            ->label(__('content.actions.discard_changes'))
-            ->color('danger')
-            ->icon(Heroicon::OutlinedTrash)
+        /** @var Entry $record */
+        $record = $this->getRecord();
+
+        return Action::make('unpublish')
+            ->label(__('content.actions.unpublish'))
+            ->color('warning')
+            ->icon(Heroicon::OutlinedArrowUturnLeft)
+            ->visible(fn (): bool => auth()->user()->can('publish', $record))
             ->requiresConfirmation()
-            ->modalDescription(__('content.actions.discard_changes_confirm'))
             ->action(function (): void {
-                /** @var Entry $record */
-                $record = $this->getRecord();
-                $record->deleteWorkingCopy();
-
-                Notification::make()
-                    ->title(__('content.messages.working_copy_discarded'))
-                    ->success()
-                    ->send();
-
-                $this->redirect(static::getResource()::getUrl('edit', ['record' => $record->id]));
+                $this->data['status'] = EntryStatus::Draft->value;
+                $this->data['published_at'] = null;
+                $this->save();
             });
+    }
+
+    protected function getWorkflowMoreActions(): ActionGroup
+    {
+        $actions = [
+            $this->getPreviewAction(),
+        ];
+
+        if ($this->isPublishedEntry()) {
+            $actions[] = $this->getUnpublishAction();
+        }
+
+        return ActionGroup::make($actions)
+            ->label(__('content.actions.more_actions'))
+            ->icon(Heroicon::OutlinedEllipsisHorizontal)
+            ->color('gray')
+            ->button()
+            ->dropdownPlacement('bottom-end');
     }
 
     /**
@@ -257,7 +264,6 @@ class EditEntry extends EditRecord
         $existingCount = $translations->count();
         $totalCount = $existingCount + count($missingLocales);
 
-        // --- Switch to existing translation ---
         $switchItems = $translations
             ->reject(fn (Entry $entry) => $entry->id === $record->id)
             ->map(function (Entry $entry, string $locale) use ($localeMap): Action {
@@ -275,7 +281,6 @@ class EditEntry extends EditRecord
             ->values()
             ->all();
 
-        // --- Create missing translation ---
         $createItems = collect($missingLocales)
             ->map(function (string $locale) use ($record, $localeMap): Action {
                 $model = $localeMap->get($locale);
@@ -318,7 +323,6 @@ class EditEntry extends EditRecord
             return [];
         }
 
-        // --- Group with divider between existing / missing ---
         $dropdownItems = [];
 
         if (! empty($switchItems)) {
@@ -329,7 +333,6 @@ class EditEntry extends EditRecord
             $dropdownItems[] = ActionGroup::make($createItems)->dropdown(false);
         }
 
-        // --- Trigger button ---
         $triggerFlag = $this->flagImg($currentModel?->flag, $currentLocale, 'size-5');
         $triggerText = strtoupper($currentLocale);
         $triggerHtml = $triggerFlag
@@ -345,5 +348,24 @@ class EditEntry extends EditRecord
                 ->button()
                 ->dropdownPlacement('bottom-end'),
         ];
+    }
+
+    protected function afterSave(): void
+    {
+        $this->syncAutosaveStateFromLatestRevision();
+    }
+
+    private function syncAutosaveStateFromLatestRevision(): void
+    {
+        /** @var Entry $record */
+        $record = $this->getRecord()->fresh(['revisions']) ?? $this->getRecord();
+        $latestRevision = $record->latestRevision;
+
+        $this->lastAutosaveHash = app(RevisionService::class)->snapshotHash(
+            $latestRevision?->content ?? $record->getRevisionSnapshot(),
+        );
+        $this->autosaveSavedAt = $latestRevision?->created_at?->toIso8601String();
+        $this->autosaveStatus = 'saved';
+        $this->record = $record;
     }
 }
