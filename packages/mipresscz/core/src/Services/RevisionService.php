@@ -63,8 +63,22 @@ class RevisionService
      */
     public function diffRevisions(Revision $old, Revision $new): array
     {
-        $oldFlat = Arr::dot($old->content ?? []);
-        $newFlat = Arr::dot($new->content ?? []);
+        return $this->diffSnapshots($old->content ?? [], $new->content ?? []);
+    }
+
+    /**
+     * @param  array<string, mixed>  $old
+     * @param  array<string, mixed>  $new
+     * @return array{
+     *     added: array<int, array{field: string, old: mixed, new: mixed}>,
+     *     removed: array<int, array{field: string, old: mixed, new: mixed}>,
+     *     changed: array<int, array{field: string, old: mixed, new: mixed}>
+     * }
+     */
+    public function diffSnapshots(array $old, array $new): array
+    {
+        $oldFlat = Arr::dot($old);
+        $newFlat = Arr::dot($new);
 
         $added = [];
         $removed = [];

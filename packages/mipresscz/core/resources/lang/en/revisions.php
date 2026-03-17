@@ -1,0 +1,40 @@
+<?php
+
+return [
+    'label' => 'Revision',
+    'plural_label' => 'Revisions',
+    'timeline_heading' => 'Revision timeline',
+    'timeline_description' => 'Overview of all saved versions for this entry.',
+    'compare_heading' => 'Compare versions',
+    'compare_description' => 'Select two versions and inspect the differences.',
+    'empty' => 'No revisions are available for this entry yet.',
+    'current_version' => 'Current version',
+    'old_version' => 'Old version',
+    'new_version' => 'New version',
+    'added' => 'Added',
+    'removed' => 'Removed',
+    'changed' => 'Changed',
+    'no_changes' => 'No differences were found between the selected versions.',
+    'revision_number' => 'Revision #:number',
+    'note' => 'Note',
+    'author' => 'Author',
+    'snapshot' => 'Snapshot',
+    'published_badge' => 'Published',
+    'types' => [
+        'draft' => 'Draft',
+        'published' => 'Published',
+        'autosave' => 'Autosave',
+        'rollback' => 'Rollback',
+    ],
+    'actions' => [
+        'view' => 'View',
+        'compare' => 'Compare with current version',
+        'restore' => 'Restore',
+        'swap' => 'Swap versions',
+    ],
+    'messages' => [
+        'restored' => 'Revision #:number has been restored.',
+        'restore_confirm' => 'Do you really want to restore the selected revision? The current entry state will be overwritten and stored as a new rollback revision.',
+        'restore_preview' => 'Main changes: :fields',
+    ],
+];

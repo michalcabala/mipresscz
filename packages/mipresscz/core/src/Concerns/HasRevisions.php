@@ -49,6 +49,14 @@ trait HasRevisions
         return $revision;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function getRevisionSnapshot(): array
+    {
+        return $this->toRevisionSnapshot();
+    }
+
     public function shouldCreateAutomaticRevisions(): bool
     {
         return ! $this->suppressAutomaticRevisions;

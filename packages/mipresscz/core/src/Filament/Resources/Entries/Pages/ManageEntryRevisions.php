@@ -1,27 +1,47 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MiPressCz\Core\Filament\Resources\Entries\Pages;
 
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
-use Filament\Resources\Pages\ManageRelatedRecords;
+use Filament\Resources\Pages\Concerns\InteractsWithRecord;
+use Filament\Resources\Pages\Page;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Builder;
-use MiPressCz\Core\Enums\EntryStatus;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Illuminate\View\View;
+use Livewire\WithPagination;
 use MiPressCz\Core\Filament\Resources\Entries\EntryResource;
 use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Models\Revision;
-use MiPressCz\Core\Support\RevisionDiffer;
+use MiPressCz\Core\Services\RevisionService;
 
-class ManageEntryRevisions extends ManageRelatedRecords
+class ManageEntryRevisions extends Page
 {
+    use InteractsWithRecord;
+    use WithPagination;
+
     protected static string $resource = EntryResource::class;
 
-    protected static string $relationship = 'revisions';
+    protected string $view = 'mipresscz-core::filament.entries.pages.manage-entry-revisions';
+
+    public string $leftRevision = '';
+
+    public string $rightRevision = 'current';
+
+    public function mount(int|string $record): void
+    {
+        $this->record = $this->resolveRecord($record);
+
+        /** @var Entry $entry */
+        $entry = $this->getRecord();
+        $revisionIds = $entry->revisions()->pluck('id')->all();
+
+        $this->leftRevision = (string) ($revisionIds[1] ?? $revisionIds[0] ?? '');
+    }
 
     public static function getNavigationIcon(): Heroicon|string|null
     {
@@ -30,7 +50,7 @@ class ManageEntryRevisions extends ManageRelatedRecords
 
     public static function getNavigationLabel(): string
     {
-        return __('content.revisions.plural_label');
+        return __('revisions.plural_label');
     }
 
     public static function canAccess(array $parameters = []): bool
@@ -38,97 +58,210 @@ class ManageEntryRevisions extends ManageRelatedRecords
         $record = $parameters['record'] ?? null;
 
         if (! $record instanceof Entry) {
-            $record = Entry::with('collection')->find((int) $record);
+            $record = Entry::query()->find($record);
         }
 
-        return (bool) $record?->collection?->revisions_enabled;
+        return $record instanceof Entry
+            && auth()->user()?->can('view', $record);
     }
 
-    public function table(Table $table): Table
+    public function getHeading(): string|Htmlable|null
     {
-        return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('user')->latest('created_at'))
-            ->columns([
-                TextColumn::make('created_at')
-                    ->label(__('content.revision_fields.created_at'))
-                    ->since()
-                    ->sortable(),
-                TextColumn::make('action')
-                    ->label(__('content.revision_fields.action'))
-                    ->badge()
-                    ->formatStateUsing(fn (string $state): string => __('content.revision_fields.action_'.$state)),
-                TextColumn::make('status')
-                    ->label(__('content.entry_fields.status'))
-                    ->badge()
-                    ->icon(fn (string $state): string => EntryStatus::from($state)->icon())
-                    ->color(fn (string $state): string => EntryStatus::from($state)->color())
-                    ->formatStateUsing(fn (string $state): string => EntryStatus::from($state)->getLabel()),
-                TextColumn::make('title')
-                    ->label(__('content.entry_fields.title'))
-                    ->wrap()
-                    ->searchable(),
-                TextColumn::make('user.name')
-                    ->label(__('content.revision_fields.user'))
-                    ->placeholder('-')
-                    ->toggleable(),
-                IconColumn::make('is_current')
-                    ->label(__('content.revision_fields.is_current'))
-                    ->boolean(),
-            ])
-            ->recordActions([
-                Action::make('view')
-                    ->label(__('content.actions.view_revision'))
-                    ->icon('heroicon-o-eye')
-                    ->color('gray')
-                    ->modalSubmitAction(false)
-                    ->modalHeading(__('content.actions.view_revision'))
-                    ->modalContent(fn (Revision $record): View => view('mipresscz-core::filament.entries.revisions.modal-content', [
-                        'revision' => $record,
-                    ])),
-                Action::make('diff')
-                    ->label(__('content.actions.compare_revision'))
-                    ->icon('heroicon-o-arrows-right-left')
-                    ->color('info')
-                    ->modalSubmitAction(false)
-                    ->modalHeading(__('content.actions.compare_revision'))
-                    ->modalWidth('5xl')
-                    ->modalContent(function (Revision $record): View {
-                        $previousRevision = Revision::query()
-                            ->where('entry_id', $record->entry_id)
-                            ->where('created_at', '<', $record->created_at)
-                            ->orderByDesc('created_at')
-                            ->first();
+        return __('revisions.plural_label');
+    }
 
-                        return view('mipresscz-core::filament.entries.revisions.diff-content', [
-                            'revision' => $record,
-                            'previousRevision' => $previousRevision,
-                            'diff' => RevisionDiffer::compare($previousRevision, $record),
-                        ]);
-                    }),
-                Action::make('restore')
-                    ->label(__('content.actions.restore_revision'))
-                    ->icon('heroicon-o-arrow-path')
-                    ->color('primary')
-                    ->requiresConfirmation()
-                    ->hidden(fn (Revision $record): bool => $record->is_current || ! auth()->user()?->can('update', $this->getRecord()))
-                    ->action(function (Revision $record): void {
-                        /** @var Entry $ownerRecord */
-                        $ownerRecord = $this->getRecord();
-                        $loadsWorkingCopy = $ownerRecord->status === EntryStatus::Published
-                            && $ownerRecord->collection?->revisions_enabled;
+    public function getSubheading(): string|Htmlable|null
+    {
+        return (string) $this->getRecordTitle();
+    }
 
-                        $ownerRecord->restoreRevision($record, auth()->user());
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('backToEntry')
+                ->label(__('content.actions.edit_entry'))
+                ->icon(Heroicon::OutlinedPencilSquare)
+                ->color('gray')
+                ->url($this->getResourceUrl('edit')),
+        ];
+    }
 
-                        Notification::make()
-                            ->title($loadsWorkingCopy
-                                ? __('content.messages.revision_loaded_to_working_copy')
-                                : __('content.messages.revision_restored'))
-                            ->success()
-                            ->send();
+    public function getRevisions(): LengthAwarePaginator
+    {
+        /** @var Entry $entry */
+        $entry = $this->getRecord();
 
-                        $this->redirect(request()->fullUrl());
-                    }),
-            ])
-            ->defaultSort('created_at', 'desc');
+        return $entry->revisions()
+            ->with('user')
+            ->paginate(perPage: 10);
+    }
+
+    /**
+     * @return Collection<int, Revision>
+     */
+    public function getRevisionOptions(): Collection
+    {
+        /** @var Entry $entry */
+        $entry = $this->getRecord();
+
+        return $entry->revisions()->get();
+    }
+
+    /**
+     * @return array{
+     *     added: array<int, array{field: string, old: mixed, new: mixed}>,
+     *     removed: array<int, array{field: string, old: mixed, new: mixed}>,
+     *     changed: array<int, array{field: string, old: mixed, new: mixed}>
+     * }
+     */
+    public function getComparisonDiff(): array
+    {
+        return app(RevisionService::class)->diffSnapshots(
+            $this->getComparisonSnapshot($this->leftRevision),
+            $this->getComparisonSnapshot($this->rightRevision),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getComparisonSnapshot(string $selection): array
+    {
+        if ($selection === 'current') {
+            /** @var Entry $entry */
+            $entry = $this->getRecord();
+
+            return $entry->getRevisionSnapshot();
+        }
+
+        return $this->findRevision($selection)?->content ?? [];
+    }
+
+    public function getComparisonLabel(string $selection): string
+    {
+        if ($selection === 'current') {
+            return __('revisions.current_version');
+        }
+
+        $revision = $this->findRevision($selection);
+
+        if (! $revision instanceof Revision) {
+            return __('revisions.current_version');
+        }
+
+        return __('revisions.revision_number', ['number' => $revision->revision_number]);
+    }
+
+    public function compareWithCurrent(string $revision): void
+    {
+        $this->leftRevision = $revision;
+        $this->rightRevision = 'current';
+    }
+
+    public function swapComparedRevisions(): void
+    {
+        [$this->leftRevision, $this->rightRevision] = [$this->rightRevision, $this->leftRevision];
+    }
+
+    public function getTimelineAction(string $name, Revision $revision): ?Action
+    {
+        return $this->getAction($name, false)?->getClone()->arguments([
+            'revision' => $revision->getKey(),
+        ]);
+    }
+
+    public function viewRevisionAction(): Action
+    {
+        return Action::make('viewRevision')
+            ->label(__('revisions.actions.view'))
+            ->icon('heroicon-o-eye')
+            ->color('gray')
+            ->modalSubmitAction(false)
+            ->modalWidth('4xl')
+            ->modalHeading(fn (array $arguments): string => $this->getComparisonLabel((string) ($arguments['revision'] ?? '')))
+            ->modalContent(function (array $arguments): View {
+                $revision = $this->findRevision((string) ($arguments['revision'] ?? ''));
+
+                abort_unless($revision instanceof Revision, 404);
+
+                return view('mipresscz-core::filament.entries.revisions.view-revision', [
+                    'revision' => $revision,
+                ]);
+            });
+    }
+
+    public function restoreRevisionAction(): Action
+    {
+        return Action::make('restoreRevision')
+            ->label(__('revisions.actions.restore'))
+            ->icon('heroicon-o-arrow-path')
+            ->color('warning')
+            ->requiresConfirmation()
+            ->visible(function (array $arguments): bool {
+                $revision = $this->findRevision((string) ($arguments['revision'] ?? ''));
+
+                return $revision instanceof Revision
+                    && auth()->user()?->can('update', $this->getRecord());
+            })
+            ->modalDescription(fn (array $arguments): string => $this->buildRestorePreview((string) ($arguments['revision'] ?? '')))
+            ->action(function (array $arguments): void {
+                $revision = $this->findRevision((string) ($arguments['revision'] ?? ''));
+
+                abort_unless($revision instanceof Revision, 404);
+
+                /** @var Entry $entry */
+                $entry = app(RevisionService::class)->restoreRevision($revision);
+                $this->record = $entry;
+                $this->rightRevision = 'current';
+
+                Notification::make()
+                    ->title(__('revisions.messages.restored', ['number' => $revision->revision_number]))
+                    ->success()
+                    ->send();
+
+                $this->redirect($this->getResourceUrl('edit'));
+            });
+    }
+
+    private function buildRestorePreview(string $revisionId): string
+    {
+        $revision = $this->findRevision($revisionId);
+
+        if (! $revision instanceof Revision) {
+            return __('revisions.messages.restore_confirm');
+        }
+
+        $diff = app(RevisionService::class)->diffSnapshots(
+            $revision->content ?? [],
+            $this->getComparisonSnapshot('current'),
+        );
+
+        $fields = collect($diff['changed'])
+            ->pluck('field')
+            ->merge(collect($diff['added'])->pluck('field'))
+            ->merge(collect($diff['removed'])->pluck('field'))
+            ->filter()
+            ->take(5)
+            ->implode(', ');
+
+        if ($fields === '') {
+            return __('revisions.messages.restore_confirm');
+        }
+
+        return __('revisions.messages.restore_preview', ['fields' => $fields]);
+    }
+
+    private function findRevision(string $revisionId): ?Revision
+    {
+        if ($revisionId === '' || $revisionId === 'current') {
+            return null;
+        }
+
+        /** @var Entry $entry */
+        $entry = $this->getRecord();
+
+        return $entry->revisions()
+            ->with('user')
+            ->find($revisionId);
     }
 }

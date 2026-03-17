@@ -122,18 +122,11 @@ class EntryResource extends Resource
 
     public static function getRecordSubNavigation(Page $page): array
     {
-        $record = method_exists($page, 'getRecord') ? $page->getRecord() : null;
-
-        $pages = [
+        return $page->generateNavigationItems([
             EditEntry::class,
             EditEntrySeo::class,
-        ];
-
-        if ($record?->collection?->revisions_enabled) {
-            $pages[] = ManageEntryRevisions::class;
-        }
-
-        return $page->generateNavigationItems($pages);
+            ManageEntryRevisions::class,
+        ]);
     }
 
     public static function getRelations(): array
@@ -148,7 +141,7 @@ class EntryResource extends Resource
             'create' => CreateEntry::route('/create'),
             'edit' => EditEntry::route('/{record}/edit'),
             'seo' => EditEntrySeo::route('/{record}/edit/seo'),
-            'revisions' => ManageEntryRevisions::route('/{record}/revisions'),
+            'revisions' => ManageEntryRevisions::route('/{record}/edit/revisions'),
         ];
     }
 }

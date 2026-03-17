@@ -1,0 +1,40 @@
+<?php
+
+return [
+    'label' => 'Revize',
+    'plural_label' => 'Revize',
+    'timeline_heading' => 'Časová osa revizí',
+    'timeline_description' => 'Přehled všech uložených verzí záznamu.',
+    'compare_heading' => 'Porovnání verzí',
+    'compare_description' => 'Vyberte dvě verze a zobrazte rozdíly mezi nimi.',
+    'empty' => 'Pro tento záznam zatím nejsou dostupné žádné revize.',
+    'current_version' => 'Aktuální verze',
+    'old_version' => 'Stará verze',
+    'new_version' => 'Nová verze',
+    'added' => 'Přidáno',
+    'removed' => 'Odebráno',
+    'changed' => 'Změněno',
+    'no_changes' => 'Mezi vybranými verzemi nebyly nalezeny žádné rozdíly.',
+    'revision_number' => 'Revize #:number',
+    'note' => 'Poznámka',
+    'author' => 'Autor',
+    'snapshot' => 'Snapshot',
+    'published_badge' => 'Publikováno',
+    'types' => [
+        'draft' => 'Koncept',
+        'published' => 'Publikováno',
+        'autosave' => 'Automatické uložení',
+        'rollback' => 'Obnovení',
+    ],
+    'actions' => [
+        'view' => 'Zobrazit',
+        'compare' => 'Porovnat s aktuální verzí',
+        'restore' => 'Obnovit',
+        'swap' => 'Prohodit verze',
+    ],
+    'messages' => [
+        'restored' => 'Revize #:number byla obnovena.',
+        'restore_confirm' => 'Opravdu chcete obnovit vybranou revizi? Aktuální stav záznamu bude přepsán a uložen jako nová rollback revize.',
+        'restore_preview' => 'Hlavní změny: :fields',
+    ],
+];
