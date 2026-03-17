@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MiPressCz\Core\Models;
 
 use Awcodes\Curator\Models\Media;
@@ -12,21 +14,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Str;
-use InvalidArgumentException;
 use Laravel\Scout\Searchable;
 use MiPressCz\Core\Concerns\ContainsComputedData;
 use MiPressCz\Core\Concerns\HasNavMenuItems;
 use MiPressCz\Core\Concerns\HasOrigin;
-use MiPressCz\Core\Concerns\HasWorkingCopy;
+use MiPressCz\Core\Concerns\HasRevisions;
 use MiPressCz\Core\Enums\EntryStatus;
 use Spatie\Feed\Feedable;
 use Spatie\Feed\FeedItem;
 
 class Entry extends Model implements Feedable
 {
-    use ContainsComputedData, HasFactory, HasNavMenuItems, HasOrigin, HasUlids, HasWorkingCopy, Searchable, SoftDeletes;
+    use ContainsComputedData;
+    use HasFactory;
+    use HasNavMenuItems;
+    use HasOrigin;
+    use HasRevisions;
+    use HasUlids;
+    use Searchable;
+    use SoftDeletes;
 
     protected $fillable = [
         'collection_id',
@@ -125,41 +132,6 @@ class Entry extends Model implements Feedable
     public function children(): HasMany
     {
         return $this->hasMany(Entry::class, 'parent_id');
-    }
-
-    public function revisions(): HasMany
-    {
-        return $this->hasMany(Revision::class);
-    }
-
-    public function restoreRevision(Revision $revision, ?User $user = null): void
-    {
-        if ($revision->entry_id !== $this->id) {
-            throw new InvalidArgumentException('The revision does not belong to this entry.');
-        }
-
-        if ($this->status === EntryStatus::Published && $this->collection?->revisions_enabled) {
-            $this->saveToWorkingCopy([
-                'title' => $revision->title,
-                'data' => $revision->data,
-                'content' => $revision->content,
-                'status' => $revision->status,
-            ], $user);
-
-            return;
-        }
-
-        $restoredStatus = EntryStatus::from($revision->status);
-
-        $this->title = $revision->title;
-        $this->data = $revision->data;
-        $this->content = $revision->content;
-        $this->status = $restoredStatus;
-        $this->published_at = $restoredStatus === EntryStatus::Published
-            ? ($this->published_at ?? now())
-            : null;
-
-        $this->save();
     }
 
     public function terms(): MorphToMany
@@ -513,5 +485,36 @@ class Entry extends Model implements Feedable
                 }
             }
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function toRevisionSnapshot(): array
+    {
+        return [
+            'collection_id' => $this->collection_id,
+            'blueprint_id' => $this->blueprint_id,
+            'origin_id' => $this->origin_id,
+            'locale' => $this->locale,
+            'title' => $this->title,
+            'slug' => $this->slug,
+            'uri' => $this->uri,
+            'data' => $this->data,
+            'content' => $this->content,
+            'status' => $this->status instanceof EntryStatus ? $this->status->value : $this->status,
+            'published_at' => $this->published_at?->toISOString(),
+            'expired_at' => $this->expired_at?->toISOString(),
+            'parent_id' => $this->parent_id,
+            'order' => $this->order,
+            'author_id' => $this->author_id,
+            'is_pinned' => $this->is_pinned,
+            'is_homepage' => $this->is_homepage,
+            'settings' => $this->settings,
+            'featured_image_id' => $this->featured_image_id,
+            'meta_title' => $this->meta_title,
+            'meta_description' => $this->meta_description,
+            'meta_og_image_id' => $this->meta_og_image_id,
+        ];
     }
 }

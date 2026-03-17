@@ -1,64 +1,50 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MiPressCz\Core\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use MiPressCz\Core\Enums\RevisionType;
 
 class Revision extends Model
 {
     use HasUlids;
+    use SoftDeletes;
 
     public $timestamps = false;
 
     protected $fillable = [
-        'entry_id',
         'user_id',
-        'title',
-        'data',
+        'type',
+        'note',
+        'revision_number',
         'content',
-        'status',
-        'action',
-        'message',
-        'is_current',
         'created_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'data' => 'array',
             'content' => 'array',
-            'is_current' => 'boolean',
+            'type' => RevisionType::class,
             'created_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 
-    public function isWorkingCopy(): bool
+    public function revisionable(): MorphTo
     {
-        return $this->action === 'working';
-    }
-
-    public function scopeWorkingCopy(Builder $query): Builder
-    {
-        return $query->where('action', 'working');
-    }
-
-    public function scopeHistory(Builder $query): Builder
-    {
-        return $query->where('action', '!=', 'working');
-    }
-
-    public function entry(): BelongsTo
-    {
-        return $this->belongsTo(Entry::class);
+        return $this->morphTo();
     }
 
     /** @phpstan-ignore-next-line */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(config('auth.providers.users.model', \App\Models\User::class));
+        return $this->belongsTo(config('auth.providers.users.model', \App\Models\User::class), 'user_id');
     }
 }
