@@ -45,6 +45,7 @@ enum UserRole: string
                 'view.users', 'manage.users',
                 'view.collections', 'manage.collections',
                 'view.entries', 'create.entries', 'update.entries', 'delete.entries', 'publish.entries',
+                'view.revisions', 'compare.revisions', 'restore.revisions',
                 'view.taxonomies', 'manage.taxonomies',
                 'view.global_sets', 'manage.global_sets',
                 'view.menus', 'manage.menus',
@@ -55,6 +56,7 @@ enum UserRole: string
                 'view.users',
                 'view.collections',
                 'view.entries', 'create.entries', 'update.entries', 'delete.entries', 'publish.entries',
+                'view.revisions', 'compare.revisions',
                 'view.taxonomies', 'manage.taxonomies',
                 'view.global_sets',
                 'view.menus', 'manage.menus',
@@ -62,6 +64,7 @@ enum UserRole: string
             ],
             self::Contributor => [
                 'view.entries', 'create.entries', 'update.entries',
+                'view.revisions',
                 'view.taxonomies',
                 'view.media',
             ],

@@ -234,6 +234,39 @@ it('contributor cannot access collections', function () {
         ->and($contributor->can('create', Collection::class))->toBeFalse();
 });
 
+it('applies revision authorization rules per role', function () {
+    $admin = createUserWithRole(UserRole::Admin);
+    $editor = createUserWithRole(UserRole::Editor);
+    $contributor = createUserWithRole(UserRole::Contributor);
+    $otherUser = User::factory()->create();
+    $collection = Collection::factory()->create();
+    $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
+
+    $ownEntry = Entry::factory()->create([
+        'collection_id' => $collection->id,
+        'blueprint_id' => $blueprint->id,
+        'author_id' => $contributor->id,
+    ]);
+
+    $otherEntry = Entry::factory()->create([
+        'collection_id' => $collection->id,
+        'blueprint_id' => $blueprint->id,
+        'author_id' => $otherUser->id,
+    ]);
+
+    expect($contributor->can('viewRevisions', $ownEntry))->toBeTrue()
+        ->and($contributor->can('viewRevisions', $otherEntry))->toBeFalse()
+        ->and($contributor->can('compareRevisions', $ownEntry))->toBeFalse()
+        ->and($contributor->can('restoreRevision', $ownEntry))->toBeFalse()
+        ->and($editor->can('viewRevisions', $otherEntry))->toBeTrue()
+        ->and($editor->can('compareRevisions', $otherEntry))->toBeTrue()
+        ->and($editor->can('restoreRevision', $otherEntry))->toBeFalse()
+        ->and($admin->can('viewRevisions', $otherEntry))->toBeTrue()
+        ->and($admin->can('compareRevisions', $otherEntry))->toBeTrue()
+        ->and($admin->can('restoreRevision', $otherEntry))->toBeTrue()
+        ->and($admin->can('deleteRevision', $otherEntry))->toBeFalse();
+});
+
 it('contributor cannot access global sets', function () {
     $contributor = createUserWithRole(UserRole::Contributor);
 
@@ -268,6 +301,10 @@ it('defines correct permissions per role', function (UserRole $role, string $per
     'admin can manage.collections' => [UserRole::Admin, 'manage.collections', true],
     'admin can delete.entries' => [UserRole::Admin, 'delete.entries', true],
     'admin can manage.global_sets' => [UserRole::Admin, 'manage.global_sets', true],
+    'admin can view.revisions' => [UserRole::Admin, 'view.revisions', true],
+    'admin can compare.revisions' => [UserRole::Admin, 'compare.revisions', true],
+    'admin can restore.revisions' => [UserRole::Admin, 'restore.revisions', true],
+    'admin cannot delete.revisions' => [UserRole::Admin, 'delete.revisions', false],
 
     // Editor partial access
     'editor can view.users' => [UserRole::Editor, 'view.users', true],
@@ -277,12 +314,20 @@ it('defines correct permissions per role', function (UserRole $role, string $per
     'editor can delete.entries' => [UserRole::Editor, 'delete.entries', true],
     'editor can manage.taxonomies' => [UserRole::Editor, 'manage.taxonomies', true],
     'editor cannot manage.global_sets' => [UserRole::Editor, 'manage.global_sets', false],
+    'editor can view.revisions' => [UserRole::Editor, 'view.revisions', true],
+    'editor can compare.revisions' => [UserRole::Editor, 'compare.revisions', true],
+    'editor cannot restore.revisions' => [UserRole::Editor, 'restore.revisions', false],
+    'editor cannot delete.revisions' => [UserRole::Editor, 'delete.revisions', false],
 
     // Contributor minimal access
     'contributor can view.entries' => [UserRole::Contributor, 'view.entries', true],
     'contributor can create.entries' => [UserRole::Contributor, 'create.entries', true],
     'contributor can update.entries' => [UserRole::Contributor, 'update.entries', true],
     'contributor cannot delete.entries' => [UserRole::Contributor, 'delete.entries', false],
+    'contributor can view.revisions' => [UserRole::Contributor, 'view.revisions', true],
+    'contributor cannot compare.revisions' => [UserRole::Contributor, 'compare.revisions', false],
+    'contributor cannot restore.revisions' => [UserRole::Contributor, 'restore.revisions', false],
+    'contributor cannot delete.revisions' => [UserRole::Contributor, 'delete.revisions', false],
     'contributor can view.taxonomies' => [UserRole::Contributor, 'view.taxonomies', true],
     'contributor cannot manage.taxonomies' => [UserRole::Contributor, 'manage.taxonomies', false],
     'contributor cannot view.users' => [UserRole::Contributor, 'view.users', false],

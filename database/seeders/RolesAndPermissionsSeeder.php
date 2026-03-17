@@ -19,6 +19,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view.users', 'manage.users',
             'view.collections', 'manage.collections',
             'view.entries', 'create.entries', 'update.entries', 'delete.entries', 'publish.entries',
+            'view.revisions', 'compare.revisions', 'restore.revisions', 'delete.revisions',
             'view.taxonomies', 'manage.taxonomies',
             'view.global_sets', 'manage.global_sets',
             'view.menus', 'manage.menus',

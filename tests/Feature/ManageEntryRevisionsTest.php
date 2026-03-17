@@ -25,12 +25,12 @@ beforeEach(function () {
 
     $this->collection = Collection::factory()->create([
         'handle' => 'articles',
-        'title' => 'Články',
+        'title' => 'Articles',
         'is_active' => true,
     ]);
     $this->blueprint = Blueprint::factory()->create([
         'collection_id' => $this->collection->id,
-        'title' => 'Článek',
+        'title' => 'Article',
         'handle' => 'article',
         'is_default' => true,
     ]);
@@ -47,16 +47,16 @@ it('can render the revisions page for an entry', function () {
         'locale' => 'cs',
         'status' => EntryStatus::Draft,
         'author_id' => $this->admin->id,
-        'title' => 'Původní název',
+        'title' => 'Original title',
     ]);
 
-    $entry->update(['title' => 'Aktualizovaný název']);
+    $entry->update(['title' => 'Updated title']);
 
     Livewire::test(ManageEntryRevisions::class, ['record' => $entry->getKey()])
         ->assertOk()
         ->assertSee('Revize #2')
         ->assertSee('Revize #1')
-        ->assertSee('Aktualizovaný název');
+        ->assertSee('Updated title');
 });
 
 it('can restore a revision from the revisions page', function () {
@@ -66,13 +66,13 @@ it('can restore a revision from the revisions page', function () {
         'locale' => 'cs',
         'status' => EntryStatus::Draft,
         'author_id' => $this->admin->id,
-        'title' => 'Původní název',
-        'data' => ['headline' => 'Původní headline'],
+        'title' => 'Original title',
+        'data' => ['headline' => 'Original headline'],
     ]);
 
     $entry->update([
-        'title' => 'Nový název',
-        'data' => ['headline' => 'Nový headline'],
+        'title' => 'New title',
+        'data' => ['headline' => 'New headline'],
     ]);
 
     $originalRevision = $entry->revisions()->where('revision_number', 1)->firstOrFail();
@@ -81,8 +81,77 @@ it('can restore a revision from the revisions page', function () {
         ->mountAction('restoreRevision', ['revision' => $originalRevision->getKey()])
         ->callMountedAction();
 
-    expect($entry->fresh()->title)->toBe('Původní název')
-        ->and($entry->fresh()->data)->toBe(['headline' => 'Původní headline'])
+    expect($entry->fresh()->title)->toBe('Original title')
+        ->and($entry->fresh()->data)->toBe(['headline' => 'Original headline'])
         ->and($entry->fresh()->latestRevision->type->value)->toBe('rollback')
         ->and(Revision::query()->whereMorphedTo('revisionable', $entry)->count())->toBe(3);
+});
+
+it('allows contributors to access revisions only for their own entries', function () {
+    $contributor = User::factory()->create(['role' => UserRole::Contributor]);
+    $contributor->syncRoles([UserRole::Contributor->value]);
+    $this->actingAs($contributor);
+
+    $ownEntry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Draft,
+        'author_id' => $contributor->id,
+    ]);
+
+    $otherEntry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Draft,
+        'author_id' => $this->admin->id,
+    ]);
+
+    expect(ManageEntryRevisions::canAccess(['record' => $ownEntry->getKey()]))->toBeTrue()
+        ->and(ManageEntryRevisions::canAccess(['record' => $otherEntry->getKey()]))->toBeFalse();
+});
+
+it('hides compare and restore controls for contributors', function () {
+    $contributor = User::factory()->create(['role' => UserRole::Contributor]);
+    $contributor->syncRoles([UserRole::Contributor->value]);
+    $this->actingAs($contributor);
+
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Draft,
+        'author_id' => $contributor->id,
+        'title' => 'Original title',
+    ]);
+
+    $entry->update(['title' => 'Updated title']);
+
+    Livewire::test(ManageEntryRevisions::class, ['record' => $entry->getKey()])
+        ->assertOk()
+        ->assertDontSee(__('revisions.actions.compare'))
+        ->assertDontSee(__('revisions.actions.restore'))
+        ->assertDontSee(__('revisions.compare_heading'));
+});
+
+it('shows compare controls but hides restore controls for editors', function () {
+    $editor = User::factory()->create(['role' => UserRole::Editor]);
+    $editor->syncRoles([UserRole::Editor->value]);
+    $this->actingAs($editor);
+
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Draft,
+        'author_id' => $editor->id,
+        'title' => 'Original title',
+    ]);
+
+    Livewire::test(ManageEntryRevisions::class, ['record' => $entry->getKey()])
+        ->assertOk()
+        ->assertSee(__('revisions.actions.compare'))
+        ->assertSee(__('revisions.compare_heading'))
+        ->assertDontSee(__('revisions.actions.restore'));
 });

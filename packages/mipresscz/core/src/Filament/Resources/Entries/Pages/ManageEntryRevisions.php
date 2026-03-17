@@ -35,6 +35,7 @@ class ManageEntryRevisions extends Page
     public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
+        abort_unless($this->canViewRevisions(), 403);
 
         /** @var Entry $entry */
         $entry = $this->getRecord();
@@ -62,7 +63,7 @@ class ManageEntryRevisions extends Page
         }
 
         return $record instanceof Entry
-            && auth()->user()?->can('view', $record);
+            && auth()->user()?->can('viewRevisions', $record);
     }
 
     public function getHeading(): string|Htmlable|null
@@ -154,12 +155,16 @@ class ManageEntryRevisions extends Page
 
     public function compareWithCurrent(string $revision): void
     {
+        abort_unless($this->canCompareRevisions(), 403);
+
         $this->leftRevision = $revision;
         $this->rightRevision = 'current';
     }
 
     public function swapComparedRevisions(): void
     {
+        abort_unless($this->canCompareRevisions(), 403);
+
         [$this->leftRevision, $this->rightRevision] = [$this->rightRevision, $this->leftRevision];
     }
 
@@ -201,10 +206,12 @@ class ManageEntryRevisions extends Page
                 $revision = $this->findRevision((string) ($arguments['revision'] ?? ''));
 
                 return $revision instanceof Revision
-                    && auth()->user()?->can('update', $this->getRecord());
+                    && $this->canRestoreRevision();
             })
             ->modalDescription(fn (array $arguments): string => $this->buildRestorePreview((string) ($arguments['revision'] ?? '')))
             ->action(function (array $arguments): void {
+                abort_unless($this->canRestoreRevision(), 403);
+
                 $revision = $this->findRevision((string) ($arguments['revision'] ?? ''));
 
                 abort_unless($revision instanceof Revision, 404);
@@ -221,6 +228,21 @@ class ManageEntryRevisions extends Page
 
                 $this->redirect($this->getResourceUrl('edit'));
             });
+    }
+
+    public function canViewRevisions(): bool
+    {
+        return auth()->user()?->can('viewRevisions', $this->getRecord()) === true;
+    }
+
+    public function canCompareRevisions(): bool
+    {
+        return auth()->user()?->can('compareRevisions', $this->getRecord()) === true;
+    }
+
+    public function canRestoreRevision(): bool
+    {
+        return auth()->user()?->can('restoreRevision', $this->getRecord()) === true;
     }
 
     private function buildRestorePreview(string $revisionId): string
