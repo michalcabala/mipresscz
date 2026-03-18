@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use MiPressCz\Core\Console\Commands\InstallCommand;
+use MiPressCz\Core\Console\Commands\PruneRevisionsCommand;
 use MiPressCz\Core\Console\Commands\TemplateListCommand;
 use MiPressCz\Core\Listeners\CacheInvalidationSubscriber;
 use MiPressCz\Core\Livewire\NavMenuBuilder;
@@ -52,6 +53,7 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         $this->app->singleton(RevisionService::class);
         $this->app->singleton(TemplateManager::class);
 
+        $this->mergeConfigFrom(__DIR__.'/../config/mipress-revisions.php', 'mipress-revisions');
         $this->mergeConfigFrom(__DIR__.'/../config/nav-menu.php', 'nav-menu');
 
         // Register core lang files as additional base-namespace paths so that
@@ -116,6 +118,7 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallCommand::class,
+                PruneRevisionsCommand::class,
                 TemplateListCommand::class,
             ]);
 
@@ -128,6 +131,7 @@ class MiPressCzCoreServiceProvider extends ServiceProvider
             ], 'mipresscz-translations');
 
             $this->publishes([
+                __DIR__.'/../config/mipress-revisions.php' => config_path('mipress-revisions.php'),
                 __DIR__.'/../config/nav-menu.php' => config_path('nav-menu.php'),
             ], 'mipresscz-config');
         }

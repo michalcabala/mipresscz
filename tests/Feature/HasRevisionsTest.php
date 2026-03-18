@@ -119,3 +119,19 @@ it('latestRevision resolves the newest revision', function () {
         ->and($entry->fresh()->latestRevision->revision_number)->toBe(2)
         ->and($entry->fresh()->latestRevision->content['title'])->toBe('Newer title');
 });
+
+it('prunes old draft revisions automatically when max_revisions is configured', function () {
+    config()->set('mipress-revisions.max_revisions', 2);
+
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'title' => 'Revision 1',
+    ]);
+
+    $entry->update(['title' => 'Revision 2']);
+    $entry->update(['title' => 'Revision 3']);
+
+    expect($entry->fresh()->revisions)->toHaveCount(2)
+        ->and($entry->fresh()->revisions->pluck('revision_number')->all())->toBe([3, 2]);
+});

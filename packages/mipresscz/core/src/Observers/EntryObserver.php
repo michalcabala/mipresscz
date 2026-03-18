@@ -10,6 +10,7 @@ use MiPressCz\Core\Events\EntrySaving;
 use MiPressCz\Core\Enums\EntryStatus;
 use MiPressCz\Core\Enums\RevisionType;
 use MiPressCz\Core\Models\Entry;
+use MiPressCz\Core\Services\RevisionService;
 
 class EntryObserver
 {
@@ -46,7 +47,10 @@ class EntryObserver
             return;
         }
 
-        $entry->createRevision($entry->status === EntryStatus::Published ? RevisionType::Published : RevisionType::Draft);
+        app(RevisionService::class)->createRevision(
+            $entry,
+            $entry->status === EntryStatus::Published ? RevisionType::Published : RevisionType::Draft,
+        );
     }
 
     public function created(Entry $entry): void
@@ -57,7 +61,10 @@ class EntryObserver
             return;
         }
 
-        $entry->createRevision($entry->status === EntryStatus::Published ? RevisionType::Published : RevisionType::Draft);
+        app(RevisionService::class)->createRevision(
+            $entry,
+            $entry->status === EntryStatus::Published ? RevisionType::Published : RevisionType::Draft,
+        );
     }
 
     public function deleted(Entry $entry): void

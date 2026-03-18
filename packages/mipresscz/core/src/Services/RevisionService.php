@@ -19,6 +19,7 @@ class RevisionService
 
         /** @var Revision $revision */
         $revision = $model->createRevision($type, $note);
+        $this->pruneConfiguredRevisions($model);
 
         return $revision;
     }
@@ -47,6 +48,7 @@ class RevisionService
         $revision = $model->createRevisionFromSnapshot(RevisionType::Autosave, $snapshot, $note);
 
         $this->pruneAutosaveRevisions($model, (int) config('mipress-revisions.autosave_max', 10));
+        $this->pruneConfiguredRevisions($model);
 
         return $revision;
     }
@@ -162,23 +164,16 @@ class RevisionService
 
     public function pruneRevisions(Model $model, int $keepLast = 50): int
     {
+        return $this->deletePrunableRevisions($model, $keepLast);
+    }
+
+    public function countPrunableRevisions(Model $model, int $keepLast = 50): int
+    {
         $this->guardRevisionable($model);
 
         $keepLast = max(0, $keepLast);
 
-        $revisionIds = $model->revisions()
-            ->where('type', '!=', RevisionType::Published->value)
-            ->get(['id'])
-            ->skip($keepLast)
-            ->pluck('id');
-
-        if ($revisionIds->isEmpty()) {
-            return 0;
-        }
-
-        return Revision::query()
-            ->whereIn('id', $revisionIds)
-            ->delete();
+        return $this->prunableRevisionIds($model, $keepLast)->count();
     }
 
     public function pruneAutosaveRevisions(Model $model, int $keepLast = 10): int
@@ -202,11 +197,56 @@ class RevisionService
             ->delete();
     }
 
+    public function configuredMaxRevisions(): int
+    {
+        return max(0, (int) config('mipress-revisions.max_revisions', 50));
+    }
+
     private function guardRevisionable(Model $model): void
     {
         if (! method_exists($model, 'createRevision') || ! method_exists($model, 'revisions')) {
             throw new InvalidArgumentException(sprintf('Model [%s] does not support revisions.', $model::class));
         }
+    }
+
+    private function pruneConfiguredRevisions(Model $model): int
+    {
+        $keepLast = $this->configuredMaxRevisions();
+
+        if ($keepLast === 0) {
+            return 0;
+        }
+
+        return $this->deletePrunableRevisions($model, $keepLast);
+    }
+
+    private function deletePrunableRevisions(Model $model, int $keepLast): int
+    {
+        $this->guardRevisionable($model);
+
+        $revisionIds = $this->prunableRevisionIds($model, $keepLast);
+
+        if ($revisionIds->isEmpty()) {
+            return 0;
+        }
+
+        return Revision::query()
+            ->whereIn('id', $revisionIds)
+            ->delete();
+    }
+
+    private function prunableRevisionIds(Model $model, int $keepLast): \Illuminate\Support\Collection
+    {
+        $query = $model->revisions();
+
+        if ((bool) config('mipress-revisions.prune_keep_published', true)) {
+            $query->where('type', '!=', RevisionType::Published->value);
+        }
+
+        return $query
+            ->get(['id'])
+            ->skip(max(0, $keepLast))
+            ->pluck('id');
     }
 
     /**
