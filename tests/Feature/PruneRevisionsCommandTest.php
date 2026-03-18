@@ -60,3 +60,30 @@ it('prunes old revisions and keeps published snapshots', function () {
         ->and($entry->fresh()->revisions->pluck('revision_number')->all())->toBe([4, 3])
         ->and($entry->fresh()->revisions->pluck('type')->map->value->all())->toBe(['draft', 'published']);
 });
+
+it('can prune published revisions when configured to do so', function () {
+    config()->set('mipress-revisions.prune_keep_published', false);
+
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'title' => 'Revision 1',
+    ]);
+
+    app(RevisionService::class)->createRevision($entry, RevisionType::Published, 'Published snapshot');
+    $entry->update(['title' => 'Revision 2']);
+
+    $this->artisan('mipress:prune-revisions', [
+        '--keep' => 1,
+        '--model' => 'Entry',
+    ])->assertSuccessful();
+
+    expect($entry->fresh()->revisions)->toHaveCount(1)
+        ->and($entry->fresh()->latestRevision->type)->toBe(RevisionType::Draft);
+});
+
+it('fails for an unknown revisionable model option', function () {
+    $this->artisan('mipress:prune-revisions', [
+        '--model' => 'UnknownModel',
+    ])->assertFailed();
+});

@@ -135,6 +135,28 @@ it('hides compare and restore controls for contributors', function () {
         ->assertDontSee(__('revisions.compare_heading'));
 });
 
+it('forbids contributors from comparing revisions even for their own entries', function () {
+    $contributor = User::factory()->create(['role' => UserRole::Contributor]);
+    $contributor->syncRoles([UserRole::Contributor->value]);
+    $this->actingAs($contributor);
+
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Draft,
+        'author_id' => $contributor->id,
+        'title' => 'Original title',
+    ]);
+
+    $entry->update(['title' => 'Updated title']);
+    $revision = $entry->revisions()->firstOrFail();
+
+    Livewire::test(ManageEntryRevisions::class, ['record' => $entry->getKey()])
+        ->call('compareWithCurrent', $revision->getKey())
+        ->assertForbidden();
+});
+
 it('shows compare controls but hides restore controls for editors', function () {
     $editor = User::factory()->create(['role' => UserRole::Editor]);
     $editor->syncRoles([UserRole::Editor->value]);
