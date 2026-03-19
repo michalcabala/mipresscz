@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'yes' => 'Yes',
+    'no' => 'No',
+
     // ── Collections ──
     'collections' => [
         'label' => 'Collection',
@@ -19,7 +22,6 @@ return [
         'sort_direction' => 'Sort direction',
         'date_behavior' => 'Date behavior',
         'default_status' => 'Default status',
-        'revisions_enabled' => 'Save revisions',
         'icon' => 'Icon',
         'is_active' => 'Active',
         'settings' => 'Settings',
@@ -231,31 +233,6 @@ return [
         'origin' => 'Origin term (translation of)',
     ],
 
-    // ── Revisions ──
-    'revisions' => [
-        'label' => 'Revision',
-        'plural_label' => 'Revisions',
-    ],
-
-    'revision_fields' => [
-        'entry' => 'Entry',
-        'user' => 'User',
-        'data' => 'Data',
-        'content' => 'Content',
-        'is_current' => 'Current',
-        'note' => 'Note',
-        'created_at' => 'Created at',
-        'action' => 'Action',
-        'action_revision' => 'Revision',
-        'action_working' => 'Working copy',
-        'action_publish' => 'Publish',
-        'action_unpublish' => 'Unpublish',
-        'before' => 'Before',
-        'after' => 'After',
-        'no_changes' => 'No changes.',
-        'no_previous_revision' => 'This is the oldest revision — nothing to compare with.',
-    ],
-
     // ── Global Sets ──
     'globals' => [
         'label' => 'Global Set',
@@ -317,13 +294,9 @@ return [
         'add_short' => 'Add',
         'create_translation_confirm' => 'A new translation for :locale will be created. Data will be copied from the original entry.',
         'preview' => 'Preview',
-        'view_revision' => 'Revision details',
-        'compare_revision' => 'Compare with previous',
-        'restore_revision' => 'Restore revision',
-        'view_revisions' => 'View revisions',
-        'publish_changes' => 'Publish changes',
+        'more_actions' => 'More',
         'discard_changes' => 'Discard changes',
-        'discard_changes_confirm' => 'Are you sure you want to discard the working copy? This action cannot be undone.',
+        'discard_changes_confirm' => 'Are you sure you want to discard the current form changes? This action cannot be undone.',
     ],
 
     // ── Menus ──
@@ -407,13 +380,8 @@ return [
         'cannot_delete_homepage' => 'The homepage entry cannot be deleted.',
         'taxonomies_already_assigned' => 'These taxonomies are already assigned to another collection: :taxonomies',
         'entry_published' => 'Entry published.',
-        'revision_restored' => 'Revision restored.',
-        'revision_loaded_to_working_copy' => 'Revision loaded into the working copy.',
         'translation_created' => 'Translation created.',
         'no_blueprint_fields' => 'Blueprint has no fields defined.',
-        'working_copy_saved' => 'Changes saved as working copy.',
-        'working_copy_published' => 'Working copy has been published.',
-        'working_copy_discarded' => 'Working copy has been discarded.',
     ],
 
     // ── Search ──

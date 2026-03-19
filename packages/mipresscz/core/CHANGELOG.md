@@ -7,16 +7,23 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Removed
+- Entry revisions, working copy workflow, revision diff utilities, and the revisions workspace were removed from the core package.
+
+### Changed
+- Feature tests were aligned to the direct-save editorial workflow for published entries.
+- The legacy combined GlobalSet test file was replaced by `GlobalSetModelTest`.
+
 ---
 
 ## [0.6.0] — 2026-03-09
 
 ### Added
-- Comprehensive Pest test coverage: Entry model, Collection/Blueprint, Taxonomy/Term, GlobalSet/Revision, BlueprintPolicy, UserRole enum (185 definitions total).
-- `EntryModelTest` — scopes (draft, root, ordered, published), relationships (revisions, terms, relatedEntries, referencedBy, author), URI token generation, slug/uri regeneration, is_pinned cast.
+- Comprehensive Pest test coverage: Entry model, Collection/Blueprint, Taxonomy/Term, GlobalSet, BlueprintPolicy, UserRole enum (185 definitions total).
+- `EntryModelTest` — scopes (draft, root, ordered, published), relationships (terms, relatedEntries, referencedBy, author), URI token generation, slug/uri regeneration, is_pinned cast.
 - `CollectionBlueprintModelTest` — SoftDeletes, restore, settings/is_active casts, blueprint→collection/entries relationships, getFieldsBySection ordering.
 - `TaxonomyTermModelTest` — taxonomy→terms/collections, SoftDeletes, scopeRoot/scopeOrdered, data cast, grandchild nesting.
-- `GlobalSetRevisionModelTest` — translations/origin relationships, findByHandle fallback, cache invalidation, getValue nested dot-notation, revision entry/user relationships, is_current flag, revision creation on update.
+- `GlobalSetModelTest` — translations/origin relationships, findByHandle fallback, cache invalidation, getValue nested dot-notation.
 - `BlueprintPolicyTest` — full policy matrix for Admin/Editor/Contributor roles including deleteAny for Collection/Taxonomy/GlobalSet.
 - `UserRoleTest` — label/icon/color helpers, SuperAdmin permission bypass, role permission assignments.
 
@@ -47,10 +54,10 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Full domain core extracted into `packages/mipresscz/core`:
-  - Models: `Collection`, `Blueprint`, `Entry`, `Taxonomy`, `Term`, `Revision`, `GlobalSet`, `Locale`.
+  - Models: `Collection`, `Blueprint`, `Entry`, `Taxonomy`, `Term`, `GlobalSet`, `Locale`.
   - Enums: `EntryStatus`, `DefaultStatus`, `DateBehavior`.
   - Services: `LocaleService`, URL resolution helpers.
-  - Observers: `EntryObserver` (revision creation, pruning).
+  - Observers: `EntryObserver`.
   - Policies: `CollectionPolicy`, `EntryPolicy`, `TaxonomyPolicy`, `BlockPolicy`, `GlobalSetPolicy`.
   - Filament Resources: Collections, Entries (dynamic `EntryResourceConfiguration`), Taxonomies, Terms, Globals.
   - HTTP: `EntryController` (frontend rendering).

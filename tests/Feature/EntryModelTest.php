@@ -12,7 +12,7 @@ use MiPressCz\Core\Models\Term;
 // ── Scopes ──
 
 it('scopeDraft returns only draft entries', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
 
     Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id, 'status' => EntryStatus::Draft]);
@@ -22,7 +22,7 @@ it('scopeDraft returns only draft entries', function () {
 });
 
 it('scopeRoot returns only entries without a parent', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     $parent = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
     Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id, 'parent_id' => $parent->id]);
@@ -32,7 +32,7 @@ it('scopeRoot returns only entries without a parent', function () {
 });
 
 it('scopeOrdered orders entries by order field ascending by default', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false, 'sort_field' => 'order', 'sort_direction' => 'asc']);
+    $collection = Collection::factory()->create(['sort_field' => 'order', 'sort_direction' => 'asc']);
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id, 'order' => 3]);
     Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id, 'order' => 1]);
@@ -44,7 +44,7 @@ it('scopeOrdered orders entries by order field ascending by default', function (
 });
 
 it('published scope excludes entries with expired_at in the past', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     Entry::factory()->create([
         'collection_id' => $collection->id,
@@ -65,7 +65,7 @@ it('published scope excludes entries with expired_at in the past', function () {
 });
 
 it('published scope excludes entries with future published_at', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     Entry::factory()->create([
         'collection_id' => $collection->id,
@@ -80,7 +80,7 @@ it('published scope excludes entries with future published_at', function () {
 // ── Origin / Translation helpers ──
 
 it('isOrigin returns true when entry has no origin_id', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     $entry = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
 
@@ -89,7 +89,7 @@ it('isOrigin returns true when entry has no origin_id', function () {
 });
 
 it('isTranslation returns true when entry has origin_id', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     $origin = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
     $translation = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id, 'origin_id' => $origin->id, 'locale' => 'en']);
@@ -99,7 +99,7 @@ it('isTranslation returns true when entry has origin_id', function () {
 });
 
 it('getOrigin returns self for origin entry', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     $entry = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
 
@@ -107,7 +107,7 @@ it('getOrigin returns self for origin entry', function () {
 });
 
 it('getOrigin returns the origin entry for a translation', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     $origin = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
     $translation = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id, 'origin_id' => $origin->id, 'locale' => 'en']);
@@ -116,7 +116,7 @@ it('getOrigin returns the origin entry for a translation', function () {
 });
 
 it('getAvailableLocales includes the origin and all translations', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     $origin = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id, 'locale' => 'cs']);
     Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id, 'origin_id' => $origin->id, 'locale' => 'en']);
@@ -129,7 +129,7 @@ it('getAvailableLocales includes the origin and all translations', function () {
 // ── Field data helpers ──
 
 it('getTranslatableData returns only translatable fields from blueprint', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create([
         'collection_id' => $collection->id,
         'fields' => [
@@ -149,7 +149,7 @@ it('getTranslatableData returns only translatable fields from blueprint', functi
 });
 
 it('getNonTranslatableData returns only non-translatable fields', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create([
         'collection_id' => $collection->id,
         'fields' => [
@@ -170,17 +170,8 @@ it('getNonTranslatableData returns only non-translatable fields', function () {
 
 // ── Relationships ──
 
-it('revisions relationship is accessible directly on the entry', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => true]);
-    $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
-    $entry = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
-
-    expect($entry->revisions)->toHaveCount(1);
-    expect($entry->revisions->first())->toBeInstanceOf(\MiPressCz\Core\Models\Revision::class);
-});
-
 it('entry terms relationship works via morphToMany', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     $entry = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
     $taxonomy = Taxonomy::factory()->create();
@@ -192,7 +183,7 @@ it('entry terms relationship works via morphToMany', function () {
 });
 
 it('relatedEntries relationship resolves correctly', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     $parent = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
     $related = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
@@ -210,7 +201,7 @@ it('relatedEntries relationship resolves correctly', function () {
 });
 
 it('referencedBy relationship resolves the reverse direction', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     $parent = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
     $related = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
@@ -229,7 +220,7 @@ it('referencedBy relationship resolves the reverse direction', function () {
 
 it('author relationship resolves to a user', function () {
     $user = User::factory()->create();
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     $entry = Entry::factory()->create([
         'collection_id' => $collection->id,
@@ -245,7 +236,6 @@ it('author relationship resolves to a user', function () {
 it('generateUri replaces year month day tokens using published_at', function () {
     $publishedAt = \Illuminate\Support\Carbon::create(2025, 6, 15);
     $collection = Collection::factory()->create([
-        'revisions_enabled' => false,
         'route_template' => '/{year}/{month}/{day}/{slug}',
     ]);
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
@@ -264,7 +254,6 @@ it('generateUri replaces year month day tokens using published_at', function () 
 
 it('updating title regenerates slug and uri', function () {
     $collection = Collection::factory()->create([
-        'revisions_enabled' => false,
         'route_template' => '/blog/{slug}',
     ]);
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
@@ -283,7 +272,6 @@ it('updating title regenerates slug and uri', function () {
 
 it('updating slug only regenerates uri without changing slug', function () {
     $collection = Collection::factory()->create([
-        'revisions_enabled' => false,
         'route_template' => '/blog/{slug}',
     ]);
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
@@ -304,7 +292,7 @@ it('updating slug only regenerates uri without changing slug', function () {
 // ── Casts ──
 
 it('is_pinned defaults to false and can be toggled', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     $entry = Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
 

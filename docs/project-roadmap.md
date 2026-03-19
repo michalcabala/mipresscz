@@ -1,150 +1,248 @@
-# miPress CMS — Project Roadmap
+# miPress CMS - Project Roadmap
 
-Datum: 15. března 2026
+Datum: 17. března 2026
 
 ## Cíl roadmapy
 
-Posunout miPress z technicky silného interního CMS základu do stavu stabilní produkční verze se srozumitelným release procesem, provozním runbookem a pilotně ověřeným frontendem i redakčním workflow.
+Dotáhnout miPress z dnešního stavu "stabilní CMS baseline po odstranění revisions" do první produkční verze s:
 
-Projekt už má hotové jádro. Roadmapa níže proto není seznam funkcí, které „by se mohly hodit“, ale konkrétní plán k vydání `v1.0.0`.
+- zelenou test suite,
+- jasným release procesem,
+- ověřeným deploy/rollback postupem,
+- odladěným frontendem,
+- potvrzeným redakčním workflow.
 
-## Aktuální baseline
+Roadmapa níže není wishlist. Je to doporučené pořadí práce podle ověřeného stavu kódu k 17. 3. 2026.
 
-- `packages/mipresscz/core` je extrahované a aplikace na něm běží.
-- Admin panel na `/mpcp` funguje nad dynamickými Entry/Term resources.
-- SEO, preview, search, caching, menu builder, Working Copy a locale workflow jsou implementované.
-- CI pipeline pokrývá lint, MySQL testy a install smoke test.
-- Plná test suite je aktuálně zelená: `574 passed, 0 failed`.
+## Aktuální Baseline
 
-## Co ještě brání produkčnímu vydání
+- Revisions / working copy workflow bylo z projektu kompletně odstraněno.
+- Publikované entries se teď upravují přímo.
+- Core CMS běží z `packages/mipresscz/core`.
+- Admin panel na `/mpcp` pokrývá hlavní obsahové workflow.
+- Lokalizace, preview, search, feed, sitemap, menu builder, media management a template systém jsou implementované.
+- Mason bloky a default theme existují a jsou použitelné.
+- Poslední plný běh suite po odstranění revisions:
+  - `556` testů prošlo,
+  - `1242` assertions,
+  - bez pádů.
+- Následně byl uklizen warning v `TermResourceTest` a tento test file znovu prošel samostatně.
 
-### Release a governance mezery
+## Roadmapa K Produkční Verzi
 
-- Chybí jednotný release gate checklist před tagem `v1.0.0`.
-- Core package má stále verzi `0.6.0`, zatímco část dokumentace historicky mluví o novějších milnících. Versioning a changelog nejsou synchronizované s reálným stavem funkcí.
-- Chybí jednoznačný proces pro release notes, upgrade notes a rollback.
+## Fáze 0 - Release Alignment Po Odstranění Revisions
 
-### Provozní mezery
-
-- Není sepsaný produkční runbook pro deploy, rollback, cache warmup, icons cache, Filament component cache a DB restore.
-- Scheduler je pro sitemap kritický, ale není explicitně součástí release gate.
-- Chybí standardizovaný post-deploy smoke test mimo CI install smoke.
-
-### Produktové mezery
-
-- Frontend má použitelnou default šablonu, ale ještě neprošel formálním produkčním QA kolem přístupnosti, responzivity a obsahového UAT.
-- Working Copy workflow je implementované, ale chybí redakční pilotní ověření nad realistickým obsahem a rolemi.
-- Browser/E2E coverage pro klíčové admin user journeys stále chybí.
-
-## Roadmapa k `v1.0.0`
-
-## Fáze A — Release baseline alignment
-
-Cíl: srovnat verze, dokumentaci a release artefakty tak, aby projekt měl jeden zdroj pravdy.
+Cíl: srovnat kód, dokumentaci a release artefakty s novým zjednodušeným workflow.
 
 ### Úkoly
 
-- [ ] Aktualizovat `packages/mipresscz/core/composer.json` verzi podle skutečného release stavu.
-- [ ] Doplnit `packages/mipresscz/core/CHANGELOG.md` o všechny dokončené milníky po `0.6.0`.
-- [ ] Vyčistit staré roadmap/analysis tvrzení, která už neodpovídají kódu.
-- [ ] Připravit jednoduchou release konvenci: tag, changelog, upgrade notes, smoke test, rollback notes.
-- [ ] Rozhodnout, zda bude první veřejný release `0.7.x` nebo rovnou `1.0.0-rc.1`.
+- [ ] Dokončit dokumentační cleanup po odstranění revisions.
+- [ ] Zkontrolovat, že žádná admin navigace, překlad nebo docs už revisions nenabízí jako feature.
+- [ ] Srovnat `packages/mipresscz/core/CHANGELOG.md` a release poznámky s novým stavem.
+- [ ] Rozhodnout, jestli další milestone bude `0.7.x`, `1.0.0-rc.1` nebo rovnou `1.0.0`.
+- [ ] Aktualizovat `packages/mipresscz/core/composer.json` podle skutečného release stavu.
 
 ### Exit criteria
 
-- [ ] Verze v core package, changelogu a dokumentaci si neodporují.
-- [ ] Každý release má definovaný checklist a vlastní release note.
+- [ ] Kód, changelog a docs si neodporují.
+- [ ] Editorial workflow je v projektu popsané už jen jako direct-save workflow.
 
-## Fáze B — Production hardening
+## Fáze 1 - Production Hardening
 
-Cíl: uzavřít provozní mezery, které nejvíc bolí po prvním nasazení.
+Cíl: doplnit chybějící provozní minimum.
 
 ### Úkoly
 
-- [ ] Sepsat deployment runbook: build, migrate, optimize, icons cache, Filament cache, scheduler, queue, rollback.
-- [ ] Dopsat explicitní produkční checklist pro `.env`, storage, mail, cache, queue a scheduler.
-- [ ] Přidat post-deploy smoke scénář: login, create entry, publish, preview, frontend render, sitemap dostupnost.
-- [ ] Ověřit backup/restore postup na MySQL databázi a media storage.
-- [ ] Zvážit základní observability vrstvu: centralizované logy, alerting na výjimky, health check endpoint nebo syntetický monitoring.
+- [ ] Sepsat deploy runbook:
+  - build assetů,
+  - migrace,
+  - cache clear / warmup,
+  - Filament optimize/clear,
+  - sitemap generation,
+  - storage kontrola.
+- [ ] Sepsat rollback runbook.
+- [ ] Dopsat produkční checklist pro `.env`, DB, mail, cache, session, queue a scheduler.
+- [ ] Ověřit zálohu a restore databáze i media storage.
+- [ ] Definovat minimální monitoring:
+  - health check,
+  - log routing,
+  - alert na výjimky,
+  - kontrola scheduleru.
 
 ### Exit criteria
 
-- [ ] Nasazení na čisté prostředí je reprodukovatelné podle jednoho dokumentu.
-- [ ] Rollback je ověřený v praxi, ne jen teoreticky.
-- [ ] Scheduler a cache warmup jsou součástí produkčního postupu.
+- [ ] Nové prostředí lze nasadit podle jednoho dokumentovaného postupu.
+- [ ] Rollback není teoretický, ale ověřený.
+- [ ] Scheduler a cache kroky jsou součástí release procesu.
 
-## Fáze C — Frontend readiness
+## Fáze 2 - Frontend Readiness
 
-Cíl: dotáhnout veřejný web z „solidního defaultu“ do stavu, který je obhajitelný pro první produkční klientský projekt.
+Cíl: udělat z default theme obhajitelný produkční baseline.
 
 ### Úkoly
 
-- [ ] Udělat QA nad default šablonou: homepage, page detail, article detail, archive, search, 404, 500, 503.
-- [ ] Zkontrolovat responzivitu a obsahové edge cases pro Mason bloky.
-- [ ] Doplnit accessibility pass: headings, focus states, kontrast, landmarky, formulářové popisky.
-- [ ] Ověřit image/media strategii: public/private visibility, fallbacky, lazy loading, OG image flow.
-- [ ] Rozhodnout, co je součást „produkční default theme“ a co zůstává jen demo/pilotním obsahem.
+- [ ] Otestovat šablony:
+  - homepage,
+  - page detail,
+  - article detail,
+  - archive,
+  - search,
+  - 404,
+  - 500,
+  - 503.
+- [ ] Udělat responzivní QA na desktop/tablet/mobile.
+- [ ] Udělat accessibility pass:
+  - heading hierarchy,
+  - focus states,
+  - kontrast,
+  - landmarky,
+  - formulářové popisky.
+- [ ] Ověřit edge cases pro Mason bloky.
+- [ ] Ověřit image fallbacks, OG image flow a lazy loading strategii.
+- [ ] Rozhodnout, co je oficiální "default production theme" a co je jen demo obsah.
 
 ### Exit criteria
 
-- [ ] Default template je použitelná bez ručního patchování pro první pilotní web.
-- [ ] Nejsou otevřené kritické UI chyby na desktopu ani mobilu.
+- [ ] Default theme je použitelná bez ručního patchování pro pilotní web.
+- [ ] Nejsou otevřené kritické vizuální nebo a11y chyby.
 
-## Fáze D — Editorial a admin acceptance
+## Fáze 3 - Editorial Acceptance
 
-Cíl: potvrdit, že admin není jen technicky správně, ale i použitelný pro redakci.
+Cíl: potvrdit, že zjednodušené redakční workflow je použitelné v praxi.
 
 ### Úkoly
 
-- [ ] Projít UAT scénáře pro role Admin, Editor a Contributor.
-- [ ] Ověřit Working Copy workflow: create, draft save, publish, discard, preview, locale verze.
-- [ ] Ověřit tabulkové workflow: filtry, slideovery, column manager, reorder entries, taxonomy terms, media picker.
-- [ ] Zvážit lehkou browser/E2E vrstvu pro nejdůležitější journeys.
-- [ ] Doplnit stručný interní test checklist pro regresní ověření před každým release.
+- [ ] Projít UAT pro role:
+  - SuperAdmin,
+  - Admin,
+  - Editor,
+  - Contributor.
+- [ ] Ověřit entry workflow:
+  - draft,
+  - publish,
+  - přímá editace publikovaného záznamu,
+  - unpublish,
+  - preview.
+- [ ] Ověřit locales workflow:
+  - přepínání,
+  - translation variants,
+  - URL prefix chování.
+- [ ] Ověřit menu workflow:
+  - custom link,
+  - model link,
+  - archive link,
+  - nesting,
+  - reorder.
+- [ ] Ověřit media workflow:
+  - upload,
+  - tagging,
+  - folders,
+  - picker použití v entries/globals.
 
 ### Exit criteria
 
-- [ ] Redakční pilot neodhalí blocker v admin UX.
-- [ ] Kritické admin workflow mají automatizovaný smoke coverage.
+- [ ] Redakční pilot neodhalí blocker v hlavních admin flow.
+- [ ] Kritické workflow má potvrzené chování v praxi, ne jen v testech.
 
-## Fáze E — Release candidate a `v1.0.0`
+## Fáze 4 - Browser Smoke Coverage
 
-Cíl: převést projekt ze stavu „feature complete“ do stavu „ship-ready“.
+Cíl: doplnit tenkou vrstvu ochrany proti regresím v interaktivním adminu.
 
 ### Úkoly
 
-- [ ] Vyhlásit feature freeze pro release kandidáta.
-- [ ] Uzavřít kritické a vysoké bugy.
-- [ ] Připravit upgrade notes a release notes.
-- [ ] Otagovat `v1.0.0-rc.1`, nasadit na staging a provést Go/No-Go review.
-- [ ] Po úspěšném pilotu vydat `v1.0.0`.
+- [ ] Vybrat browser test framework vhodný pro Laravel/Filament stack.
+- [ ] Přidat smoke scénáře alespoň pro:
+  - login,
+  - create/edit/publish entry,
+  - přímou editaci publikovaného entry,
+  - menu manager,
+  - locale switching,
+  - media picker,
+  - sitemap settings page.
+- [ ] Zařadit smoke browser testy do release checklistu.
 
-### Go/No-Go checklist
+### Exit criteria
 
-- [ ] `574+` testů zelených v CI.
-- [ ] Lint a install smoke zelené.
-- [ ] Žádný otevřený blocker v content, locale, preview, publish nebo media workflow.
-- [ ] Ověřený deploy i rollback.
-- [ ] Schválený release note a changelog.
+- [ ] Nejkritičtější Filament a Livewire flow mají automatizované browser smoke coverage.
 
-## Doporučené pořadí práce
+## Fáze 5 - Release Candidate
 
-1. Nejdřív dokončit Fázi A a B. Bez release a provozní disciplíny nemá smysl řešit marketingově „v1“.
-2. Potom udělat frontend QA a redakční pilot. Tady se objeví skutečné produkční nuance.
-3. Až následně zavést RC režim a tagovat stabilní release.
+Cíl: převést produkt ze stavu "technicky stabilní" do stavu "ready to ship".
 
-## Doporučený backlog po `v1.0.0`
+### Úkoly
 
-- API vrstva / headless režim.
-- `mipresscz:new-site` bootstrap command.
-- Rozšiřitelnost core přes plugin/hook pipeline.
-- Selektivní `withoutX()` pattern pro feature toggles.
-- Rozšířená observability a metriky.
+- [ ] Vyhlásit feature freeze.
+- [ ] Zavřít všechny kritické a vysoké bugy.
+- [ ] Aktualizovat release note a upgrade note.
+- [ ] Nasadit release kandidáta na staging.
+- [ ] Udělat Go/No-Go review nad:
+  - testy,
+  - deploy,
+  - rollback,
+  - frontend QA,
+  - editorial UAT.
 
-## Poznámka k údržbě dokumentu
+### Exit criteria
 
-Roadmapa má být krátká a akční. Dokončené historické milníky patří do changelogu a release notes, ne jako stovky řádků starých checkboxů. Po každém větším release je potřeba aktualizovat hlavně:
+- [ ] Existuje kandidát `v1.0.0-rc.1` nebo ekvivalentní release.
+- [ ] Všechny release gate podmínky jsou splněné.
 
-- aktuální baseline,
-- otevřené blocker body,
-- nejbližší 1 až 2 fáze.
+## Fáze 6 - Produkční Release
+
+Cíl: vydat první produkční verzi bez skrytého provozního dluhu.
+
+### Úkoly
+
+- [ ] Otagovat finální release.
+- [ ] Nasadit na produkci podle runbooku.
+- [ ] Projít post-deploy smoke checklist.
+- [ ] Monitorovat prvních 24-72 hodin.
+- [ ] Zachytit post-launch incidenty a převést je do backlogu.
+
+### Go/No-Go Checklist
+
+- [ ] Celá test suite je zelená.
+- [ ] Neexistuje otevřený blocker v entries, locales, menu nebo media.
+- [ ] Deploy i rollback jsou ověřené.
+- [ ] Frontend baseline je odladěná pro mobil i desktop.
+- [ ] Release artefakty jsou synchronizované.
+
+## Doporučené Pořadí
+
+1. Nejprve Fáze 0. Po odstranění revisions je potřeba srovnat release contract a dokumentaci.
+2. Hned potom Fáze 1. Provozní disciplína je teď důležitější než další velká feature práce.
+3. Následně Fáze 2 a 3. Tam se odhalí skutečné produkční nuance i reálná použitelnost redakčního workflow.
+4. Před tagem doplnit Fázi 4. Browser smoke testy nejsou nutné pro vývoj, ale jsou velmi vhodné před prvním veřejným releasem.
+5. Teprve pak RC a produkce.
+
+## Prioritizovaný Backlog Po `v1.0.0`
+
+### P1
+
+- Headless API vrstva.
+- Lepší observability a monitoring.
+- Více než jedna produkčně odladěná frontend theme.
+
+### P2
+
+- Rozšiřitelný plugin / hook systém nad core.
+- Bootstrap command pro založení nového webu.
+- Další content blocky a editor productivity features.
+
+### P3
+
+- Multi-site / tenancy úvahy.
+- Import/export workflow.
+- Vyspělejší content governance a publishing rules.
+
+## Shrnutí
+
+Nejkratší cesta k produkční verzi už není řešit rozbitý revisions workspace. Ten byl odstraněn. Další cesta je teď jasnější:
+
+1. srovnat release metadata a dokumentaci,
+2. dopsat deploy a QA disciplínu,
+3. potvrdit frontend a redakční použitelnost na pilotu,
+4. doplnit browser smoke coverage,
+5. teprve pak udělat RC a produkční release.
+
+Pokud se tento sled dodrží, je reálné dostat miPress do prvního produkčního releasu bez skrytého release dluhu.

@@ -8,7 +8,6 @@ use MiPressCz\Core\Models\Blueprint;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
 use MiPressCz\Core\Models\GlobalSet;
-use MiPressCz\Core\Models\Revision;
 use MiPressCz\Core\Models\Taxonomy;
 use MiPressCz\Core\Models\Term;
 
@@ -381,36 +380,6 @@ it('entry can be tagged with terms', function () {
 
     expect($entry->terms)->toHaveCount(1)
         ->and($entry->terms->first()->id)->toBe($term->id);
-});
-
-// ── Revisions ──
-
-it('creates revision when entry is created', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => true]);
-    $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
-    $user = User::factory()->create();
-
-    $this->actingAs($user);
-
-    $entry = Entry::factory()->create([
-        'collection_id' => $collection->id,
-        'blueprint_id' => $blueprint->id,
-        'data' => ['content' => 'Hello World'],
-    ]);
-
-    expect(Revision::where('entry_id', $entry->id)->count())->toBe(1);
-});
-
-it('does not create revision when revisions are disabled', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
-    $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
-
-    $entry = Entry::factory()->create([
-        'collection_id' => $collection->id,
-        'blueprint_id' => $blueprint->id,
-    ]);
-
-    expect(Revision::where('entry_id', $entry->id)->count())->toBe(0);
 });
 
 // ── GlobalSet ──

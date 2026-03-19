@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'yes' => 'Ano',
+    'no' => 'Ne',
+
     // ── Collections ──
     'collections' => [
         'label' => 'Kolekce',
@@ -19,7 +22,6 @@ return [
         'sort_direction' => 'Směr řazení',
         'date_behavior' => 'Chování data',
         'default_status' => 'Výchozí stav',
-        'revisions_enabled' => 'Ukládat revize',
         'icon' => 'Ikona',
         'is_active' => 'Aktivní',
         'settings' => 'Nastavení',
@@ -231,31 +233,6 @@ return [
         'origin' => 'Zdrojový termín (překlad z)',
     ],
 
-    // ── Revisions ──
-    'revisions' => [
-        'label' => 'Revize',
-        'plural_label' => 'Revize',
-    ],
-
-    'revision_fields' => [
-        'entry' => 'Záznam',
-        'user' => 'Uživatel',
-        'data' => 'Data',
-        'content' => 'Obsah',
-        'is_current' => 'Aktuální',
-        'note' => 'Poznámka',
-        'created_at' => 'Vytvořeno',
-        'action' => 'Akce',
-        'action_revision' => 'Revize',
-        'action_working' => 'Rozpracováno',
-        'action_publish' => 'Publikace',
-        'action_unpublish' => 'Odpublikování',
-        'before' => 'Před',
-        'after' => 'Po',
-        'no_changes' => 'Žádné změny.',
-        'no_previous_revision' => 'Toto je nejstarší revize – není s čím porovnat.',
-    ],
-
     // ── Global Sets ──
     'globals' => [
         'label' => 'Globální sada',
@@ -317,13 +294,9 @@ return [
         'add_short' => 'Přidat',
         'create_translation_confirm' => 'Bude vytvořen nový překlad pro jazyk :locale. Data budou zkopírována z původního záznamu.',
         'preview' => 'Náhled',
-        'view_revision' => 'Detail revize',
-        'compare_revision' => 'Porovnat s předchozí',
-        'restore_revision' => 'Obnovit revizi',
-        'view_revisions' => 'Zobrazit revize',
-        'publish_changes' => 'Publikovat změny',
+        'more_actions' => 'Další',
         'discard_changes' => 'Zahodit změny',
-        'discard_changes_confirm' => 'Opravdu chcete zahodit rozpracované změny? Tato akce je nevratná.',
+        'discard_changes_confirm' => 'Opravdu chcete zahodit aktuální změny ve formuláři? Tato akce je nevratná.',
     ],
 
     // ── Menus ──
@@ -407,13 +380,8 @@ return [
         'cannot_delete_homepage' => 'Nelze smazat záznam nastavený jako domovská stránka.',
         'taxonomies_already_assigned' => 'Tyto taxonomie už jsou přiřazené k jiné kolekci: :taxonomies',
         'entry_published' => 'Záznam byl publikován.',
-        'revision_restored' => 'Revize byla obnovena.',
-        'revision_loaded_to_working_copy' => 'Revize byla načtena do rozpracované verze.',
         'translation_created' => 'Překlad byl vytvořen.',
         'no_blueprint_fields' => 'Blueprint nemá definovaná žádná pole.',
-        'working_copy_saved' => 'Změny byly uloženy jako rozpracovaná verze.',
-        'working_copy_published' => 'Rozpracované změny byly publikovány.',
-        'working_copy_discarded' => 'Rozpracované změny byly zahozeny.',
     ],
 
     // ── Search ──

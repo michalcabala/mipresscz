@@ -53,7 +53,7 @@ it('blueprint belongs to collection', function () {
 });
 
 it('blueprint has entries relationship', function () {
-    $collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $collection = Collection::factory()->create();
     $blueprint = Blueprint::factory()->create(['collection_id' => $collection->id]);
     Entry::factory()->create(['collection_id' => $collection->id, 'blueprint_id' => $blueprint->id]);
 

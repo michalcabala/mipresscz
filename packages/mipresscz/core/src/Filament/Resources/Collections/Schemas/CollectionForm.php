@@ -87,9 +87,6 @@ class CollectionForm
                         Toggle::make('is_tree')
                             ->label(__('content.collection_fields.is_tree'))
                             ->default(false),
-                        Toggle::make('revisions_enabled')
-                            ->label(__('content.collection_fields.revisions_enabled'))
-                            ->default(false),
                         Toggle::make('is_active')
                             ->label(__('content.collection_fields.is_active'))
                             ->default(true),

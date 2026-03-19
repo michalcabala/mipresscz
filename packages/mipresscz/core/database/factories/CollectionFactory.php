@@ -31,7 +31,6 @@ class CollectionFactory extends Factory
             'sort_field' => 'order',
             'sort_direction' => 'asc',
             'date_behavior' => DateBehavior::None,
-            'revisions_enabled' => false,
             'default_status' => DefaultStatus::Draft,
             'is_active' => true,
         ];

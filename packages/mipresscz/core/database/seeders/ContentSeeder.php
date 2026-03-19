@@ -189,7 +189,6 @@ class ContentSeeder extends Seeder
             'sort_field' => 'published_at',
             'sort_direction' => 'desc',
             'date_behavior' => DateBehavior::Required,
-            'revisions_enabled' => true,
             'default_status' => DefaultStatus::Draft,
             'icon' => 'fal-newspaper',
             'is_active' => true,

@@ -12,7 +12,6 @@ use MiPressCz\Core\Filament\Resources\Entries\Pages\CreateEntry;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\EditEntry;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\EditEntrySeo;
 use MiPressCz\Core\Filament\Resources\Entries\Pages\ListEntries;
-use MiPressCz\Core\Filament\Resources\Entries\Pages\ManageEntryRevisions;
 use MiPressCz\Core\Models\Blueprint;
 use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Entry;
@@ -129,9 +128,7 @@ it('can save seo fields on the seo page', function () {
     expect($entry->fresh()->meta_description)->toBe('SEO test description for search engines.');
 });
 
-it('renders manage revisions page when revisions are enabled', function () {
-    $this->collection->update(['revisions_enabled' => true]);
-
+it('saves seo changes directly for published entries', function () {
     $entry = Entry::factory()->create([
         'collection_id' => $this->collection->id,
         'blueprint_id' => $this->blueprint->id,
@@ -139,31 +136,19 @@ it('renders manage revisions page when revisions are enabled', function () {
         'status' => EntryStatus::Published,
         'published_at' => now(),
         'author_id' => $this->admin->id,
+        'meta_title' => 'Live SEO title',
     ]);
 
-    Livewire::test(ManageEntryRevisions::class, ['record' => $entry->id])
-        ->assertOk();
-});
+    Livewire::test(EditEntrySeo::class, ['record' => $entry->id])
+        ->fillForm([
+            'meta_title' => 'Working SEO title',
+            'meta_description' => 'Working SEO description',
+        ])
+        ->callAction('save')
+        ->assertHasNoFormErrors();
 
-it('lists revisions in the manage revisions page', function () {
-    $this->collection->update(['revisions_enabled' => true]);
-
-    $entry = Entry::factory()->create([
-        'collection_id' => $this->collection->id,
-        'blueprint_id' => $this->blueprint->id,
-        'locale' => 'cs',
-        'status' => EntryStatus::Published,
-        'published_at' => now(),
-        'author_id' => $this->admin->id,
-        'title' => 'Original title',
-    ]);
-
-    $entry->update(['title' => 'Updated title']);
-
-    Livewire::test(ManageEntryRevisions::class, ['record' => $entry->id])
-        ->assertOk()
-        ->call('loadTable')
-        ->assertCanSeeTableRecords($entry->fresh()->revisions()->latest('created_at')->get());
+    expect($entry->fresh()->meta_title)->toBe('Working SEO title')
+        ->and($entry->fresh()->meta_description)->toBe('Working SEO description');
 });
 
 // ── Table filters ──────────────────────────────────────────────────────────
@@ -764,6 +749,63 @@ it('can render the entry edit page', function () {
 
     Livewire::test(EditEntry::class, ['record' => $entry->getKey()])
         ->assertOk();
+});
+
+it('shows draft workflow actions on the edit page for draft entries', function () {
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Draft,
+        'author_id' => $this->admin->id,
+    ]);
+
+    Livewire::test(EditEntry::class, ['record' => $entry->getKey()])
+        ->assertActionVisible('publish')
+        ->assertActionVisible('save')
+        ->assertActionDoesNotExist('edit_published_version')
+        ->assertActionDoesNotExist('publish_changes')
+        ->assertActionDoesNotExist('discard_changes')
+        ->assertActionDoesNotExist('unpublish');
+});
+
+it('shows direct save workflow actions for published entries', function () {
+
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'status' => EntryStatus::Published,
+        'published_at' => now(),
+        'author_id' => $this->admin->id,
+    ]);
+
+    Livewire::test(EditEntry::class, ['record' => $entry->getKey()])
+        ->assertActionVisible('save')
+        ->assertActionVisible('unpublish')
+        ->assertActionDoesNotExist('publish')
+        ->assertActionDoesNotExist('publish_changes')
+        ->assertActionDoesNotExist('edit_published_version')
+        ->assertActionDoesNotExist('discard_changes');
+});
+
+it('can update a published entry directly from edit page', function () {
+    $entry = Entry::factory()->create([
+        'collection_id' => $this->collection->id,
+        'blueprint_id' => $this->blueprint->id,
+        'locale' => 'cs',
+        'title' => 'Původní název',
+        'status' => EntryStatus::Published,
+        'published_at' => now(),
+        'author_id' => $this->admin->id,
+    ]);
+
+    Livewire::test(EditEntry::class, ['record' => $entry->getKey()])
+        ->fillForm(['title' => 'Aktualizovaný název'])
+        ->callAction('save')
+        ->assertHasNoFormErrors();
+
+    expect($entry->fresh()->title)->toBe('Aktualizovaný název');
 });
 
 it('can update an entry title', function () {

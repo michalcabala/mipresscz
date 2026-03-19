@@ -13,7 +13,7 @@ beforeEach(function () {
     Locale::factory()->create(['code' => 'cs', 'is_default' => true, 'is_active' => true]);
     Locale::factory()->create(['code' => 'en', 'is_default' => false, 'is_active' => true]);
 
-    $this->collection = Collection::factory()->create(['revisions_enabled' => false]);
+    $this->collection = Collection::factory()->create();
     $this->blueprint = Blueprint::factory()->create(['collection_id' => $this->collection->id]);
 });
 

@@ -13,7 +13,6 @@ use MiPressCz\Core\Models\Collection;
 use MiPressCz\Core\Models\Locale;
 use MiPressCz\Core\Models\Taxonomy;
 use MiPressCz\Core\Models\Term;
-use ReflectionMethod;
 
 beforeEach(function () {
     app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
@@ -144,7 +143,7 @@ it('registers taxonomy navigation under its assigned collection', function () {
     $this->collection->taxonomies()->attach($taxonomy);
 
     $provider = new AdminPanelProvider(app());
-    $method = new ReflectionMethod($provider, 'getTaxonomyNavigationItems');
+    $method = new \ReflectionMethod($provider, 'getTaxonomyNavigationItems');
     $method->setAccessible(true);
 
     $navigationItems = $method->invoke($provider);

@@ -26,7 +26,6 @@ class Collection extends Model
         'sort_field',
         'sort_direction',
         'date_behavior',
-        'revisions_enabled',
         'default_status',
         'icon',
         'is_active',
@@ -38,7 +37,6 @@ class Collection extends Model
     {
         return [
             'is_tree' => 'boolean',
-            'revisions_enabled' => 'boolean',
             'is_active' => 'boolean',
             'date_behavior' => DateBehavior::class,
             'default_status' => DefaultStatus::class,

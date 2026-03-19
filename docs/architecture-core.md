@@ -27,7 +27,7 @@ mipresscz/
 │       ├── Filament/          # Resources, Pages, Schemas, Tables
 │       ├── Http/Controllers/  # EntryController
 │       ├── Models/            # Collection, Blueprint, Entry, Taxonomy, Term,
-│       │                      #   Revision, GlobalSet, Locale
+│       │                      #   GlobalSet, Locale
 │       ├── Observers/         # EntryObserver
 │       ├── Policies/          # content policies (incl. TermPolicy)
 │       ├── Providers/         # MiPressCzAdminPanelProvider
@@ -51,7 +51,7 @@ mipresscz/
 | Content modely (Entry, Collection, Blueprint…) | `User` model (auth) |
 | Locale, LocaleService, SetFrontendLocale | Brand assets, logo, favicon |
 | Enums pro obsah a workflow | AuthDesigner customizace |
-| EntryObserver, revize | App-specific Filament customizace |
+| EntryObserver | App-specific Filament customizace |
 | Content policies | Custom Mason bricks |
 | Filament resources (Collections, Entries…) | Web-specific pages/resource override |
 | EntryController, frontend routing | Custom middleware |
@@ -59,7 +59,7 @@ mipresscz/
 | Seedery, factories, migrace | — |
 | Lang `cs`/`en`, shared views | — |
 
-**Pravidlo:** pokud logika slouží obsahu (content workflow, routing, locale, revize), patří do core. Pokud slouží konkrétní aplikaci (branding, auth, custom bricks), patří do `app/`.
+**Pravidlo:** pokud logika slouží obsahu (content workflow, routing, locale), patří do core. Pokud slouží konkrétní aplikaci (branding, auth, custom bricks), patří do `app/`.
 
 ---
 
@@ -84,7 +84,6 @@ Collection 1──* Blueprint 1──* Entry
 Collection 1──* Entry (přímá FK)
 Entry *──* Entry               (entry_relationships — related entries)
 Entry *──* Term                (termables — polymorfní pivot)
-Entry 1──* Revision
 Entry *──1 User               (author_id)
 Entry 1──* Entry               (origin_id — locale překlady)
 GlobalSet 1──* GlobalSet       (origin_id — locale překlady)
